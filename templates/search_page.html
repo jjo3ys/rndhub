@@ -1,0 +1,28 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+Home Page
+{% endblock%}
+
+
+{% block script%}
+ 
+{% endblock %} 
+
+
+
+{% block content%}
+<div class="jumbotron">
+    <h1 class="display-4">검색창에 오신걸 환영합니다</h1>
+    <p class="lead">인천대 교수진들이 작성한 논문들과 특허, 프로젝트 들을 검색을 통한 확인이 가능하며, 유익한 결과를 얻을 수 있었으면 감사하겠습니다.
+    </p>
+    
+    <hr class="my-4">
+    <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
+    <form class="form-inline" action = "/search_page" method="POST">
+        <input class="form-control mr-sm-2" type="text" placeholder="Search the word" name="search_word">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+</div>
+{% endblock %}

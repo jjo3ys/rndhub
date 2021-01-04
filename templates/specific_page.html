@@ -1,0 +1,100 @@
+{% block css %}
+<link rel="stylesheet" href=" {{ url_for('static', filename='styles/specific_page.css') }}">
+{% endblock%}
+
+{% extends "base.html" %}
+
+{% block title %}
+Specific Page
+{% endblock%}
+
+{% block script%}
+<script>
+    let jsonObj = JSON.parse({{str_data|tojson}})
+    let jsonObj_recommend = {{str_recommend_results|tojson}}
+</script>
+<script src="{{url_for('static', filename = 'js/draw_specific.js')}}">
+</script>
+{% endblock %} 
+
+{% block content%}
+<!-- BEM(css작명 규칙)
+__ : 하위 요소임을 알려주는 작명
+
+-- : 상태를 의미하는 작명 
+-->
+
+
+
+<!-- RESULT MAIN -->
+<section class="main">
+    <!-- RESULT MAIN info SECTION -->
+    <section class="main__info">
+        <div class="card" >
+            
+            <table class="table table-borderless" id="my_table">
+                    <div id="title">
+
+                    </div>
+                
+                  <tbody>
+
+                   
+              </table>
+        </div>
+    </section>
+
+
+    <!-- RESULT MAIN CARD SECTION -->
+    <section class="main__results">
+        <div id="cards">
+            <div class="my_card">
+                <!-- <div class="card">
+                <div class="card-header">
+                Featured
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Special title treatment</h5>
+                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                </div> -->
+            </div>
+        </div>
+
+    </section>
+    
+
+</section>
+
+
+
+<!-- SIDE_BAR -->
+<section class="sidebar--right">
+    <div  class="sidebar--container">
+        <h5>관련 연구 검색 결과</h5>
+
+        <div class="sidebar">
+            
+            <br>
+
+            <div class="my--recommend">
+                <ul class="list-group list-group-flush recommend_data_name">
+                   
+                    
+                  </ul>
+                  <br>
+    
+                  <!-- <ul class="list-group list-group-flush recommend_data_researcher">
+                    <p class="title">관련 연구 교수</p>
+
+                  </ul> -->
+            </div>
+            
+        </div>  
+    </div>
+</section>
+
+
+
+
+{% endblock %}
