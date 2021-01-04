@@ -107,4 +107,7 @@ def ajax():
         
 
 if __name__ == "__main__":
-    app.run(use_reloader=False, debug=True)
+    app.run(host='192.168.0.74', port='8800', threaded=True,debug=True)
+
+    # 깃헙 로드 확인과정임다
+    # app.run(use_reloader=False, debug=True)
