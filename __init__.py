@@ -112,3 +112,4 @@ if __name__ == "__main__":
     # 깃헙 로드 확인과정임다
     # 깃헙 로드 2번째 확인과정임다
     # app.run(use_reloader=False, debug=True)
+    # 연결 확인(ys)
