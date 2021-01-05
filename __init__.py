@@ -107,9 +107,9 @@ def ajax():
         
 
 if __name__ == "__main__":
-    #app.run(host='192.168.0.74', port='8800', threaded=True,debug=True)
+    app.run(host='192.168.0.74', port='8800', threaded=True,debug=True) #라즈베리파이용
 
     # 깃헙 로드 확인과정임다
     # 깃헙 로드 2번째 확인과정임다
-    app.run(use_reloader=False, debug=True)
+    #app.run(use_reloader=False, debug=True) #local 용
     # 연결 확인(ys)
