@@ -23,4 +23,33 @@ class Recommand():
                 result_dict = {'data_name':r['data_name'], 'researcher_name':r['researcher_name'], 'idx':r['idx']}
                 search_results['results'].append(result_dict)          
         ix.close()
+
         return search_results
+
+        
+    def keyword_extrac_index(self, input_idx): #idx로 해당 문서를 읽게하고 그 문서의 키워드를 indexing
+
+        with ix.searcher() as s:
+            docnums = s.document_numbers(idx=input_idx)
+            keywords = [keyword for keyword, score in s.key_terms(docnums, "data_name", numterms=7)]
+        print(keywords)
+        ix.close()
+
+
+
+    def more_like_idx(self, input_idx):
+
+        with ix.searcher() as s:
+            docnum = s.document_number(idx=input_idx)
+
+
+            r = s.more_like(docnum, 'data_name')
+
+            print("Documents like", s.stored_fields(docnum)["data_name"])
+            for hit in r:
+                print('=' * 100)
+                print(hit["data_name"])
+
+        ix.close()
+
+        
