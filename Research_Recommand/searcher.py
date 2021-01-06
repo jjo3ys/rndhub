@@ -111,5 +111,4 @@ class Recommend():
                                }
                 search_results['results'].append(result_dict) 
         ix.close()
-
         return search_results
