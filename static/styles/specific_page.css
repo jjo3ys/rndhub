@@ -35,6 +35,12 @@ section .main__info {
 
 #my_table th{
     padding-left: 30px;
+    color: #928a97;
+}
+
+#my_table td{
+    font-size: 15px;
+    font-weight: 600;
 }
 
 #my_table h5 {

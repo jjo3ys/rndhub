@@ -10,8 +10,8 @@
 
 /* CONTAINER SET */
 .my-container .sidebar--left {
-    margin-top: 70px;
-    padding: 1.3rem 2vw 0 6vw;
+    margin-top: 6vh;
+    padding: 40px 2vw 0 30px;
     float: left;
     width: 25%;
     height: 800px;
@@ -19,7 +19,7 @@
 
 .my-container .main {
     float: left;
-    width: 60%;
+    width: 50%;
     height: 500px;
     /* padding: 0 5vh 0 2vw; */
 }
@@ -80,7 +80,7 @@
 /* MAIN CONTAINER SET */
 /* MAIN INFO SET */
 .main {
-    box-sizing: content-box;
+
 }
 .my-container .main .info__container{
     padding: 20px;
@@ -92,6 +92,7 @@
 .main .main--info .info__container {
     display: flex;
     align-items: flex-end;
+    height: 6vh;
 }
 .main .main--info .info__container h1 {
     margin: 0;
@@ -155,6 +156,23 @@
     display: inline;
     padding-right: 1.5vw;
 }
+
+.my_card .detail--row {
+    display: flex;
+}
+
+.my_card .detail--row .detail--title {
+    color: #928a97;
+    margin-right: 2rem;
+    width: 15%;
+}
+
+.my_card .detail--row .detail--value {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
 
 .main .my_page_num {
     padding-bottom: 30px;
