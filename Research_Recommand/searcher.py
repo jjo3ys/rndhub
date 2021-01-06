@@ -99,10 +99,10 @@ class Recommend():
         with ix.searcher() as s:
             docnum = s.document_number(idx=input_idx)
             r = s.more_like(docnum, 'data_name')
-            print(r)
+            #print(r)
             #print("Documents like", s.stored_fields(docnum)["data_name"])
             for hit in r:
-                print(hit)
+                #print(hit)
                 if hit['researcher_name'] == None:
                     hit['researcher_name'] = ""
                 result_dict = {'data_name':hit['data_name'],
