@@ -4,8 +4,9 @@ from whoosh.index import open_dir
 from whoosh.qparser import MultifieldParser
 from whoosh.query import Term, Or
 
-indexdir = os.path.dirname("C:\\flask_template\\flask_template\\Research_Recommand\\db_to_index\\pip.exe")
-ix = open_dir(indexdir)
+#indexdir = os.path.dirname("C:\\flask_template\\flask_template\\Research_Recommand\\db_to_index\\pip.exe")
+#ix = open_dir(indexdir)
+ix = open_dir('db_to_index_duplicate')
 sche_info =['data_name', 'abstracts', 'part', 'researcher_fields']
 
 class Recommand():
