@@ -16,15 +16,16 @@ class Recommand():
         search_results['results'] = []
             
         with ix.searcher() as searcher:            
-            restrict = query.Term('data_name', data_name)
+            #restrict = query.Term('data_name', data_name)
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(data_name)
-            results = searcher.search(uquery, mask = restrict, limit = 5)
+            results = searcher.search(uquery, limit = 6)
         
             for r in results:   
                 result_dict = {'data_name':r['data_name'], 'researcher_name':r['researcher_name'], 'idx':r['idx']}
-                search_results['results'].append(result_dict)          
+                search_results['results'].append(result_dict) 
+        del search_results['results'][0]         
         ix.close()
-
+        
         return search_results
 
         
