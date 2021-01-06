@@ -13,7 +13,7 @@ window.addEventListener('scroll', () => {
     const {  scrollHeight, clientHeight } = document.documentElement;
     let scrollTop = this.scrollY;
 
-    console.log({scrollY, scrollHeight, clientHeight})
+
     if(clientHeight + scrollTop >= scrollHeight ){
 
         //loading animation 실행

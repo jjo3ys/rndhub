@@ -58,7 +58,7 @@ def specific_result(idx):
         spec_data_name = spec_data['results'][0]['data_name']
 
 
-        recommend_results =  engine_recommend.recommend(spec_data_name)
+        recommend_results =  engine_recommend.more_like_idx(idx)
 
 
         data = json.dumps(spec_data)
