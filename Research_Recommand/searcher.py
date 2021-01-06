@@ -88,5 +88,28 @@ class Recommend():
                                }
                 search_results['results'].append(result_dict)          
         ix.close()
-        
+
+        return search_results
+
+    
+    def more_like_idx(self, input_idx):
+        search_results = {}
+        search_results['results'] = []
+
+        with ix.searcher() as s:
+            docnum = s.document_number(idx=input_idx)
+            r = s.more_like(docnum, 'data_name', top = 5)
+            #print(r)
+            #print("Documents like", s.stored_fields(docnum)["data_name"])
+            for hit in r:
+                #print(hit)
+                if hit['researcher_name'] == None:
+                    hit['researcher_name'] = ""
+                result_dict = {'data_name':hit['data_name'],
+                               'researcher_name':hit['researcher_name'],
+                               'idx':hit['idx']
+                               }
+                search_results['results'].append(result_dict) 
+        ix.close()
+
         return search_results
