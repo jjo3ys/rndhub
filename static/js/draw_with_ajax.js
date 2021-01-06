@@ -13,9 +13,9 @@ window.addEventListener('scroll', () => {
     const {  scrollHeight, clientHeight } = document.documentElement;
     let scrollTop = this.scrollY;
 
-    if(clientHeight + scrollTop >= scrollHeight + 5){
+    console.log({scrollY, scrollHeight, clientHeight})
+    if(clientHeight + scrollTop >= scrollHeight ){
 
-        
         //loading animation 실행
         showLoading();
     }
@@ -24,7 +24,7 @@ window.addEventListener('scroll', () => {
 function showLoading(){
     loading.classList.add('show');
 
-    setTimeout(addDataToDom, 1000, data);
+    setTimeout(addDataToDom, 1500, data);
 }
 
 // async function getCard() {
