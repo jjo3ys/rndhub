@@ -8,8 +8,9 @@ from whoosh.analysis import NgramAnalyzer
 from whoosh import scoring
 from whoosh.query import Term, Or
 
-# indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
-ix = open_dir('db_to_index_duplicate')
+indexdir = os.path.dirname("db_to_index_duplicate\\pip.exe")
+ix = open_dir(indexdir)
+#ix = open_dir('db_to_index_duplicate')
 
 sche_info = ['data_name', 'abstracts', 'part', 'researcher_name', 'researcher_fields']
 
@@ -77,15 +78,38 @@ class Recommend():
         search_results['results'] = []
             
         with ix.searcher() as searcher:            
-            restrict = query.Term('data_name', data_name)
+            #restrict = query.Term('data_name', data_name)
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(data_name)
-            results = searcher.search(uquery, mask = restrict, limit = 5)
+            results = searcher.search(uquery, limit = 6)
         
             for r in results:   
                 result_dict = {'data_name':r['data_name'],
                                'researcher_name':r['researcher_name'], 
                                'idx':r['idx']
                                }
-                search_results['results'].append(result_dict)          
+                search_results['results'].append(result_dict)    
+        del search_results['results'][0] 
+
+        return search_results
+
+    def more_like_idx(self, input_idx):
+        search_results = {}
+        search_results['results'] = []
+
+        with ix.searcher() as s:
+            docnum = s.document_number(idx=input_idx)
+            r = s.more_like(docnum, 'data_name')
+            print(r)
+            #print("Documents like", s.stored_fields(docnum)["data_name"])
+            for hit in r:
+                print(hit)
+                if hit['researcher_name'] == None:
+                    hit['researcher_name'] = ""
+                result_dict = {'data_name':hit['data_name'],
+                               'researcher_name':hit['researcher_name'],
+                               'idx':hit['idx']
+                               }
+                search_results['results'].append(result_dict) 
         ix.close()
+
         return search_results
