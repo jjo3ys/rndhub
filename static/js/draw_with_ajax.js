@@ -24,7 +24,7 @@ window.addEventListener('scroll', () => {
 function showLoading(){
     loading.classList.add('show');
 
-    setTimeout(addDataToDom, 1500, data);
+    setTimeout(addDataToDom, 1300, data);
 }
 
 // async function getCard() {

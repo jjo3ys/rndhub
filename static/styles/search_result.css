@@ -36,12 +36,19 @@
     box-sizing: border-box;
 
     padding: 20px 0;
+}
+
+.sidebar--left .my_sidebar_card{
+    margin-bottom: 4vh;
+    
+}
+
 
     /* border: 2px solid #e2e2e2; */
     /* margin: 10 10 10 10;
     margin-left: 50px; */
 
-}
+/* }
 .sidebar--left .sidebar .big_title{
     font-weight: bold;
     font-size: 18px;
@@ -75,7 +82,7 @@
     background-color: #e2e2e2;
     width:95%;
 }
-
+ */
 
 /* MAIN CONTAINER SET */
 /* MAIN INFO SET */
@@ -167,7 +174,7 @@
 
 .my_card .detail--row .detail--title {
     color: #928a97;
-    margin-right: 2rem;
+    margin-right: .3rem;
     width: 15%;
 }
 

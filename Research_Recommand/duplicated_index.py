@@ -53,11 +53,11 @@ def indexing(duplicate_list):
         os.makedirs(indexdir)
 
     schema = Schema(idx = ID(stored = True),
-                    data_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True),
-                    abstracts = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True),
-                    part = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor = True),
+                    data_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost=2.0),
+                    abstracts = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost=1.5),
+                    part = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor = True, field_boost=1.1),
                     researcher_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor = True),
-                    researcher_fields = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor = True))
+                    researcher_fields = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor = True, field_boost=1.6))
 
     ix = create_in(indexdir, schema)
     wr = ix.writer()
