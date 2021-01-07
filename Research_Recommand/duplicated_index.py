@@ -12,11 +12,11 @@ from whoosh.index import create_in
 from whoosh.fields import*
 
 
-conn = pymysql.connect(host = "internal.moberan.com", user = "rnd1", password = "rndlab2018!", db = "rnd_lab", charset = "utf8")
+conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
 curs = conn.cursor()
 
 def duplicate():
-    curs.execute('Select idx, data_name from vw_data')
+    curs.execute('Select idx, title from tbl_data')
     rows = curs.fetchall()
     name_list = list()
     idx_list = list()
@@ -27,10 +27,10 @@ def duplicate():
 
     duplicate_list = idx_list
 
-    df = pd.DataFrame({'data_name':name_list}, index = idx_list)
+    df = pd.DataFrame({'title':name_list}, index = idx_list)
 
     count_vec = CountVectorizer()
-    matrix = count_vec.fit_transform(df['data_name'])
+    matrix = count_vec.fit_transform(df['title'])
 
     cos_sim = cosine_similarity(matrix, matrix)
 
@@ -55,25 +55,31 @@ def indexing(duplicate_list):
     schema = Schema(idx = ID(stored = True),
                     data_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 2.0),
                     abstracts = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.5),
-                    part = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor = True, field_boost= 1.1),
-                    researcher_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor = True),
-                    researcher_fields = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor = True, field_boost= 1.2),
+                    researcher_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True),
+                    part = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.1),
+                    researcher_field = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.2),
+                    resercher_idx = ID(stored = True),   
+                    data_type_code = ID(stored = True),             
                     name_for_extr = TEXT(stored=True))
 
     ix = create_in(indexdir, schema)
     wr = ix.writer()
 
     for idx in duplicate_list:
-        curs.execute("Select data_name, abstracts, part, researcher_name, researcher_fields from vw_data where idx =%s", idx)
+        curs.execute("Select title, content, resercher_idx, data_type_code from tbl_data where idx =%s", idx)
         rows = curs.fetchall()
 
         for row in rows:
+            curs.execute("Select name, department, research_field from tbl_researcher_data where idx = %s", row[2])
+            researcher_data = curs.fetchall()           
             wr.add_document(idx = str(idx),
                             data_name = row[0],
                             abstracts = row[1],
-                            part = row[2],
-                            researcher_name = row[3],
-                            researcher_fields = row[4],
+                            researcher_name = researcher_data[0][0],
+                            part = researcher_data[0][1],
+                            researcher_field = researcher_data[0][2],
+                            resercher_idx = str(row[2]),
+                            data_type_code = str(row[3]),
                             name_for_extr = row[0])
     wr.commit()
 duplicate_list = duplicate()
