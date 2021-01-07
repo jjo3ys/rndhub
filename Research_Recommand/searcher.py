@@ -8,11 +8,9 @@ from whoosh.analysis import NgramAnalyzer
 from whoosh import scoring
 from whoosh.query import Term, Or
 
-indexdir = os.path.dirname("db_to_index_duplicate\\pip.exe")
-ix = open_dir(indexdir)
-#ix = open_dir('db_to_index_duplicate')
-
-sche_info = ['data_name', 'abstracts', 'part', 'researcher_name', 'researcher_fields']
+# indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
+ix = open_dir('db_to_index_duplicate')
+sche_info = ['data_name', 'abstracts', 'part', 'researcher_name', 'researcher_field']
 
 class Search_engine():
     def searching_f(self, search_word):
@@ -28,7 +26,6 @@ class Search_engine():
                 query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(search_word)
                 results = searcher.search(query, limit = None)
                 for r in results:
-                        
                     result_dict = dict(r)
                     search_results['results'].append(result_dict)
                     
@@ -40,76 +37,75 @@ class Search_engine():
    
 class Seaching_idx():
     def searching_idx(self, idx):
-        conn = pymysql.connect(host = "internal.moberan.com", user = "rnd1", password = "rndlab2018!", db = "rnd_lab", charset = "utf8")
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
-
-        curs.execute("Select data_name, researcher_name, abstracts, date, country, publisher, patent_type, patent_num, journal, detailed, researcher_email, part from vw_data where idx = %s", idx)
+        curs.execute("Select title, content, resercher_idx, data_type_code from tbl_data where idx = %s", idx)
         rows = curs.fetchall()
         detail_list = {}
         detail_list['results'] = []
         
         
         for row in rows:
+            curs.execute("Select name, school, department, email, research_field, homepage from tbl_researcher_data where idx = %s", row[2])
+            researcher_data = curs.fetchall()
+            curs.execute("Select type_name from tbl_data_type_code where type_code = %s", row[3])
+            data_type = curs.fetchall()            
+
             detail_dict = {'data_name':row[0], 
-                           'researcher_name':row[1], 
-                           'abstracts':row[2], 
-                           'date':row[3],
-                           'country':row[4], 
-                           'publisher':row[5], 
-                           'patent_type':row[6], 
-                           'patent_num':row[7], 
-                           'journal':row[8], 
-                           'journal_detailed':row[9], 
-                           'researcher_email':row[10],
-                           'part':row[11]
+                           'abstracts':row[1],                            
+                           'researcher_name':researcher_data[0][0],                       
+                           'part':researcher_data[0][2], 
+                           'researcher_email':researcher_data[0][3], 
+                           'research_field':researcher_data[0][4], 
+                           'homepage':researcher_data[0][5], 
+                           'school':researcher_data[0][1],
+                           'type':data_type[0][0]
                            }
 
             detail_list['results'].append(detail_dict)   
 
         conn.close()
-
         return detail_list
         
 class Recommend():
-    def recommend(self, data_name):       
-           
+    def recommend(self, data_name):   
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()   
+
         search_results = {}
         search_results['results'] = []
             
         with ix.searcher() as searcher:            
-            #restrict = query.Term('data_name', data_name)
+            restrict = query.Term('title', data_name)
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(data_name)
-            results = searcher.search(uquery, limit = 6)
+            results = searcher.search(uquery, mask = restrict, limit = 5)
         
-            for r in results:   
-                result_dict = {'data_name':r['data_name'],
-                               'researcher_name':r['researcher_name'], 
+            for r in results: 
+                curs.execute("Select name from tbl_researcher_data where idx = %s", r['resercher_idx'])
+                name = curs.fetchall()
+                conn.close()
+                result_dict = {'title':r['title'],
+                               'name':name[0][0], 
                                'idx':r['idx']
                                }
-                search_results['results'].append(result_dict)    
-        del search_results['results'][0] 
+                search_results['results'].append(result_dict)          
+        ix.close()
 
         return search_results
 
+    
     def more_like_idx(self, input_idx):
         search_results = {}
         search_results['results'] = []
 
         with ix.searcher() as s:
             docnum = s.document_number(idx=input_idx)
-            r = s.more_like(docnum, 'data_name', top = 5)
-            #print(r)
-            #print("Documents like", s.stored_fields(docnum)["data_name"])
-            for hit in r:
-                #print(hit)
-                if hit['researcher_name'] == None:
-                    hit['researcher_name'] = ""
-                result_dict = {'data_name':hit['data_name'],
-                               'researcher_name':hit['researcher_name'],
-                               'idx':hit['idx']
-                               }
-                search_results['results'].append(result_dict) 
-        ix.close()
+            r = s.more_like(docnum, 'name_for_extr', top = 5)
 
+            for hit in r:
+                result_dict = {'data_name':hit['data_name'], 'idx':hit['idx']}
+                search_results['results'].append(result_dict) 
+
+        ix.close()
         return search_results
