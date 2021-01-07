@@ -93,13 +93,49 @@ window.onload = () => {
             abstract.className = 'abstract-text'
             abstract.innerHTML =  `${data['abstracts']}`
 
-            let p_part = document.createElement('p')
-            p_part.className = 'card-text'
-            p_part.innerHTML =  `${data['part']}`
+            let detail = document.createElement('div')
+        detail.className = 'detail--container'
 
-            let p_name = document.createElement('p')
-            p_name.className = 'card-text'
-            p_name.innerHTML =  `${data['researcher_name']}`
+
+
+        let detail_row1 = document.createElement('div')
+        detail_row1.className = 'detail--row'
+
+        let detail_title_name = document.createElement('div')
+        detail_title_name.className = 'detail--title'
+        detail_title_name.innerHTML = 'Publisher:'
+
+        let p_name = document.createElement('div')
+        p_name.className = 'detail--value'
+        p_name.innerHTML = `${data["researcher_name"]}`
+
+
+        detail_row1.appendChild(detail_title_name)
+        detail_row1.appendChild(p_name)
+
+        
+
+        let detail_row2 = document.createElement('div')
+        detail_row2.className = 'detail--row'
+
+        let detail_title_part = document.createElement('div')
+        detail_title_part.className = 'detail--title'
+        detail_title_part.innerHTML = 'Major part:    '
+
+        let p_part = document.createElement('div')
+        p_part.className = 'detail--value'
+        p_part.innerHTML = `${data["part"]}`
+
+
+        detail_row2.appendChild(detail_title_part)
+        detail_row2.appendChild(p_part)
+
+
+        detail.appendChild(detail_row1)
+        detail.appendChild(detail_row2)
+
+ 
+
 
             let a = document.createElement('a')
             a.className = 'btn btn-primary'
@@ -107,8 +143,7 @@ window.onload = () => {
 
             // card_body.appendChild(h5);
             card_body.appendChild(abstract);
-            card_body.appendChild(p_part);
-            card_body.appendChild(p_name);
+            card_body.appendChild(detail);
             card_body.appendChild(a);
 
             card.appendChild(card_body);
