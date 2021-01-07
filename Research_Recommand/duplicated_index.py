@@ -53,11 +53,12 @@ def indexing(duplicate_list):
         os.makedirs(indexdir)
 
     schema = Schema(idx = ID(stored = True),
-                    data_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True),
-                    abstracts = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True),
-                    part = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor = True),
+                    data_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 2.0),
+                    abstracts = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.5),
+                    part = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor = True, field_boost= 1.1),
                     researcher_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor = True),
-                    researcher_fields = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor = True))
+                    researcher_fields = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor = True, field_boost= 1.2),
+                    name_for_extr = TEXT(stored=True))
 
     ix = create_in(indexdir, schema)
     wr = ix.writer()
@@ -72,7 +73,8 @@ def indexing(duplicate_list):
                             abstracts = row[1],
                             part = row[2],
                             researcher_name = row[3],
-                            researcher_fields = row[4])
+                            researcher_fields = row[4],
+                            name_for_extr = row[0])
     wr.commit()
 duplicate_list = duplicate()
 indexing(duplicate_list)
