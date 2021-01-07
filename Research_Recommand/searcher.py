@@ -103,8 +103,6 @@ class Recommend():
             #print("Documents like", s.stored_fields(docnum)["data_name"])
             for hit in r:
                 #print(hit)
-                if hit['researcher_name'] == None:
-                    hit['researcher_name'] = ""
                 result_dict = {'data_name':hit['data_name'],
                                'researcher_name':hit['researcher_name'],
                                'idx':hit['idx']
