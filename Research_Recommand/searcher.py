@@ -98,7 +98,7 @@ class Recommend():
 
         with ix.searcher() as s:
             docnum = s.document_number(idx=input_idx)
-            r = s.more_like(docnum, 'data_name', top = 5)
+            r = s.more_like(docnum, 'name_for_extr', top = 5)
             #print(r)
             #print("Documents like", s.stored_fields(docnum)["data_name"])
             for hit in r:
@@ -111,3 +111,7 @@ class Recommend():
         ix.close()
 
         return search_results
+#i = input(":")
+#r =Recommend()
+#print(r.more_like_idx(i))
+#
