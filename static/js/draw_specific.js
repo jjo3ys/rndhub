@@ -89,7 +89,7 @@ window.onload = () => {
             // h5.className = 'card-title'
             // h5.innerHTML =  `${data['data_name']}`
 
-            let abstract = document.createElement('p')
+            let abstract = document.createElement('pre')
             abstract.className = 'abstract-text'
             abstract.innerHTML =  `${data['abstracts']}`
 
