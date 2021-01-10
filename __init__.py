@@ -18,19 +18,20 @@ def home():
 #MAIN SEARCH PAGE
 @app.route("/search_page", methods=['POST', 'GET'])
 def search_page():
-    if request.method == 'POST':
-        word = request.form["search_word"]
+    # if request.method == 'POST':
+    #     word = request.form["search_word"]
 
-        return redirect(url_for("search_result", input_word = word))
-    else:
+    #     return redirect(url_for("search_result", input_word = word))
+    # else:
         return render_template("main.html")
 
 #RESULT PAGE
-@app.route("/search_page/<input_word>", methods=['GET'])
-def search_result(input_word): 
+@app.route("/search_results_list", methods=['POST','GET'])
+def search_results_list(): 
     engine = Search_engine()
 
-    if request.method == 'GET':
+    if request.method == 'POST':
+        input_word = request.form["search_word"]
         data_len = len(engine.searching_f(input_word)['results'])
 
         data = json.dumps(engine.searching_f(input_word))         
@@ -60,7 +61,6 @@ def specific_result(idx):
 
         recommend_results =  engine_recommend.more_like_idx(idx)
 
-
         data = json.dumps(spec_data)
         recommend_data = json.dumps(recommend_results)
 
@@ -83,7 +83,20 @@ def ajax():
 
     
 
-        
+
+
+#QUERY TEST
+#/test?a=3&b=4
+@app.route('/test', methods=['POST', 'GET'])
+def test():
+
+    if request.args:
+        args = request.args
+
+        print(args)
+        print(f'a: {args["a"]}, b: {args["b"]}')
+
+    return request.query_string
 
 if __name__ == "__main__":
     # app.run(host='192.168.0.74', port='8800', threaded=True,debug=True) #라즈베리파이용
