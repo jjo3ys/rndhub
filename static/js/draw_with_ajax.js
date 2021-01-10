@@ -132,8 +132,26 @@ function addDataToDom(data) {
         detail_row2.appendChild(p_part)
 
 
+
+        let detail_row3 = document.createElement('div')
+        detail_row3.className = 'detail--row'
+
+        let detail_title_field = document.createElement('div')
+        detail_title_field.className = 'detail--title'
+        detail_title_field.innerHTML = 'Reserch field:    '
+
+        let p_field = document.createElement('div')
+        p_field.className = 'detail--value'
+        p_field.innerHTML = `${data[i]["researcher_field"]}`
+
+
+        detail_row3.appendChild(detail_title_field)
+        detail_row3.appendChild(p_field)
+
+
         detail.appendChild(detail_row1)
         detail.appendChild(detail_row2)
+        detail.appendChild(detail_row3)
 
         h5.setAttribute('data-idx', `${data[i]['idx']}`)
         card_body.appendChild(a);
