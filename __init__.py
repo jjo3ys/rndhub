@@ -67,23 +67,6 @@ def specific_result(idx):
 
         return render_template("specific_page.html", str_data = data, str_recommend_results = recommend_results)
 
-@app.route("/ajax", methods=['POST'])
-def ajax():
-    if request.method == 'POST':
-    
-        req = request.get_json()
-
-        print(req)
-        input_word = req['data']
-
-
-        engine = Search_engine()
-        res_data = json.dumps(engine.searching_f(input_word))
-
-        return redirect(url_for("search_result", input_word = input_word))
-
-    
-
 
 
 #QUERY TEST
@@ -98,6 +81,21 @@ def test():
         print(f'a: {args["a"]}, b: {args["b"]}')
 
     return request.query_string
+
+
+#API FORM TEST
+@app.route('/test/result_list/<input_word>', methods=['POST','GET'])
+def result_list(input_word):
+
+
+
+@app.route('/test/detail/<idx>')
+def detail_idx(idcx):
+
+
+@app.route('/test/recommends/<company_idx>')
+def recommend_for_company(company_idx):
+    
 
 if __name__ == "__main__":
     # app.run(host='192.168.0.74', port='8800', threaded=True,debug=True) #라즈베리파이용
