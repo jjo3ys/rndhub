@@ -9,7 +9,7 @@ from whoosh import scoring
 from whoosh.query import Term, Or
 
 # indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
-ix = open_dir('db_to_index_duplicate')
+ix = open_dir('db_to_index_duplicated')
 sche_info = ['data_name', 'abstracts', 'part', 'researcher_name', 'researcher_field']
 
 class Search_engine():
