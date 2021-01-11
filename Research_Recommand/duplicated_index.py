@@ -23,17 +23,21 @@ def duplicate():
     for row in rows:
         detail = [row[0], row[1], row[2]]
         duplicate_list.append(row[0])  
-        data_list.append(detail)
-   
+        data_list.append(detail)   
+
+    data_list.sort(key = lambda x:x[2])
+
     for i in range(len(data_list)-1):        
         j = i+1
         while data_list[i][2] == data_list[j][2]:
             score = similar(data_list[i][1], data_list[j][1])           
             if score >= 0.97 and data_list[j][0] not in num_list:
                 num_list.append(data_list[j][0])
-
+            
             j += 1
-
+            if j > len(data_list)-1:
+                break
+            
     for i in num_list:
         duplicate_list.remove(i)
     
