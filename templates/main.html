@@ -6,6 +6,18 @@
 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/main_page_style.css') }}">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <!-- <script>
+      window.onload = () => {
+        
+        const req = new Request('http://127.0.0.1:5000/test');
+
+        const url = req.url;
+        const method = req.method;
+
+        fetch(req)
+        .then(response => console.log(response))
+      }
+    </script> -->
 </head>
   
 <body>
@@ -31,7 +43,7 @@
     <!-- FORM SEARCH -->  
     <!-- 검색창 수정 정보 입력란 -->
     <div class="form">  
-      <form action = "/search_results_list" method="POST">
+      <form action = "/search_page" method="POST">
         <label for="form-search"></label>
         <input type="text" id="form-search" placeholder="검색 또는 keyword 검색" type="text"name="search_word">
         <br>

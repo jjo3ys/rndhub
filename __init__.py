@@ -18,25 +18,26 @@ def home():
 #MAIN SEARCH PAGE
 @app.route("/search_page", methods=['POST', 'GET'])
 def search_page():
-    # if request.method == 'POST':
-    #     word = request.form["search_word"]
+    if request.method == 'POST':
+        word = request.form["search_word"]
 
-    #     return redirect(url_for("search_result", input_word = word))
-    # else:
+        return redirect(url_for("results_list", input_word = word))
+    else:
         return render_template("main.html")
 
 #RESULT PAGE
-@app.route("/search_results_list", methods=['POST','GET'])
-def search_results_list(): 
+@app.route("/results_list/<input_word>", methods=['POST','GET'])
+def results_list(input_word): 
     engine = Search_engine()
 
-    if request.method == 'POST':
-        input_word = request.form["search_word"]
-        data_len = len(engine.searching_f(input_word)['results'])
+    # if request.method == 'POST':
+        # input_word = request.form["search_word"]
+    data_len = len(engine.searching_f(input_word)['results'])
 
-        data = json.dumps(engine.searching_f(input_word))         
+    data = json.dumps(engine.searching_f(input_word))         
 
-        return render_template("search_result.html", input_word = input_word, str_data = data, data_len = data_len)
+    print(make_response(data))
+    return render_template("search_result.html", input_word = input_word, str_data = data, data_len = data_len)
     
 
 
