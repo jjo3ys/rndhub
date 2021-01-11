@@ -40,7 +40,7 @@ def duplicate():
     return duplicate_list
 
 def indexing(duplicate_list):
-    indexdir = 'db_to_index_duplicated'
+    indexdir = 'db_to_index_duplicate'
 
     if not os.path.exists(indexdir):
         os.makedirs(indexdir)
