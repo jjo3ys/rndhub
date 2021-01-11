@@ -33,17 +33,14 @@ def duplicate():
                 num_list.append(data_list[j][0])
 
             j += 1
- 
-    print("finish scoring")
-    print(num_list)
+
     for i in num_list:
         duplicate_list.remove(i)
-    print("finish dupliacting")
-
+    
     return duplicate_list
 
 def indexing(duplicate_list):
-    indexdir = 'practice'
+    indexdir = 'db_to_index_duplicated'
 
     if not os.path.exists(indexdir):
         os.makedirs(indexdir)
