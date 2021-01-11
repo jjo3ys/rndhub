@@ -1,53 +1,49 @@
 import pymysql
-import pandas as pd
-import numpy as np
-
-from ast import literal_eval
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
 import os
 
+from difflib import SequenceMatcher
 from whoosh.index import create_in
 from whoosh.fields import*
 
+def similar(a, b):
+    return SequenceMatcher(None, a, b).ratio()
 
 conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
 curs = conn.cursor()
 
 def duplicate():
-    curs.execute('Select idx, title from tbl_data')
-    rows = curs.fetchall()
-    name_list = list()
-    idx_list = list()
-
-    for row in rows:
-        idx_list.append(row[0])
-        name_list.append(row[1])
-
-    duplicate_list = idx_list
-
-    df = pd.DataFrame({'title':name_list}, index = idx_list)
-
-    count_vec = CountVectorizer()
-    matrix = count_vec.fit_transform(df['title'])
-
-    cos_sim = cosine_similarity(matrix, matrix)
 
     num_list = list()
+    data_list = list()
+    duplicate_list = list()
 
-    for i in range(len(idx_list)):   
-        for j in range(i+1, len(idx_list)):
-            if cos_sim[i][j] >= 0.79 and idx_list[j] not in num_list: 
-                num_list.append(idx_list[j])
-                   
+    curs.execute('Select idx, title, resercher_idx from tbl_data')
+    rows = curs.fetchall()
+
+    for row in rows:
+        detail = [row[0], row[1], row[2]]
+        duplicate_list.append(row[0])  
+        data_list.append(detail)
+   
+    for i in range(len(data_list)-1):        
+        j = i+1
+        while data_list[i][2] == data_list[j][2]:
+            score = similar(data_list[i][1], data_list[j][1])           
+            if score >= 0.97 and data_list[j][0] not in num_list:
+                num_list.append(data_list[j][0])
+
+            j += 1
+ 
+    print("finish scoring")
+    print(num_list)
     for i in num_list:
         duplicate_list.remove(i)
+    print("finish dupliacting")
 
-    return duplicate_list   
+    return duplicate_list
 
 def indexing(duplicate_list):
-    indexdir = 'db_to_index_duplicate'
+    indexdir = 'practice'
 
     if not os.path.exists(indexdir):
         os.makedirs(indexdir)
