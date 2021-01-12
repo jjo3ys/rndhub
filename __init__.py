@@ -83,19 +83,6 @@ def test():
     return request.query_string
 
 
-#API FORM TEST
-# @app.route('/test/result_list/<input_word>', methods=['POST','GET'])
-# def result_list(input_word):
-
-
-
-# @app.route('/test/detail/<idx>')
-# def detail_idx(idcx):
-
-
-# @app.route('/test/recommends/<company_idx>')
-# def recommend_for_company(company_idx):
-    
 
 if __name__ == "__main__":
     # app.run(host='192.168.0.74', port='8800', threaded=True,debug=True) #라즈베리파이용
