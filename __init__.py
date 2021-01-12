@@ -84,17 +84,17 @@ def test():
 
 
 #API FORM TEST
-@app.route('/test/result_list/<input_word>', methods=['POST','GET'])
-def result_list(input_word):
+# @app.route('/test/result_list/<input_word>', methods=['POST','GET'])
+# def result_list(input_word):
 
 
 
-@app.route('/test/detail/<idx>')
-def detail_idx(idcx):
+# @app.route('/test/detail/<idx>')
+# def detail_idx(idcx):
 
 
-@app.route('/test/recommends/<company_idx>')
-def recommend_for_company(company_idx):
+# @app.route('/test/recommends/<company_idx>')
+# def recommend_for_company(company_idx):
     
 
 if __name__ == "__main__":
