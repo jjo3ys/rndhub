@@ -8,6 +8,7 @@ from whoosh.analysis import NgramAnalyzer
 from whoosh import scoring
 from whoosh.query import Term, Or
 
+
 # indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
 ix = open_dir('db_to_index_duplicate')
 sche_info = ['data_name', 'abstracts', 'part', 'researcher_name', 'researcher_field']
@@ -24,7 +25,7 @@ class Search_engine():
 
             with ix.searcher(weighting = w) as searcher:          
                 query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(search_word)
-                results = searcher.search(query, limit = None)
+                results = searcher.search(query, limit = 5)
                 for r in results:
                     result_dict = dict(r)
                     search_results['results'].append(result_dict)
