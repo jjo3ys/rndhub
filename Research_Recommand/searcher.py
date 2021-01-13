@@ -1,12 +1,10 @@
 import os
-import json
 import pymysql
+
 from whoosh import qparser, query
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser, MultifieldParser
-from whoosh.analysis import NgramAnalyzer
 from whoosh import scoring
-from whoosh.query import Term, Or
 
 # indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
 ix = open_dir('db_to_index_duplicate')
@@ -16,20 +14,17 @@ class Search_engine():
     def searching_f(self, search_word):
         search_results = {}
         search_results['results'] = []
-        w = scoring.BM25F()#B = 0.75, K1 = 1.2
-        
-        with ix.searcher() as searcher:
-            search_results = {}
-            search_results['results'] = []
+        w = scoring.BM25F()#B = 0.75, K1 = 1.2  
+                  
+        with ix.searcher(weighting = w) as searcher:          
+            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(search_word)
+            results = searcher.search(query, limit = None)
 
-            with ix.searcher(weighting = w) as searcher:          
-                query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(search_word)
-                results = searcher.search(query, limit = None)
-                for r in results:
-                    result_dict = dict(r)
-                    search_results['results'].append(result_dict)
+            for r in results:
+                result_dict = dict(r)
+                search_results['results'].append(result_dict)
                     
-            ix.close()
+        ix.close()
 
         return search_results
         
@@ -101,7 +96,7 @@ class Recommend():
 
         with ix.searcher() as s:
             docnum = s.document_number(idx=input_idx)
-            r = s.more_like(docnum, 'name_for_extr', top = 5)
+            r = s.more_like(docnum, 'data_name', top = 5, numterms = 10)
 
             for hit in r:
                 result_dict = {'data_name':hit['data_name'], 'idx':hit['idx']}
