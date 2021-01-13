@@ -53,9 +53,26 @@ def detail_idx(idx):
     response.headers["Content-Type"] = "application/json"
 
     return response
-# @app.route('/test/recommends/<company_idx>')
-# def recommend_for_company(company_idx):
+
+
+@app.route('/test/recommends/<company_idx>')
+def recommend_for_company(company_idx):
+    engine_recommend =  Recommend()
+
+    data = engine_recommend.recommend_by_commpany(company_idx)
+
+    response = make_response(
+        jsonify(
+                {"message": 'OK',
+                 "data" : data
+                 }
+            ),
+            200,
+        )
     
+    response.headers["Content-Type"] = "application/json"
+
+    return response
 
 
 if __name__ == "__main__":

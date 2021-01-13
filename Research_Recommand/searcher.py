@@ -110,3 +110,24 @@ class Recommend():
 
         ix.close()
         return search_results
+
+    
+    def recommend_by_commpany(self, input_idx):
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()
+
+        curs.execute("Select inderstry, sector from tbl_company where idx = %s", input_idx)
+        rows = curs.fetchall()
+
+        results = {}
+
+        for row in rows:
+            results['indestrty'] = row[0]
+            results['sector'] = row[1]
+        
+        conn.close()
+        
+        engine = Search_engine()
+        search_results = engine.searching_f(results['sector'])
+
+        return search_results

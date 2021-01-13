@@ -76,6 +76,7 @@ class Recommand():
         engine = Search_engine()
         search_results = engine.searching_f(results['sector'])
 
+        print(search_results)
         for i in search_results['results']:
             print(i['data_name'])
             print(i['idx'])
