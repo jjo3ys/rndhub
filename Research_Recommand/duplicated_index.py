@@ -56,8 +56,7 @@ def indexing(duplicate_list):
                     part = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.1),
                     researcher_field = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.2),
                     resercher_idx = ID(stored = True),   
-                    data_type_code = ID(stored = True),             
-                    name_for_extr = TEXT(stored=True))
+                    data_type_code = ID(stored = True))
 
     ix = create_in(indexdir, schema)
     wr = ix.writer()
@@ -76,8 +75,7 @@ def indexing(duplicate_list):
                             part = researcher_data[0][1],
                             researcher_field = researcher_data[0][2],
                             resercher_idx = str(row[2]),
-                            data_type_code = str(row[3]),
-                            name_for_extr = row[0])
+                            data_type_code = str(row[3]))
     wr.commit()
 duplicate_list = duplicate()
 indexing(duplicate_list)
