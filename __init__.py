@@ -3,7 +3,7 @@ import os
 import sys
 # sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 # import Research_Recommand.searcher
-from Research_Recommand.searcher import Search_engine, Seaching_idx, Recommend
+from Research_Recommand.searcher import Search_engine, Detail, Recommend
 from io import StringIO
 
 app = Flask(__name__, static_url_path='/static')
@@ -31,9 +31,9 @@ def search_result(input_word):
     engine = Search_engine()
 
     if request.method == 'GET':
-        data_len = len(engine.searching_f(input_word)['results'])
+        data_len = len(engine.searching(input_word)['results'])
 
-        data = json.dumps(engine.searching_f(input_word))         
+        data = json.dumps(engine.searching(input_word))         
 
         return render_template("search_result.html", input_word = input_word, str_data = data, data_len = data_len)
     
@@ -50,12 +50,12 @@ def specific_page():
 
 @app.route("/specific/<idx>", methods=["GET"])
 def specific_result(idx):
-    engine_idx = Seaching_idx()
+    engine_idx = Detail()
     engine_recommend =  Recommend()
 
     if request.method == 'GET':
-        spec_data = engine_idx.searching_idx(idx)
-        spec_data_name = spec_data['results'][0]['data_name']
+        spec_data = engine_idx.search_detail(idx)
+        spec_data_name = spec_data['results'][0]['title']
 
 
         recommend_results =  engine_recommend.more_like_idx(idx)
