@@ -82,3 +82,32 @@ class Recommend():
 
         ix.close()
         return search_results
+
+class Researcher_search():
+    def recommand_by_researcher(self, idx):       
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()
+
+        search_results = {}
+        search_results['results'] = []
+        idx_list = list()
+
+        curs.execute("Select research_field from tbl_researcher_data where idx = %s", idx)
+        field = curs.fetchall()
+
+        with ix.searcher() as s:
+            restrict = query.Term('researcher_idx', idx)
+            uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(field[0][0])           
+            results = s.search(uquery, mask = restrict, limit = None)
+
+            for r in results:                
+                if r['researcher_idx'] not in idx_list:
+                    idx_list.append(r['researcher_idx'])
+                    search_results['results'].append({'researcher_idx':r['researcher_idx'],
+                                                      'researcher_name':r['researcher_name'],
+                                                      'research_field':r['research_field']})
+
+                    if len(search_results['results']) >= 5:
+                        break
+                    
+        return search_results
