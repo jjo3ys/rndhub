@@ -166,3 +166,29 @@ class Researcher_search():
         search_results = engine.searching(results['sector'])
 
         return search_results
+
+    def recommand_by_history(self, idx):
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()
+
+        search_results = {}
+        search_results['results'] = []
+        company_list = list()
+
+        curs.execute("Select idx from tbl_data where resercher_idx = %s", idx)
+        data_idx = curs.fetchall()
+
+        for i in data_idx:
+            curs.execute("Select user_idx from tbl_visit_history where target_idx = %s", i[0])
+            company_idx = curs.fetchall()
+            if company_idx is not None:
+                for j in company_idx:
+                    curs.execute("Select name from tbl_company where idx = %s", j[0])
+                    company_name = curs.fetchall()
+                    if company_name[0] not in company_list:
+                        company_list.append(company_name[0])
+
+        search_results['results'].append(company_list)
+
+        conn.close()
+        return search_results
