@@ -1,12 +1,10 @@
 import os
-import json
 import pymysql
+
 from whoosh import qparser, query
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser, MultifieldParser
-from whoosh.analysis import NgramAnalyzer
 from whoosh import scoring
-from whoosh.query import Term, Or
 
 # indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
 ix = open_dir('db_to_index_duplicate')
@@ -16,19 +14,17 @@ class Search_engine():
     def searching(self, search_word):
         search_results = {}
         search_results['results'] = []
-        w = scoring.BM25F()#B = 0.75, K1 = 1.2
-        
-        with ix.searcher(weighting = w) as s:
-            search_results = {}
-            search_results['results'] = []
-      
+        w = scoring.BM25F()#B = 0.75, K1 = 1.2  
+                  
+        with ix.searcher(weighting = w) as searcher:          
             query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(search_word)
-            results = s.search(query, limit = None)
+            results = searcher.search(query, limit = None)
+
             for r in results:
                 result_dict = dict(r)
                 search_results['results'].append(result_dict)
                     
-            ix.close()
+        ix.close()
 
         return search_results
         
