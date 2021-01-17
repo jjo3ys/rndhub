@@ -50,32 +50,34 @@ def indexing(duplicate_list):
         os.makedirs(indexdir)
 
     schema = Schema(idx = ID(stored = True),
-                    data_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 2.0),
-                    abstracts = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.5),
+                    title = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 2.0),
+                    content = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.5),
                     researcher_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True),
-                    part = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.1),
+                    department = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.1),
                     researcher_field = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.2),
-                    resercher_idx = ID(stored = True),   
-                    data_type_code = ID(stored = True))
+                    resercher_idx = ID(stored = True)
+    )
+            
 
     ix = create_in(indexdir, schema)
     wr = ix.writer()
 
     for idx in duplicate_list:
-        curs.execute("Select title, content, resercher_idx, data_type_code from tbl_data where idx =%s", idx)
+        curs.execute("Select title, content, resercher_idx from tbl_data where idx =%s", idx)
         rows = curs.fetchall()
 
         for row in rows:
             curs.execute("Select name, department, research_field from tbl_researcher_data where idx = %s", row[2])
             researcher_data = curs.fetchall()           
             wr.add_document(idx = str(idx),
-                            data_name = row[0],
-                            abstracts = row[1],
+                            title = row[0],
+                            content = row[1],
                             researcher_name = researcher_data[0][0],
-                            part = researcher_data[0][1],
+                            department = researcher_data[0][1],
                             researcher_field = researcher_data[0][2],
-                            resercher_idx = str(row[2]),
-                            data_type_code = str(row[3]))
+                            resercher_idx = str(row[2])
+            )
+            
     wr.commit()
 duplicate_list = duplicate()
 indexing(duplicate_list)
