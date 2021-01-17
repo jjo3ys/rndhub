@@ -1,6 +1,6 @@
 from flask import Flask, make_response, json, jsonify
 from flask_restful import reqparse, Api, Resource
-from Research_Recommand.searcher import Search_engine, Seaching_idx, Recommend
+from Research_Recommand.searcher import Search_engine, Detail, Recommend
 
 app = Flask(__name__)
 api = Api(app)
@@ -78,4 +78,5 @@ def recommend_for_company(company_idx):
 if __name__ == "__main__":
     
     app.run(use_reloader=False, debug=True) 
+
 
