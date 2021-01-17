@@ -30,6 +30,22 @@ class Search_engine():
         return search_results
         
     
+    def searching_with_limit(self, search_word, limit_num):
+        search_results = {}
+        search_results['results'] = []
+        w = scoring.BM25F()#B = 0.75, K1 = 1.2  
+                  
+        with ix.searcher(weighting = w) as searcher:          
+            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(search_word)
+            results = searcher.search(query, limit = limit_num)
+
+            for r in results:
+                result_dict = dict(r)
+                search_results['results'].append(result_dict)
+                    
+        ix.close()
+
+        return search_results
    
 class Detail():
     def search_detail(self, idx):
@@ -82,7 +98,7 @@ class Recommend():
 
 
 
-        def recommend_by_commpany(self, input_idx):
+        def recommend_by_commpany(self, input_idx, limit_num):
                 
             conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
             curs = conn.cursor()
@@ -99,7 +115,7 @@ class Recommend():
             conn.close()
             
             engine = Search_engine()
-            search_results = engine.searching(results['sector'])
+            search_results = engine.searching_with_limit(results['sector'], limit_num)
 
             return search_results
 

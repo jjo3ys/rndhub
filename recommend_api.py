@@ -11,9 +11,9 @@ def result_list(input_word):
     
     engine = Search_engine()
 
-    data_len = len(engine.searching_f(input_word)['results'])
+    data_len = len(engine.searching(input_word)['results'])
 
-    data = engine.searching_f(input_word)
+    data = engine.searching(input_word)
 
     response = make_response(
         jsonify(
@@ -57,14 +57,16 @@ def detail_idx(idx):
 
 @app.route('/test/recommends/<company_idx>')
 def recommend_for_company(company_idx):
+    limit_num = 5
     engine_recommend =  Recommend()
 
-    data = engine_recommend.recommend_by_commpany(company_idx)
+    data = engine_recommend.recommend_by_commpany(company_idx, limit_num)
 
     response = make_response(
         jsonify(
                 {"message": 'OK',
-                 "data" : data
+                 "data" : data,
+                 "data_len": limit_num
                  }
             ),
             200,
