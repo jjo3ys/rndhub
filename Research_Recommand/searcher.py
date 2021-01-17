@@ -1,60 +1,59 @@
 import os
-import json
 import pymysql
+
 from whoosh import qparser, query
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser, MultifieldParser
-from whoosh.analysis import NgramAnalyzer
 from whoosh import scoring
-from whoosh.query import Term, Or
 
 
 # indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
 ix = open_dir('db_to_index_duplicate')
+<<<<<<< HEAD
 sche_info = ['title', 'content', 'department', 'researcher_name', 'researcher_field']
+=======
+sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field']
+>>>>>>> 3e587a82bcc236642b307eee84ac0ef916c70825
 
 class Search_engine():
-    def searching_f(self, search_word):
+    def searching(self, search_word):
         search_results = {}
         search_results['results'] = []
-        w = scoring.BM25F()#B = 0.75, K1 = 1.2
-        
-        with ix.searcher() as searcher:
-            search_results = {}
-            search_results['results'] = []
+        w = scoring.BM25F()#B = 0.75, K1 = 1.2  
+                  
+        with ix.searcher(weighting = w) as searcher:          
+            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(search_word)
+            results = searcher.search(query, limit = None)
 
-            with ix.searcher(weighting = w) as searcher:          
-                query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(search_word)
-                results = searcher.search(query, limit = None)
-                for r in results:
-                    result_dict = dict(r)
-                    search_results['results'].append(result_dict)
+            for r in results:
+                result_dict = dict(r)
+                search_results['results'].append(result_dict)
                     
-            ix.close()
+        ix.close()
 
         return search_results
         
     
    
-class Seaching_idx():
-    def searching_idx(self, idx):
+class Detail():
+    def search_detail(self, idx):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
         curs.execute("Select title, content, resercher_idx, data_type_code from tbl_data where idx = %s", idx)
-        rows = curs.fetchall()
+        data = curs.fetchall()
         detail_list = {}
         detail_list['results'] = []
         
         
-        for row in rows:
+        for row in data:
             curs.execute("Select name, school, department, email, research_field, homepage from tbl_researcher_data where idx = %s", row[2])
             researcher_data = curs.fetchall()
             curs.execute("Select type_name from tbl_data_type_code where type_code = %s", row[3])
             data_type = curs.fetchall()            
 
-            detail_dict = {'data_name':row[0], 
-                           'abstracts':row[1],                            
+            detail_dict = {'title':row[0], 
+                           'content':row[1],                            
                            'researcher_name':researcher_data[0][0],                       
                            'part':researcher_data[0][2], 
                            'researcher_email':researcher_data[0][3], 
@@ -70,44 +69,46 @@ class Seaching_idx():
         return detail_list
         
 class Recommend():
-    def recommend(self, data_name):   
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        curs = conn.cursor()   
-
-        search_results = {}
-        search_results['results'] = []
-            
-        with ix.searcher() as searcher:            
-            restrict = query.Term('title', data_name)
-            uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(data_name)
-            results = searcher.search(uquery, mask = restrict, limit = 5)
-        
-            for r in results: 
-                curs.execute("Select name from tbl_researcher_data where idx = %s", r['resercher_idx'])
-                name = curs.fetchall()
-                conn.close()
-                result_dict = {'title':r['title'],
-                               'name':name[0][0], 
-                               'idx':r['idx']
-                               }
-                search_results['results'].append(result_dict)          
-        ix.close()
-
-        return search_results
-
-    
-    def more_like_idx(self, input_idx):
+       def more_like_idx(self, idx):
         search_results = {}
         search_results['results'] = []
 
         with ix.searcher() as s:
-            docnum = s.document_number(idx=input_idx)
-            r = s.more_like(docnum, 'name_for_extr', top = 5)
+            docnum = s.document_number(idx = idx)
+            results = s.more_like(docnum, 'title', top = 5)
 
-            for hit in r:
-                result_dict = {'data_name':hit['data_name'], 'idx':hit['idx']}
+            for r in results:
+                result_dict = dict(r)
                 search_results['results'].append(result_dict) 
 
+        ix.close()
+        return search_results
+
+class Researcher_search():
+    def recommand_by_researcher(self, idx):       
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()
+
+        search_results = {}
+        search_results['results'] = []
+        idx_list = list()
+
+        curs.execute("Select research_field from tbl_researcher_data where idx = %s", idx)
+        field = curs.fetchall()
+
+        with ix.searcher() as s:
+            restrict = query.Term('researcher_idx', idx)
+            uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(field[0][0])           
+            results = s.search(uquery, mask = restrict, limit = None)
+
+            for r in results:                
+                if r['researcher_idx'] not in idx_list:
+                    idx_list.append(r['researcher_idx'])
+                    search_results['results'].append({'researcher_idx':r['researcher_idx'],
+                                                      'researcher_name':r['researcher_name'],
+                                                      'research_field':r['research_field']})
+
+<<<<<<< HEAD
         ix.close()
         return search_results
 
@@ -130,4 +131,9 @@ class Recommend():
         engine = Search_engine()
         search_results = engine.searching_f(results['sector'])
 
+=======
+                    if len(search_results['results']) >= 5:
+                        break
+                    
+>>>>>>> 3e587a82bcc236642b307eee84ac0ef916c70825
         return search_results

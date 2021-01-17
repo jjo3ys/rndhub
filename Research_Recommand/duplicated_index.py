@@ -5,7 +5,7 @@ from difflib import SequenceMatcher
 from whoosh.index import create_in
 from whoosh.fields import*
 
-def similar(a, b):
+def similarity(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
 conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
@@ -30,7 +30,7 @@ def duplicate():
     for i in range(len(data_list)-1):        
         j = i+1
         while data_list[i][2] == data_list[j][2]:
-            score = similar(data_list[i][1], data_list[j][1])           
+            score = similarity(data_list[i][1], data_list[j][1])           
             if score >= 0.97 and data_list[j][0] not in num_list:
                 num_list.append(data_list[j][0])
             
@@ -54,19 +54,17 @@ def indexing(duplicate_list):
                     content = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.5),
                     researcher_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True),
                     department = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.1),
-                    researcher_field = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.2),
-                    resercher_idx = ID(stored = True)
-    )
-            
+                    research_field = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.2),
+                    researcher_idx = ID(stored = True))
 
     ix = create_in(indexdir, schema)
     wr = ix.writer()
 
     for idx in duplicate_list:
-        curs.execute("Select title, content, resercher_idx from tbl_data where idx =%s", idx)
-        rows = curs.fetchall()
+        curs.execute("Select title, content, resercher_idx, data_type_code from tbl_data where idx =%s", idx)
+        data = curs.fetchall()
 
-        for row in rows:
+        for row in data:
             curs.execute("Select name, department, research_field from tbl_researcher_data where idx = %s", row[2])
             researcher_data = curs.fetchall()           
             wr.add_document(idx = str(idx),
@@ -74,10 +72,8 @@ def indexing(duplicate_list):
                             content = row[1],
                             researcher_name = researcher_data[0][0],
                             department = researcher_data[0][1],
-                            researcher_field = researcher_data[0][2],
-                            resercher_idx = str(row[2])
-            )
-            
+                            research_field = researcher_data[0][2],
+                            researcher_idx = str(row[2]))
     wr.commit()
 duplicate_list = duplicate()
 indexing(duplicate_list)
