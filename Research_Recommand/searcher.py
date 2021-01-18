@@ -112,26 +112,26 @@ class Recommend():
 
 
 
-        def recommend_by_commpany(self, input_idx, limit_num):
+    def recommend_by_commpany(self, input_idx, limit_num):
                 
-            conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-            curs = conn.cursor()
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()
 
-            curs.execute("Select inderstry, sector from tbl_company where idx = %s", input_idx)
-            rows = curs.fetchall()
+        curs.execute("Select inderstry, sector from tbl_company where idx = %s", input_idx)
+        rows = curs.fetchall()
 
-            results = {}
+        results = {}
 
-            for row in rows:
-                results['indestrty'] = row[0]
-                results['sector'] = row[1]
+        for row in rows:
+            results['indestrty'] = row[0]
+            results['sector'] = row[1]
             
-            conn.close()
+        conn.close()
             
-            engine = Search_engine()
-            search_results = engine.searching_with_limit(results['sector'], limit_num)
+        engine = Search_engine()
+        search_results = engine.searching_with_limit(results['sector'], limit_num)
 
-            return search_results
+        return search_results
 
 class Researcher_search():
     def recommand_by_researcher(self, idx):       
