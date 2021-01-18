@@ -144,27 +144,7 @@ class Researcher_search():
                                                       'research_field':r['research_field']})
 
         ix.close()
-        return search_results
-
-    
-    def recommend_by_commpany(self, input_idx):
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        curs = conn.cursor()
-
-        curs.execute("Select inderstry, sector from tbl_company where idx = %s", input_idx)
-        rows = curs.fetchall()
-
-        results = {}
-
-        for row in rows:
-            results['indestrty'] = row[0]
-            results['sector'] = row[1]
-        
         conn.close()
-        
-        engine = Search_engine()
-        search_results = engine.searching(results['sector'])
-
         return search_results
 
     def recommand_by_history(self, idx):
@@ -183,12 +163,14 @@ class Researcher_search():
             company_idx = curs.fetchall()
             if company_idx is not None:
                 for j in company_idx:
-                    curs.execute("Select name from tbl_company where idx = %s", j[0])
-                    company_name = curs.fetchall()
-                    if company_name[0] not in company_list:
-                        company_list.append(company_name[0])
+                    curs.execute("Select name, sector, idx from tbl_company where idx = %s", j[0])
+                    company_data = curs.fetchall()
+                    if company_data[0] not in company_list:
+                        company_list= {'company_name' :company_data[0],
+                                       'sector':company_data[1]
+                                       'user_idx':company_data[2]}
 
-        search_results['results'].append(company_list)
-
+                search_results['results'].append(company_list)
+           
         conn.close()
         return search_results
