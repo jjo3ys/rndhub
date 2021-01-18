@@ -82,9 +82,6 @@ class Detail():
         
 class Recommend():
     def more_like_idx(self, input_idx, data_len):
-        # conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        # curs = conn.cursor()   
-
         search_results = {}
         search_results['results'] = []
 
@@ -92,12 +89,10 @@ class Recommend():
             docnum = s.document_number(idx=input_idx)
             r = s.more_like(docnum, 'title', top = data_len, numterms = 10)
             
-            for hit in r:
-
+            for hit in r:                
                 result_dict = dict(hit)
-          
                 search_results['results'].append(result_dict) 
-        #conn.close()
+
         ix.close()
         return search_results
 
@@ -149,8 +144,8 @@ class Researcher_search():
                                                       'research_field':r['research_field']})
 
         ix.close()
+        conn.close()
         return search_results
-
 
     def recommand_by_history(self, idx):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
@@ -168,12 +163,14 @@ class Researcher_search():
             company_idx = curs.fetchall()
             if company_idx is not None:
                 for j in company_idx:
-                    curs.execute("Select name from tbl_company where idx = %s", j[0])
-                    company_name = curs.fetchall()
-                    if company_name[0] not in company_list:
-                        company_list.append(company_name[0])
+                    curs.execute("Select name, sector, idx from tbl_company where idx = %s", j[0])
+                    company_data = curs.fetchall()
+                    if company_data[0] not in company_list:
+                        company_list= {'company_name' :company_data[0],
+                                       'sector':company_data[1]
+                                       'user_idx':company_data[2]}
 
-        search_results['results'].append(company_list)
-
+                search_results['results'].append(company_list)
+           
         conn.close()
         return search_results

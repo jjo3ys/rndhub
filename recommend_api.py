@@ -18,7 +18,7 @@ def result_list(input_word):
     response = make_response(
         jsonify(
                 {"message": 'OK',
-                 "data_length": data_len,
+                 "data_count": data_len,
                  "data": data}
             ),
             200,
@@ -40,7 +40,7 @@ def detail_idx(idx):
         jsonify(
                 {"message": 'OK',
                  "data" : recommend_results,
-                 "data_len": limit_num
+                 "data_count": limit_num
                  }
             ),
             200,
@@ -62,7 +62,7 @@ def recommend_for_company(company_idx):
         jsonify(
                 {"message": 'OK',
                  "data" : data,
-                 "data_len": limit_num
+                 "data_count": limit_num
                  }
             ),
             200,
