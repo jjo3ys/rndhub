@@ -126,6 +126,7 @@ class Researcher_search():
 
         search_results = {}
         search_results['results'] = []
+
         idx_list = list()
 
         curs.execute("Select research_field from tbl_researcher_data where idx = %s", idx)
@@ -153,6 +154,7 @@ class Researcher_search():
 
         search_results = {}
         search_results['results'] = []
+
         company_list = list()
 
         curs.execute("Select idx from tbl_data where resercher_idx = %s", idx)
@@ -166,8 +168,8 @@ class Researcher_search():
                     curs.execute("Select name, sector, idx from tbl_company where idx = %s", j[0])
                     company_data = curs.fetchall()
                     if company_data[0] not in company_list:
-                        company_list= {'company_name' :company_data[0],
-                                       'sector':company_data[1]
+                        company_list= {'company_name':company_data[0],
+                                       'sector':company_data[1],
                                        'user_idx':company_data[2]}
 
                 search_results['results'].append(company_list)
