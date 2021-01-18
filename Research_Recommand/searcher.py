@@ -82,8 +82,8 @@ class Detail():
         
 class Recommend():
     def more_like_idx(self, input_idx, data_len):
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        curs = conn.cursor()   
+        # conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        # curs = conn.cursor()   
 
         search_results = {}
         search_results['results'] = []
@@ -93,20 +93,11 @@ class Recommend():
             r = s.more_like(docnum, 'title', top = data_len, numterms = 10)
             
             for hit in r:
-                
-                curs.execute("Select name,research_field from tbl_researcher_data where idx = %s", hit['researcher_idx'])
-                researcher = curs.fetchall()
-                
-                result_dict = {'idx':hit['idx'],
-                               'researcher_idx':hit['researcher_idx'],
-                               'title':hit['title'],
-                               'content':hit['content'],
-                               'researcher_name': researcher[0][0],
-                               'department':hit['department'],
-                               'researcher_field':researcher[0][1]
-                               }
+
+                result_dict = dict(hit)
+          
                 search_results['results'].append(result_dict) 
-        conn.close()
+        #conn.close()
         ix.close()
         return search_results
 
@@ -160,26 +151,6 @@ class Researcher_search():
         ix.close()
         return search_results
 
-    
-    def recommend_by_commpany(self, input_idx):
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        curs = conn.cursor()
-
-        curs.execute("Select inderstry, sector from tbl_company where idx = %s", input_idx)
-        rows = curs.fetchall()
-
-        results = {}
-
-        for row in rows:
-            results['indestrty'] = row[0]
-            results['sector'] = row[1]
-        
-        conn.close()
-        
-        engine = Search_engine()
-        search_results = engine.searching(results['sector'])
-
-        return search_results
 
     def recommand_by_history(self, idx):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")

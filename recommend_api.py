@@ -29,22 +29,18 @@ def result_list(input_word):
     return response
 
 
-@app.route('/test/detail/<idx>')
+@app.route('/test/recommend/by_idx/<idx>')
 def detail_idx(idx):
-    engine_idx = Seaching_idx()
     engine_recommend =  Recommend()
+    limit_num = 5
 
-    detail_data = engine_idx.searching_idx(idx)
-
-    recommend_results =  engine_recommend.more_like_idx(idx)
+    recommend_results =  engine_recommend.more_like_idx(idx, limit_num)
 
     response = make_response(
         jsonify(
                 {"message": 'OK',
-                 "data" : {
-                    "detail_data": detail_data,
-                    "recommend_data" :recommend_results,
-                 }
+                 "data" : recommend_results,
+                 "data_len": limit_num
                  }
             ),
             200,
@@ -55,7 +51,7 @@ def detail_idx(idx):
     return response
 
 
-@app.route('/test/recommends/<company_idx>')
+@app.route('/test/recommend/by_company/<company_idx>')
 def recommend_for_company(company_idx):
     limit_num = 5
     engine_recommend =  Recommend()
