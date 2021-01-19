@@ -103,5 +103,3 @@ class Duplicated_Indexing():
                                     researcher_idx = str(row[2]))
         wr.commit()
         conn.close()
-d = Duplicated_Indexing()
-d.indexing()

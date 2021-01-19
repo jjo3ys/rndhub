@@ -12,23 +12,25 @@ ix = open_dir('db_to_index_duplicate')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field']
 
 class Search_engine():
-    def searching(self, search_word):
+    def searching(self, input_word, page_count, data_count):
         search_results = {}
         search_results['results'] = []
-        w = scoring.BM25F()#B = 0.75, K1 = 1.2  
-                  
-        with ix.searcher(weighting = w) as searcher:  
-            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(search_word)
-            results = searcher.search(query, limit = None)
+        search_results['data_total_count'] = []
 
-            for r in results:
+        with ix.searcher() as searcher:
+            query = MultifieldParser(sche_info, ix.schema, group = OrGroup).parse(input_word)
+
+            results = searcher.search_page(query, pagenum = page_count, pagelen=data_count)
+
+            for r in results:                 
                 result_dict = dict(r)
                 search_results['results'].append(result_dict)
-                    
-        ix.close()
+                
+            search_results['data_total_count'] = results.total
 
-        return search_results
+        ix.close()
         
+    return search_results
     
     def searching_with_limit(self, search_word, limit_num):
         search_results = {}
@@ -81,25 +83,27 @@ class Detail():
         return detail_list
         
 class Recommend():
-    def more_like_idx(self, input_idx, data_len):
+    def more_like_idx(self, input_idx, data_count):
         search_results = {}
         search_results['results'] = []
+        search_results['data_total_count'] = []
 
         with ix.searcher() as s:
             docnum = s.document_number(idx=input_idx)
-            r = s.more_like(docnum, 'title', top = data_len, numterms = 10)
+            r = s.more_like(docnum, 'title', top = data_count, numterms = 10)
             
             for hit in r:                
                 result_dict = dict(hit)
                 search_results['results'].append(result_dict) 
-
+            
+            search_results['data_total_count'] = len(search_results['results'])
         ix.close()
         return search_results
 
 
 
     def recommend_by_commpany(self, input_idx, limit_num):
-                
+       
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
@@ -115,7 +119,7 @@ class Recommend():
         conn.close()
             
         engine = Search_engine()
-        search_results = engine.searching_with_limit(results['sector'], limit_num)
+        search_results = engine.searchingt(results['sector'], page_count, data_count)
 
         return search_results
 
@@ -126,6 +130,7 @@ class Researcher_search():
 
         search_results = {}
         search_results['results'] = []
+
         idx_list = list()
 
         curs.execute("Select research_field from tbl_researcher_data where idx = %s", idx)
@@ -138,8 +143,7 @@ class Researcher_search():
 
             for r in results:                
                 if r['researcher_idx'] not in idx_list:
-                    idx_list.append(r['researcher_idx'])
-                    search_results['results'].append({'researcher_idx':r['researcher_idx'],
+                    idx_list.append(r['giy ults'].append({'researcher_idx':r['researcher_idx'],
                                                       'researcher_name':r['researcher_name'],
                                                       'research_field':r['research_field']})
 
@@ -153,6 +157,7 @@ class Researcher_search():
 
         search_results = {}
         search_results['results'] = []
+
         company_list = list()
 
         curs.execute("Select idx from tbl_data where resercher_idx = %s", idx)
@@ -166,7 +171,7 @@ class Researcher_search():
                     curs.execute("Select name, sector, idx from tbl_company where idx = %s", j[0])
                     company_data = curs.fetchall()
                     if company_data[0] not in company_list:
-                        company_list = {'company_name' :company_data[0],
+                        company_list= {'company_name':company_data[0],
                                        'sector':company_data[1],
                                        'user_idx':company_data[2]}
 
