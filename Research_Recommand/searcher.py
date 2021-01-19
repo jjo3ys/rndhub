@@ -17,7 +17,7 @@ class Search_engine():
         search_results['results'] = []
         w = scoring.BM25F()#B = 0.75, K1 = 1.2  
                   
-        with ix.searcher(weighting = w) as searcher:          
+        with ix.searcher(weighting = w) as searcher:  
             query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(search_word)
             results = searcher.search(query, limit = None)
 
@@ -166,8 +166,8 @@ class Researcher_search():
                     curs.execute("Select name, sector, idx from tbl_company where idx = %s", j[0])
                     company_data = curs.fetchall()
                     if company_data[0] not in company_list:
-                        company_list= {'company_name' :company_data[0],
-                                       'sector':company_data[1]
+                        company_list = {'company_name' :company_data[0],
+                                       'sector':company_data[1],
                                        'user_idx':company_data[2]}
 
                 search_results['results'].append(company_list)

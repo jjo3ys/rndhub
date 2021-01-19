@@ -31,10 +31,10 @@ def result_list(input_word):
 
 @app.route('/test/detail/<idx>')
 def detail_idx(idx):
-    engine_idx = Seaching_idx()
+    engine_idx = Detail()
     engine_recommend =  Recommend()
 
-    detail_data = engine_idx.searching_idx(idx)
+    detail_data = engine_idx.search_detail(idx)
 
     recommend_results =  engine_recommend.more_like_idx(idx)
 
