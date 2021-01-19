@@ -30,18 +30,10 @@ def search_page():
 def results_list(input_word): 
     engine = Search_engine()
 
-<<<<<<< HEAD
-    # if request.method == 'POST':
-        # input_word = request.form["search_word"]
-    data_len = len(engine.searching_f(input_word)['results'])
-
-    data = json.dumps(engine.searching_f(input_word))         
-=======
     if request.method == 'GET':
         data_len = len(engine.searching(input_word)['results'])
 
         data = json.dumps(engine.searching(input_word))         
->>>>>>> 3e587a82bcc236642b307eee84ac0ef916c70825
 
     print(make_response(data))
     return render_template("search_result.html", input_word = input_word, str_data = data, data_len = data_len)
@@ -59,6 +51,7 @@ def specific_page():
 
 @app.route("/specific/<idx>", methods=["GET"])
 def specific_result(idx):
+    limit_num = 5
     engine_idx = Detail()
     engine_recommend =  Recommend()
 
@@ -67,7 +60,7 @@ def specific_result(idx):
         spec_data_name = spec_data['results'][0]['title']
 
 
-        recommend_results =  engine_recommend.more_like_idx(idx)
+        recommend_results =  engine_recommend.more_like_idx(idx, limit_num)
 
         data = json.dumps(spec_data)
         recommend_data = json.dumps(recommend_results)
