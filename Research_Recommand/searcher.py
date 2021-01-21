@@ -12,7 +12,7 @@ ix = open_dir('db_to_index_duplicate')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field']
 
 class Search_engine():
-    def searching(self, input_word, page_count, data_count):
+    def searching(self, input_word, page_num, data_count):
         search_results = {}
         search_results['results'] = []
         search_results['data_total_count'] = []
@@ -20,7 +20,7 @@ class Search_engine():
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
             query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(input_word)
-            results = searcher.search_page(query, pagenum = page_count, pagelen=data_count)
+            results = searcher.search_page(query, pagenum = page_num, pagelen=data_count)
 
             for r in results:                 
                 result_dict = dict(r)
@@ -31,23 +31,6 @@ class Search_engine():
         ix.close()
         return search_results
     
-    def searching_with_limit(self, search_word, limit_num):
-        search_results = {}
-        search_results['results'] = []
-        w = scoring.BM25F()#B = 0.75, K1 = 1.2  
-                  
-        with ix.searcher(weighting = w) as searcher:          
-            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(search_word)
-            results = searcher.search(query, limit = limit_num)
-
-            for r in results:
-                result_dict = dict(r)
-                search_results['results'].append(result_dict)
-                    
-        ix.close()
-
-        return search_results
-   
 class Detail():
     def search_detail(self, idx):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
@@ -89,19 +72,25 @@ class Recommend():
 
         with ix.searcher() as s:
             docnum = s.document_number(idx=input_idx)
-            r = s.more_like(docnum, 'title', top = data_count, numterms = 10)
+
+            field = 'title'
+            kts = s.key_terms(docnum, fieldname = field, numterms=10)
+            
+            q = query.Or([query.Term(field, word, boost=weight) for word, weight in kts])
+
+            mask_q = query.Term("idx", input_idx)
+            r = s.search_page(q, pagenum = 1, pagelen = data_count, mask=mask_q)
             
             for hit in r:                
                 result_dict = dict(hit)
                 search_results['results'].append(result_dict) 
             
-            search_results['data_total_count'] = len(search_results['results'])
+            search_results['data_total_count'] = r.total
         ix.close()
+        
         return search_results
 
-
-
-    def recommend_by_commpany(self, input_idx, page_count, data_count):
+    def recommend_by_commpany(self, input_idx, page_num, data_count):
        
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
@@ -118,12 +107,12 @@ class Recommend():
         conn.close()
             
         engine = Search_engine()
-        search_results = engine.searching(results['sector'], page_count, data_count)
+        search_results = engine.searching(results['sector'], page_num, data_count)
 
         return search_results
 
 class Researcher_search():
-    def recommand_by_researcher(self, idx):       
+    def recommand_by_researcher(self, idx, data_count):       
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
@@ -147,12 +136,16 @@ class Researcher_search():
                     search_results['results'].append({'researcher_idx':r['researcher_idx'],
                                                       'researcher_name':r['researcher_name'],
                                                       'research_field':r['research_field']})
-            search_results['data_total_count'] = len(search_results['results'])
+                if len(idx_list) >= data_count:
+                    break
+
+            search_results['data_total_count'] = len(results)
         ix.close()
         conn.close()
+
         return search_results
 
-    def recommand_by_history(self, idx):
+    def recommand_by_history(self, idx, data_count):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
@@ -177,7 +170,9 @@ class Researcher_search():
                                        'sector':company_data[1],
                                        'user_idx':company_data[2]}
 
-                search_results['results'].append(company_list)
+        search_results['results'].append(company_list)
         search_results['data_total_count'] = len(search_results['results'])   
+        search_results['results'] = search_results['results'][0:data_count]
         conn.close()
+
         return search_results
