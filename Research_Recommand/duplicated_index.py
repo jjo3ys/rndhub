@@ -75,6 +75,8 @@ def indexing(duplicate_list):
                             research_field = researcher_data[0][2],
                             researcher_idx = str(row[2]))
     wr.commit()
+
+    
 duplicate_list = duplicate()
 indexing(duplicate_list)
 conn.close()

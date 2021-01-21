@@ -18,7 +18,7 @@ class Search_engine():
         search_results['data_total_count'] = []
 
         with ix.searcher() as searcher:
-            query = MultifieldParser(sche_info, ix.schema, group = OrGroup).parse(input_word)
+            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(input_word)
 
             results = searcher.search_page(query, pagenum = page_count, pagelen=data_count)
 
@@ -30,7 +30,7 @@ class Search_engine():
 
         ix.close()
         
-    return search_results
+        return search_results
     
     def searching_with_limit(self, search_word, limit_num):
         search_results = {}
@@ -102,7 +102,7 @@ class Recommend():
 
 
 
-    def recommend_by_commpany(self, input_idx, limit_num):
+    def recommend_by_commpany(self, input_idx, page_count, data_count):
        
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
@@ -119,7 +119,7 @@ class Recommend():
         conn.close()
             
         engine = Search_engine()
-        search_results = engine.searchingt(results['sector'], page_count, data_count)
+        search_results = engine.searching(results['sector'], page_count, data_count)
 
         return search_results
 
@@ -143,7 +143,8 @@ class Researcher_search():
 
             for r in results:                
                 if r['researcher_idx'] not in idx_list:
-                    idx_list.append(r['giy ults'].append({'researcher_idx':r['researcher_idx'],
+                    idx_list.append(r['researcher_idx'])
+                    search_results['results'].append({'researcher_idx':r['researcher_idx'],
                                                       'researcher_name':r['researcher_name'],
                                                       'research_field':r['research_field']})
 
