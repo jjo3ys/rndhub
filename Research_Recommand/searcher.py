@@ -18,8 +18,8 @@ class Search_engine():
         search_results['data_total_count'] = []
 
         with ix.searcher() as searcher:
+            searcher = searcher.refresh()
             query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(input_word)
-
             results = searcher.search_page(query, pagenum = page_count, pagelen=data_count)
 
             for r in results:                 
@@ -29,7 +29,6 @@ class Search_engine():
             search_results['data_total_count'] = results.total
 
         ix.close()
-        
         return search_results
     
     def searching_with_limit(self, search_word, limit_num):
@@ -130,6 +129,7 @@ class Researcher_search():
 
         search_results = {}
         search_results['results'] = []
+        search_results['data_total_count'] = []
 
         idx_list = list()
 
@@ -147,7 +147,7 @@ class Researcher_search():
                     search_results['results'].append({'researcher_idx':r['researcher_idx'],
                                                       'researcher_name':r['researcher_name'],
                                                       'research_field':r['research_field']})
-
+            search_results['data_total_count'] = len(search_results['results'])
         ix.close()
         conn.close()
         return search_results
@@ -158,6 +158,7 @@ class Researcher_search():
 
         search_results = {}
         search_results['results'] = []
+        search_results['data_total_count'] = []
 
         company_list = list()
 
@@ -177,6 +178,6 @@ class Researcher_search():
                                        'user_idx':company_data[2]}
 
                 search_results['results'].append(company_list)
-           
+        search_results['data_total_count'] = len(search_results['results'])   
         conn.close()
         return search_results
