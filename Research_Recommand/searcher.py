@@ -101,7 +101,7 @@ class Recommend():
 
 
 
-    def recommend_by_commpany(self, input_idx, limit_num):
+    def recommend_by_commpany(self, input_idx, page_count, data_count):
        
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
