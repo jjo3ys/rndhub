@@ -72,19 +72,30 @@ class Recommend():
 
         with ix.searcher() as s:
             docnum = s.document_number(idx=input_idx)
-            r = s.more_like(docnum, 'title', top = data_count, numterms = 10)
+
+            field = 'title'
+            kts = s.key_terms(docnum, fieldname = field, numterms=10)
+            
+            q = query.Or([query.Term(field, word, boost=weight) for word, weight in kts])
+
+            mask_q = query.Term("idx", input_idx)
+            r = s.search_page(q, pagenum = 1, pagelen = data_count, mask=mask_q)
             
             for hit in r:                
                 result_dict = dict(hit)
                 search_results['results'].append(result_dict) 
             
-            search_results['data_total_count'] = len(search_results['results'])
+            search_results['data_total_count'] = r.total
         ix.close()
         return search_results
 
+<<<<<<< HEAD
 
 
     def recommend_by_commpany(self, input_idx, page_num, data_count):
+=======
+    def recommend_by_commpany(self, input_idx, page_count, data_count):
+>>>>>>> 214370f822b82ca83447b7f18c0be54c0a180389
        
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
@@ -130,7 +141,7 @@ class Researcher_search():
                     search_results['results'].append({'researcher_idx':r['researcher_idx'],
                                                       'researcher_name':r['researcher_name'],
                                                       'research_field':r['research_field']})
-                if len(idx_list) >= int(data_count):
+                if len(idx_list) >= data_count:
                     break
 
             search_results['data_total_count'] = len(results)
@@ -166,7 +177,7 @@ class Researcher_search():
 
         search_results['results'].append(company_list)
         search_results['data_total_count'] = len(search_results['results'])   
-        search_results['results'] = search_results['results'][0:int(data_count)]
+        search_results['results'] = search_results['results'][0:data_count]
         conn.close()
 
         return search_results
