@@ -8,7 +8,7 @@ api = Api(app)
 #API FORM TEST
 
 
-@app.route('/test/recommend/by_idx',methods=['GET'] )
+@app.route('/test/recommend/by_idx', methods=['GET'])
 def detail_idx():
     parameter_dict = request.args.to_dict()
 
@@ -42,12 +42,12 @@ def result_list():
     parameter_dict = request.args.to_dict()
 
     input_word = parameter_dict['input_word']
-    page_count = parameter_dict['page_count']
+    page_num = parameter_dict['page_num']
     data_count = parameter_dict['data_count']
 
     engine = Search_engine()
 
-    data = engine.searching(input_word, int(page_count), int(data_count))
+    data = engine.searching(input_word, int(page_num), int(data_count))
 
     response = make_response(
         jsonify(
@@ -55,7 +55,7 @@ def result_list():
                  "data_count": data_count,
                  "data_total_count": data["data_total_count"],
                  "data": data["results"],
-                 "page_count": page_count
+                 "page_num": page_num
                  }
             ),
             200,
@@ -71,13 +71,13 @@ def recommend_for_company():
     parameter_dict = request.args.to_dict()
 
     company_idx = parameter_dict['company_idx']
-    page_count = parameter_dict['page_count']
+    page_num = parameter_dict['page_num']
     data_count = parameter_dict['data_count']
 
 
     engine_recommend =  Recommend()
 
-    data = engine_recommend.recommend_by_commpany(company_idx, int(page_count), int(data_count))
+    data = engine_recommend.recommend_by_commpany(company_idx, int(page_num), int(data_count))
 
     response = make_response(
         jsonify(
@@ -104,16 +104,17 @@ def recommend_for_researcher():
 
     engine_recommend =  Researcher_search()
 
-    researcher_data = engine_recommend.recommand_by_researcher(researcher_idx)
-    company_data = engine_recommend.recommand_by_history(researcher_idx)
+    researcher_data = engine_recommend.recommand_by_researcher(researcher_idx, int(data_count))
+    company_data = engine_recommend.recommand_by_history(researcher_idx, int(data_count))
 
     response = make_response(
         jsonify(
                 {"message": 'OK',
-                 "researcher_data" : researcher_data,
-                 "company_data" : company_data,
+                 "researcher_data" : researcher_data["results"],
+                 "company_data" : company_data["results"],
                  "data_count": data_count,
-                 "data_total_count": "data_len",
+                 "researcher_data_total_count": researcher_data["data_total_count"],
+                 "company_data_total_count" : company_data["data_total_count"]
                  }
             ),
             200,
