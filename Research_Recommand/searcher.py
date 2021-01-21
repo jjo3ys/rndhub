@@ -136,10 +136,10 @@ class Researcher_search():
                     search_results['results'].append({'researcher_idx':r['researcher_idx'],
                                                       'researcher_name':r['researcher_name'],
                                                       'research_field':r['research_field']})
-                if len(idx_list) >= data_count:
-                    break
 
-            search_results['data_total_count'] = len(results)
+            search_results['data_total_count'] = len(search_results['results'])
+            search_results['results'] = search_results['results'][0:data_count]
+            
         ix.close()
         conn.close()
 
