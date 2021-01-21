@@ -12,8 +12,7 @@ api = Api(app)
 def detail_idx():
     parameter_dict = request.args.to_dict()
 
-    idx = parameter_dict['idx']
-    page_count = parameter_dict['page_count']
+    content_idx = parameter_dict['content_idx']
     data_count = parameter_dict['data_count']
 
     print(parameter_dict)
@@ -21,15 +20,14 @@ def detail_idx():
     engine_recommend =  Recommend()
  
 
-    recommend_results =  engine_recommend.more_like_idx(idx, int(data_count))
+    recommend_results =  engine_recommend.more_like_idx(content_idx,int(data_count))
 
     response = make_response(
         jsonify(
                 {"message": 'OK',
-                 "data" : recommend_results,
+                 "data" : recommend_results["results"],
+                 "data_total_count": recommend_results["data_total_count"],
                  "data_count": data_count,
-                 "page_count": page_count,
-                 "data_total_count": "data_len",
                  }
             ),
             200,
@@ -40,7 +38,7 @@ def detail_idx():
     return response
 
 @app.route('/test/result_list', methods=['GET'])
-def result_list(input_word):
+def result_list():
     parameter_dict = request.args.to_dict()
 
     input_word = parameter_dict['input_word']
@@ -49,16 +47,14 @@ def result_list(input_word):
 
     engine = Search_engine()
 
-    data_len = len(engine.searching(input_word)['results'])
-
-    data = engine.searching(input_word)
+    data = engine.searching(input_word, int(page_count), int(data_count))
 
     response = make_response(
         jsonify(
                 {"message": 'OK',
                  "data_count": data_count,
-                 "data_total_count": data_len,
-                 "data": data,
+                 "data_total_count": data["data_total_count"],
+                 "data": data["results"],
                  "page_count": page_count
                  }
             ),
@@ -75,19 +71,20 @@ def recommend_for_company():
     parameter_dict = request.args.to_dict()
 
     company_idx = parameter_dict['company_idx']
+    page_count = parameter_dict['page_count']
     data_count = parameter_dict['data_count']
 
 
     engine_recommend =  Recommend()
 
-    data = engine_recommend.recommend_by_commpany(company_idx, int(data_count))
+    data = engine_recommend.recommend_by_commpany(company_idx, int(page_count), int(data_count))
 
     response = make_response(
         jsonify(
                 {"message": 'OK',
-                 "data" : data,
+                 "data" : data["results"],
                  "data_count": data_count,
-                 "data_total_count": 'data_len',
+                 "data_total_count": data["data_total_count"],
                  }
             ),
             200,
@@ -125,6 +122,26 @@ def recommend_for_researcher():
     response.headers["Content-Type"] = "application/json"
 
     return response
+
+#색인화 요청 api
+# @app.route('/test/indexing/request', methods=['GET'])
+# def recommend_for_researcher():
+#     parameter_dict = request.args.to_dict()
+
+#     isTrue = parameter_dict['isTrue']
+
+#     # if(isTrue):
+        
+#     response = make_response(
+#         jsonify(
+#                 {"message": 'Done'}
+#             ),
+#             200,
+#         )
+    
+#     response.headers["Content-Type"] = "application/json"
+
+#     return response
 
 
 
