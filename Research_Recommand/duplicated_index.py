@@ -40,8 +40,8 @@ def duplicate():
                 break
                 
     for i in num_list:
-        duplicate_list.remove(i)
-    print("finish duplicate")    
+        duplicate_list.remove(i)   
+
     return duplicate_list
 
 
