@@ -89,17 +89,22 @@ class Recommend():
 
         with ix.searcher() as s:
             docnum = s.document_number(idx=input_idx)
-            r = s.more_like(docnum, 'title', top = data_count, numterms = 10)
+
+            field = 'title'
+            kts = s.key_terms(docnum, fieldname = field, numterms=10)
+            
+            q = query.Or([query.Term(field, word, boost=weight) for word, weight in kts])
+
+            mask_q = query.Term("idx", input_idx)
+            r = s.search_page(q, pagenum = 1, pagelen = data_count, mask=mask_q)
             
             for hit in r:                
                 result_dict = dict(hit)
                 search_results['results'].append(result_dict) 
             
-            search_results['data_total_count'] = len(search_results['results'])
+            search_results['data_total_count'] = r.total
         ix.close()
         return search_results
-
-
 
     def recommend_by_commpany(self, input_idx, page_count, data_count):
        
