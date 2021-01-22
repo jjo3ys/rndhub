@@ -18,7 +18,7 @@ def duplicate():
     data_list = list()
     duplicate_list = list()
 
-    curs.execute('Select idx, title, resercher_idx from tbl_data')
+    curs.execute('Select idx, title, researcher_idx from tbl_data')
     rows = curs.fetchall()
 
     for row in rows:
@@ -77,7 +77,7 @@ class Duplicated_Indexing():
         wr = ix.writer()
 
         for idx in duplicate_list:
-            curs.execute("Select title, content, resercher_idx, data_type_code from tbl_data where idx =%s", idx)
+            curs.execute("Select title, content, researcher_idx, data_type_code from tbl_data where idx =%s", idx)
             data = curs.fetchall()
 
             for row in data:
@@ -103,3 +103,6 @@ class Duplicated_Indexing():
                                     researcher_idx = str(row[2]))
         wr.commit()
         conn.close()
+
+
+# Duplicated_Indexing().indexing()

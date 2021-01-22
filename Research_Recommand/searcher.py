@@ -71,7 +71,7 @@ class Recommend():
         search_results['data_total_count'] = []
 
         with ix.searcher() as s:
-            docnum = s.document_number(idx=input_idx)
+            docnum = s.document_numbers(idx=input_idx)
 
             field = 'title'
             kts = s.key_terms(docnum, fieldname = field, numterms=10)
@@ -87,7 +87,7 @@ class Recommend():
             
             search_results['data_total_count'] = r.total
         ix.close()
-        
+
         return search_results
 
     def recommend_by_commpany(self, input_idx, page_num, data_count):
