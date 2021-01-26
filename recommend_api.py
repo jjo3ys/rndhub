@@ -1,6 +1,7 @@
 from flask import Flask, make_response, json, jsonify, request
 from flask_restful import reqparse, Api, Resource
 from Research_Recommand.searcher import Search_engine, Detail, Recommend, Researcher_search
+from Research_Recommand.duplicated_index import Duplicated_Indexing
 
 app = Flask(__name__)
 api = Api(app)
@@ -8,26 +9,25 @@ api = Api(app)
 #API FORM TEST
 
 
-@app.route('/test/recommend/by_idx', methods=['GET'])
-def detail_idx():
+@app.route('/test/recommend/by_company_idx', methods=['GET'])
+def by_company_idx():
     parameter_dict = request.args.to_dict()
 
-    content_idx = parameter_dict['content_idx']
+    company_idx = parameter_dict['company_idx']
+    page_num = parameter_dict['page_num']
     data_count = parameter_dict['data_count']
 
-    print(parameter_dict)
 
     engine_recommend =  Recommend()
- 
 
-    recommend_results =  engine_recommend.more_like_idx(content_idx,int(data_count))
+    data = engine_recommend.recommend_by_commpany(company_idx, int(page_num), int(data_count))
 
     response = make_response(
         jsonify(
                 {"message": 'OK',
-                 "data" : recommend_results["results"],
-                 "data_total_count": recommend_results["data_total_count"],
+                 "data" : data["results"],
                  "data_count": data_count,
+                 "data_total_count": data["data_total_count"],
                  }
             ),
             200,
@@ -36,6 +36,8 @@ def detail_idx():
     response.headers["Content-Type"] = "application/json"
 
     return response
+
+
 
 @app.route('/test/result_list', methods=['GET'])
 def result_list():
@@ -66,33 +68,29 @@ def result_list():
     return response
 
 
-@app.route('/test/recommend/by_company',methods=['GET'])
-def recommend_for_company():
+@app.route('/test/recommend/by_content_idx', methods=['GET'])
+def by_content_idx():
     parameter_dict = request.args.to_dict()
 
-    company_idx = parameter_dict['company_idx']
-    page_num = parameter_dict['page_num']
+    content_idx = parameter_dict['content_idx']
     data_count = parameter_dict['data_count']
 
-
     engine_recommend =  Recommend()
-
-    data = engine_recommend.recommend_by_commpany(company_idx, int(page_num), int(data_count))
-
+    recommend_results =  engine_recommend.more_like_idx(content_idx ,int(data_count))
+    
     response = make_response(
         jsonify(
                 {"message": 'OK',
-                 "data" : data["results"],
+                 "data" : recommend_results["results"],
+                 "data_total_count": recommend_results["data_total_count"],
                  "data_count": data_count,
-                 "data_total_count": data["data_total_count"],
                  }
             ),
             200,
         )
-    
     response.headers["Content-Type"] = "application/json"
-
     return response
+
 
 @app.route('/test/recommend/by_researcher',methods=['GET'])
 def recommend_for_researcher():
@@ -124,25 +122,23 @@ def recommend_for_researcher():
 
     return response
 
-#색인화 요청 api
-# @app.route('/test/indexing/request', methods=['GET'])
-# def recommend_for_researcher():
-#     parameter_dict = request.args.to_dict()
 
-#     isTrue = parameter_dict['isTrue']
-
-#     # if(isTrue):
-        
-#     response = make_response(
-#         jsonify(
-#                 {"message": 'Done'}
-#             ),
-#             200,
-#         )
+# 색인화 요청 api
+@app.route('/test/indexing/request', methods=['GET'])
+def indexing_request():
+    engine = Duplicated_Indexing()
+    engine.indexing()
     
-#     response.headers["Content-Type"] = "application/json"
+    response = make_response(
+        jsonify(
+                {"message": 'Done'}
+            ),
+            200,
+        )
+    
+    response.headers["Content-Type"] = "application/json"
 
-#     return response
+    return response
 
 
 

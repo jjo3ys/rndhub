@@ -122,3 +122,5 @@ class Duplicated_Indexing():
                                     researcher_name = researcher_name,
                                     department = department,
                                     research_field = research_field)
+        wr.commit()
+        conn.close()
