@@ -1,10 +1,13 @@
 import pymysql
 import os
+import re
 
 from difflib import SequenceMatcher
 from whoosh.index import create_in
 from whoosh.analysis import StemmingAnalyzer
 from whoosh.fields import*
+
+from konlpy.tag import Kkma
 
 conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
 curs = conn.cursor()
@@ -18,7 +21,7 @@ def duplicate():
     data_list = list()
     duplicate_list = list()
 
-    curs.execute('Select idx, title, resercher_idx from tbl_data')
+    curs.execute('Select idx, title, researcher_idx from tbl_data')
     rows = curs.fetchall()
 
     for row in rows:
@@ -54,6 +57,9 @@ class Duplicated_Indexing():
         data_idx = list()
         english_title = list()
 
+        hangul = re.compile('[^ ㄱ-ㅣ가-힣]+')
+        kkma = Kkma()
+
         curs.execute("Select data_idx, english_name from tbl_paper_data")
         paper_data = curs.fetchall()
 
@@ -65,41 +71,54 @@ class Duplicated_Indexing():
             os.makedirs(indexdir)
 
         schema = Schema(idx = ID(stored = True),
-                        title = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 2.0),
-                        content = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.5),
-                        researcher_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True),
-                        department = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.1),
-                        research_field = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.2),
-                        researcher_idx = ID(stored = True),
-                        english_name = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost = 2.0))
+                        title_Kr = KEYWORD(stored=True, field_boost=2.0),
+                        #title_Kr = NGRAMWORDS(minsize = 2, maxsize = 2,stored=True, queryor= True, field_boost= 2.0),
+                        title_En = KEYWORD(stored=True, analyzer = StemmingAnalyzer(), field_boost = 2.0),
+                        #content_Kr = NGRAMWORDS(minsize = 2, maxsize = 2,stored=True, queryor= True, field_boost= 1.5),
+                        content_Kr = KEYWORD(stored=True, field_boost=1.5),
+                        content_En = KEYWORD(stored=True, analyzer = StemmingAnalyzer(), field_boost= 1.5),
+                        researcher_name = TEXT(stored=True),
+                        department = NGRAMWORDS(minsize = 2, maxsize = 2, stored=True, queryor= True, field_boost= 1.1),
+                        research_field = NGRAMWORDS(minsize = 2, maxsize = 2, stored=True, queryor= True, field_boost= 1.2),                        
+                        english_name = KEYWORD(stored=True,analyzer = StemmingAnalyzer(), field_boost = 2.0))
 
         ix = create_in(indexdir, schema)
         wr = ix.writer()
 
         for idx in duplicate_list:
-            curs.execute("Select title, content, resercher_idx, data_type_code from tbl_data where idx =%s", idx)
+            curs.execute("Select title, content, researcher_idx, data_type_code from tbl_data where idx =%s", idx)
             data = curs.fetchall()
-
+            
             for row in data:
                 curs.execute("Select name, department, research_field from tbl_researcher_data where idx = %s", row[2])
-                researcher_data = curs.fetchall()                
+                researcher_data = curs.fetchall()
+                title = str(row[0])  
+                content = str(row[1])
+                researcher_name = researcher_data[0][0]
+                department = researcher_data[0][1]
+                research_field = researcher_data[0][2]
+                english_name = english_title[data_idx.index(int(idx))]           
 
                 if idx in data_idx and english_title[data_idx.index(int(idx))] is not None:
                     wr.add_document(idx = str(idx),
-                                    title = row[0],
-                                    content = row[1],
-                                    researcher_name = researcher_data[0][0],
-                                    department = researcher_data[0][1],
-                                    research_field = researcher_data[0][2],
-                                    researcher_idx = str(row[2]),
-                                    english_name = english_title[data_idx.index(int(idx))])
+                                    title_Kr = ' '.join(kkma.nouns(title)),
+                                    #title_Kr = hangul.sub('', title),
+                                    title_En = ' '.join(hangul.findall(title)),
+                                    content_Kr = ' '.join(kkma.nouns(content)),
+                                    #content_Kr = hangul.sub('', content),
+                                    content_En = ' '.join(hangul.findall(content)),
+                                    researcher_name = researcher_name,
+                                    department = department,
+                                    research_field = research_field,
+                                    english_name = english_name)
                 else:
                     wr.add_document(idx = str(idx),
-                                    title = row[0],
-                                    content = row[1],
-                                    researcher_name = researcher_data[0][0],
-                                    department = researcher_data[0][1],
-                                    research_field = researcher_data[0][2],
-                                    researcher_idx = str(row[2]))
-        wr.commit()
-        conn.close()
+                                    title_Kr = ' '.join(kkma.nouns(title)),
+                                    #title_Kr = hangul.sub('', title),
+                                    title_En = ' '.join(hangul.findall(title)),
+                                    content_Kr = ' '.join(kkma.nouns(content)),
+                                    #content_Kr = hangul.sub('', content),
+                                    content_En = ' '.join(hangul.findall(content)),
+                                    researcher_name = researcher_name,
+                                    department = department,
+                                    research_field = research_field)
