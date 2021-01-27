@@ -1,15 +1,26 @@
 import pymysql
 import os
+import re
+
 from difflib import SequenceMatcher
 from whoosh.index import create_in
 from whoosh.analysis import StemmingAnalyzer
-from whoosh.fields import *
-from keyword_module.keyword import Keyword
+from whoosh.fields import*
+
+from konlpy.tag import Kkma
+
 conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
 curs = conn.cursor()
     
 def similarity(a, b):
+
     return SequenceMatcher(None, a, b).ratio()
+
+def kkma_ana(input_word):
+    kkma = Kkma()
+    hangul = re.compile('[^ ㄱ-ㅣ가-힣]+')
+
+    return ' '.join(kkma(input_word)) + ' '.join(hangul.findall(input_word))
 
 def duplicate():
 
@@ -51,7 +62,7 @@ class Duplicated_Indexing():
         duplicate_list = duplicate()
 
         data_idx = list()
-        english_title = list()
+        english_title = list()       
 
         curs.execute("Select data_idx, english_name from tbl_paper_data")
         paper_data = curs.fetchall()
@@ -64,14 +75,12 @@ class Duplicated_Indexing():
             os.makedirs(indexdir)
 
         schema = Schema(idx = ID(stored = True),
-                        title = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 2.0),
-                        content = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.5),
-                        researcher_name = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True),
-                        department = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.1),
-                        research_field = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.2),
-                        researcher_idx = ID(stored = True),
-                        english_name = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost = 2.0),
-                        noun = KEYWORD(stored = True ,field_boost = 2.0))
+                        title = KEYWORD(stored = True, analyzer = StemmingAnalyzer() field_boost=2.0),
+                        content = KEYWORD(stored = True, analyzer = StemmingAnalyzer(),field_boost=1.5),
+                        researcher_name = TEXT(stored=True),
+                        department = NGRAMWORDS(minsize = 2, maxsize = 2, stored=True, queryor= True, field_boost= 1.1),
+                        research_field = NGRAMWORDS(minsize = 2, maxsize = 2, stored=True, queryor= True, field_boost= 1.2),                        
+                        english_name = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost = 2.0))
 
         ix = create_in(indexdir, schema)
         wr = ix.writer()
@@ -79,35 +88,31 @@ class Duplicated_Indexing():
         for idx in duplicate_list:
             curs.execute("Select title, content, researcher_idx, data_type_code from tbl_data where idx =%s", idx)
             data = curs.fetchall()
-
+            
             for row in data:
                 curs.execute("Select name, department, research_field from tbl_researcher_data where idx = %s", row[2])
-                researcher_data = curs.fetchall()                
+                researcher_data = curs.fetchall()
 
-                keyword = Keyword()
-                noun_list = keyword.extract_noun(row[0])
-
-                if idx in data_idx and english_title[data_idx.index(int(idx))] is not None:
+                title = str(row[0])  
+                content = str(row[1])
+                researcher_name = researcher_data[0][0]
+                department = researcher_data[0][1]
+                research_field = researcher_data[0][2]
+                
+                if idx in data_idx and english_title[data_idx.index(int(idx))] is not None:         
                     wr.add_document(idx = str(idx),
-                                    title = row[0],
-                                    content = row[1],
-                                    researcher_name = researcher_data[0][0],
-                                    department = researcher_data[0][1],
-                                    research_field = researcher_data[0][2],
-                                    researcher_idx = str(row[2]),
-                                    english_name = english_title[data_idx.index(int(idx))],
-                                    noun = noun_list)
+                                    title = kkma_ana(title),
+                                    content = kkma_ana(content),
+                                    researcher_name = researcher_name,
+                                    department = department,
+                                    research_field = research_field,
+                                    english_name = english_title[data_idx.index(int(idx))])
                 else:
                     wr.add_document(idx = str(idx),
-                                    title = row[0],
-                                    content = row[1],
-                                    researcher_name = researcher_data[0][0],
-                                    department = researcher_data[0][1],
-                                    research_field = researcher_data[0][2],
-                                    researcher_idx = str(row[2]),
-                                    noun = noun_list)
+                                    title = kkma_ana(title),                                   
+                                    content = kkma_ana(content),
+                                    researcher_name = researcher_name,
+                                    department = department,
+                                    research_field = research_field)
         wr.commit()
         conn.close()
-
-
-Duplicated_Indexing().indexing()

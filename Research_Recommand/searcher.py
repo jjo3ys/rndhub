@@ -1,15 +1,22 @@
 import os
 import pymysql
+import re
 
 from whoosh import qparser, query
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser, MultifieldParser
 from whoosh import scoring
 
+from konlpy.tag import Kkma
 
 # indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
 ix = open_dir('db_to_index_duplicate')
-sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'noun']
+sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
+
+def kkma_ana(input_word):
+    kkma = Kkma()
+    hangul = re.compile('[^ ㄱ-ㅣ가-힣]+')
+    return ' '.join(kkma.nouns(input_word))+' '.join(hangul.findall(input_word))
 
 class Search_engine():
     def searching(self, input_word, page_num, data_count):
@@ -19,7 +26,7 @@ class Search_engine():
 
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
-            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(input_word)
+            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(input_word))
             results = searcher.search_page(query, pagenum = page_num, pagelen=data_count)
 
             for r in results:                 
@@ -127,7 +134,7 @@ class Researcher_search():
 
         with ix.searcher() as s:
             restrict = query.Term('researcher_idx', idx)
-            uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(field[0][0])           
+            uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(field[0][0]))
             results = s.search(uquery, mask = restrict, limit = None)
 
             for r in results:                
