@@ -119,7 +119,7 @@ class Recommend():
         return search_results
 
 class Researcher_search():
-    def recommand_by_researcher(self, idx, data_count):       
+    def recommend_by_researcher(self, idx, data_count):       
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
@@ -152,7 +152,7 @@ class Researcher_search():
 
         return search_results
 
-    def recommand_by_history(self, idx, data_count):
+    def recommend_by_history(self, idx, data_count):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
