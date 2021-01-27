@@ -75,7 +75,7 @@ class Duplicated_Indexing():
             os.makedirs(indexdir)
 
         schema = Schema(idx = ID(stored = True),
-                        title = KEYWORD(stored = True, analyzer = StemmingAnalyzer() field_boost=2.0),
+                        title = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost=2.0),
                         content = KEYWORD(stored = True, analyzer = StemmingAnalyzer(),field_boost=1.5),
                         researcher_name = TEXT(stored=True),
                         department = NGRAMWORDS(minsize = 2, maxsize = 2, stored=True, queryor= True, field_boost= 1.1),
