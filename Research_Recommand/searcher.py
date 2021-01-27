@@ -173,11 +173,11 @@ class Researcher_search():
                     curs.execute("Select name, sector, idx from tbl_company where idx = %s", j[0])
                     company_data = curs.fetchall()
                     if company_data[0] not in company_list:
-                        company_list= {'company_name':company_data[0],
-                                       'sector':company_data[1],
-                                       'user_idx':company_data[2]}
+                        company_list.append(company_data[0])                        
+                        search_results['results'].append({'company_name':company_data[0],
+                                                          'sector':company_data[1],
+                                                          'user_idx':company_data[2]})
 
-        search_results['results'].append(company_list)
         search_results['data_total_count'] = len(search_results['results'])   
         search_results['results'] = search_results['results'][0:data_count]
         conn.close()
