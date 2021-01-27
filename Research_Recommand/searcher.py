@@ -168,15 +168,15 @@ class Researcher_search():
         for i in data_idx:
             curs.execute("Select user_idx from tbl_visit_history where target_idx = %s", i[0])
             company_idx = curs.fetchall()
-            if company_idx is not None:
-                for j in company_idx:
-                    curs.execute("Select name, sector, idx from tbl_company where idx = %s", j[0])
-                    company_data = curs.fetchall()
-                    if company_data[0] not in company_list:
-                        company_list.append(company_data[0])                        
-                        search_results['results'].append({'company_name':company_data[0],
-                                                          'sector':company_data[1],
-                                                          'user_idx':company_data[2]})
+            if company_idx is not None:                
+                curs.execute("Select name, sector, idx from tbl_company where idx = %s", company_idx[0][0])
+                company_data = curs.fetchall()
+
+                if company_data[0][0] not in company_list:
+                    company_list.append(company_data[0][0])                        
+                    search_results['results'].append({'company_name':company_data[0][0],
+                                                      'sector':company_data[0][1],
+                                                      'user_idx':company_data[0][2]})
 
         search_results['data_total_count'] = len(search_results['results'])   
         search_results['results'] = search_results['results'][0:data_count]
