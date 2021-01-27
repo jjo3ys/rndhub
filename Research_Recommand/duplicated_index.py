@@ -1,11 +1,10 @@
 import pymysql
 import os
-
 from difflib import SequenceMatcher
 from whoosh.index import create_in
 from whoosh.analysis import StemmingAnalyzer
-from whoosh.fields import*
-
+from whoosh.fields import *
+from keyword_module.keyword import Keyword
 conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
 curs = conn.cursor()
     
@@ -71,7 +70,8 @@ class Duplicated_Indexing():
                         department = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.1),
                         research_field = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.2),
                         researcher_idx = ID(stored = True),
-                        english_name = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost = 2.0))
+                        english_name = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost = 2.0),
+                        noun = KEYWORD(stored = True ,field_boost = 2.0))
 
         ix = create_in(indexdir, schema)
         wr = ix.writer()
@@ -84,6 +84,9 @@ class Duplicated_Indexing():
                 curs.execute("Select name, department, research_field from tbl_researcher_data where idx = %s", row[2])
                 researcher_data = curs.fetchall()                
 
+                keyword = Keyword()
+                noun_list = keyword.extract_noun(row[0])
+
                 if idx in data_idx and english_title[data_idx.index(int(idx))] is not None:
                     wr.add_document(idx = str(idx),
                                     title = row[0],
@@ -92,7 +95,8 @@ class Duplicated_Indexing():
                                     department = researcher_data[0][1],
                                     research_field = researcher_data[0][2],
                                     researcher_idx = str(row[2]),
-                                    english_name = english_title[data_idx.index(int(idx))])
+                                    english_name = english_title[data_idx.index(int(idx))],
+                                    noun = noun_list)
                 else:
                     wr.add_document(idx = str(idx),
                                     title = row[0],
@@ -100,9 +104,10 @@ class Duplicated_Indexing():
                                     researcher_name = researcher_data[0][0],
                                     department = researcher_data[0][1],
                                     research_field = researcher_data[0][2],
-                                    researcher_idx = str(row[2]))
+                                    researcher_idx = str(row[2]),
+                                    noun = noun_list)
         wr.commit()
         conn.close()
 
 
-# Duplicated_Indexing().indexing()
+Duplicated_Indexing().indexing()

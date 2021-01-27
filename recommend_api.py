@@ -1,7 +1,9 @@
 from flask import Flask, make_response, json, jsonify, request
 from flask_restful import reqparse, Api, Resource
 from Research_Recommand.searcher import Search_engine, Detail, Recommend, Researcher_search
-from Research_Recommand.duplicated_index import Duplicated_Indexing
+# from Research_Recommand.duplicated_index import Duplicated_Indexing
+
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -123,22 +125,22 @@ def recommend_for_researcher():
     return response
 
 
-# 색인화 요청 api
-@app.route('/test/indexing/request', methods=['GET'])
-def indexing_request():
-    engine = Duplicated_Indexing()
-    engine.indexing()
+# # 색인화 요청 api
+# @app.route('/test/indexing/request', methods=['GET'])
+# def indexing_request():
+#     engine = Duplicated_Indexing()
+#     engine.indexing()
     
-    response = make_response(
-        jsonify(
-                {"message": 'Done'}
-            ),
-            200,
-        )
+#     response = make_response(
+#         jsonify(
+#                 {"message": 'Done'}
+#             ),
+#             200,
+#         )
     
-    response.headers["Content-Type"] = "application/json"
+#     response.headers["Content-Type"] = "application/json"
 
-    return response
+#     return response
 
 
 

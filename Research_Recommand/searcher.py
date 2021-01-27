@@ -9,7 +9,7 @@ from whoosh import scoring
 
 # indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
 ix = open_dir('db_to_index_duplicate')
-sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field']
+sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'noun']
 
 class Search_engine():
     def searching(self, input_word, page_num, data_count):
@@ -73,7 +73,7 @@ class Recommend():
         with ix.searcher() as s:
             docnum = s.document_numbers(idx=input_idx)
 
-            field = 'title'
+            field = 'noun'
             kts = s.key_terms(docnum, fieldname = field, numterms=10)
             
             q = query.Or([query.Term(field, word, boost=weight) for word, weight in kts])
