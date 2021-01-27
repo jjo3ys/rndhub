@@ -11,7 +11,7 @@ from konlpy.tag import Kkma
 
 # indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
 ix = open_dir('db_to_index_duplicate')
-sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field']
+sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
 
 def kkma_ana(input_word):
     kkma = Kkma()
