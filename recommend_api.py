@@ -104,8 +104,8 @@ def recommend_for_researcher():
 
     engine_recommend =  Researcher_search()
 
-    researcher_data = engine_recommend.recommand_by_researcher(researcher_idx, int(data_count))
-    company_data = engine_recommend.recommand_by_history(researcher_idx, int(data_count))
+    researcher_data = engine_recommend.recommend_by_researcher(researcher_idx, int(data_count))
+    company_data = engine_recommend.recommend_by_history(researcher_idx, int(data_count))
 
     response = make_response(
         jsonify(

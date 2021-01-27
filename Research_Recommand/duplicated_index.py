@@ -20,7 +20,7 @@ def kkma_ana(input_word):
     kkma = Kkma()
     hangul = re.compile('[^ ㄱ-ㅣ가-힣]+')
 
-    return ' '.join(kkma(input_word)) + ' '.join(hangul.findall(input_word))
+    return ' '.join(kkma.nouns(input_word)) + ' '.join(hangul.findall(input_word))
 
 def duplicate():
 
@@ -75,7 +75,7 @@ class Duplicated_Indexing():
             os.makedirs(indexdir)
 
         schema = Schema(idx = ID(stored = True),
-                        title = KEYWORD(stored = True, analyzer = StemmingAnalyzer() field_boost=2.0),
+                        title = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost=2.0),
                         content = KEYWORD(stored = True, analyzer = StemmingAnalyzer(),field_boost=1.5),
                         researcher_name = TEXT(stored=True),
                         department = NGRAMWORDS(minsize = 2, maxsize = 2, stored=True, queryor= True, field_boost= 1.1),

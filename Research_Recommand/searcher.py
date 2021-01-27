@@ -119,7 +119,7 @@ class Recommend():
         return search_results
 
 class Researcher_search():
-    def recommand_by_researcher(self, idx, data_count):       
+    def recommend_by_researcher(self, idx, data_count):       
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
@@ -152,7 +152,7 @@ class Researcher_search():
 
         return search_results
 
-    def recommand_by_history(self, idx, data_count):
+    def recommend_by_history(self, idx, data_count):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
@@ -168,16 +168,16 @@ class Researcher_search():
         for i in data_idx:
             curs.execute("Select user_idx from tbl_visit_history where target_idx = %s", i[0])
             company_idx = curs.fetchall()
-            if company_idx is not None:
-                for j in company_idx:
-                    curs.execute("Select name, sector, idx from tbl_company where idx = %s", j[0])
-                    company_data = curs.fetchall()
-                    if company_data[0] not in company_list:
-                        company_list= {'company_name':company_data[0],
-                                       'sector':company_data[1],
-                                       'user_idx':company_data[2]}
+            if company_idx is not None:                
+                curs.execute("Select name, sector, idx from tbl_company where idx = %s", company_idx[0][0])
+                company_data = curs.fetchall()
 
-        search_results['results'].append(company_list)
+                if company_data[0][0] not in company_list:
+                    company_list.append(company_data[0][0])                        
+                    search_results['results'].append({'company_name':company_data[0][0],
+                                                      'sector':company_data[0][1],
+                                                      'user_idx':company_data[0][2]})
+
         search_results['data_total_count'] = len(search_results['results'])   
         search_results['results'] = search_results['results'][0:data_count]
         conn.close()
