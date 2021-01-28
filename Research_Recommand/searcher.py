@@ -5,6 +5,7 @@ import re
 from whoosh import qparser, query
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser, MultifieldParser
+from whoosh.analysis import StemmingAnalyzer
 from whoosh import scoring
 
 from konlpy.tag import Kkma
@@ -15,8 +16,11 @@ sche_info = ['title', 'content', 'department', 'researcher_name', 'research_fiel
 
 def kkma_ana(input_word):
     kkma = Kkma()
+    stem = StemmingAnalyzer()
     hangul = re.compile('[^ ㄱ-ㅣ가-힣]+')
-    return ' '.join(kkma.nouns(input_word))+' '.join(hangul.findall(input_word))
+    english = ' '.join(hangul.findall(input_word))
+
+    return ' '.join(kkma.nouns(input_word))+' '.join([token.text for token in stem(english)])
 
 class Search_engine():
     def searching(self, input_word, page_num, data_count):
