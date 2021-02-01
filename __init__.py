@@ -125,7 +125,7 @@ def recommend_for_researcher():
     return response
 
 
-# # 색인화 요청 api
+# index request api
 # @app.route('/test/indexing/request', methods=['GET'])
 # def indexing_request():
 #     engine = Duplicated_Indexing()
