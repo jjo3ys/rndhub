@@ -131,10 +131,10 @@ class Recommend():
             return search_results
         
         with department_ix.searcher() as s:
-            query = QueryParser('sector', department_ix.schema, group = qparser.OrGroup).parse(results['sector'])
-            results = s.search(query, limit = None)
+            query = QueryParser('sector', department_ix.schema, group = qparser.OrGroup).parse(kkma_ana(results['sector']))
+            result = s.search(query, limit = None)
 
-            for r in results:
+            for r in result:
                 department_list.append(r['department'])
 
         with ix.searcher() as searcher:
