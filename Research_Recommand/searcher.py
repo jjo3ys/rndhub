@@ -120,7 +120,13 @@ class Recommend():
             print(row)
             
         conn.close()
-            
+        
+        if results['sector'] == None:
+            search_results = {}
+            search_results['results'] = ['none']
+            search_results['data_total_count'] = ['0']
+            return search_results
+
         engine = Search_engine()
         search_results = engine.searching(results['sector'], page_num, data_count)
 
@@ -137,18 +143,18 @@ class Researcher_search():
 
         idx_list = list()
 
-        curs.execute("Select research_field from tbl_researcher_data where idx = %s", idx)
+        curs.execute("Select research_field, name from tbl_researcher_data where idx = %s", idx)
         field = curs.fetchall()
 
         with ix.searcher() as s:
-            restrict = query.Term('researcher_idx', idx)
+            restrict = query.Term('researcher_name', field[0][1])
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(field[0][0]))
             results = s.search(uquery, mask = restrict, limit = None)
 
             for r in results:                
-                if r['researcher_idx'] not in idx_list:
-                    idx_list.append(r['researcher_idx'])
-                    search_results['results'].append({'researcher_idx':r['researcher_idx'],
+                if r['researcher_name'] not in idx_list:
+                    idx_list.append(r['researcher_name'])
+                    search_results['results'].append({'researcher_idx':[field[0][1]],
                                                       'researcher_name':r['researcher_name'],
                                                       'research_field':r['research_field']})
 
@@ -176,7 +182,7 @@ class Researcher_search():
         for i in data_idx:
             curs.execute("Select user_idx from tbl_visit_history where target_idx = %s", i[0])
             company_idx = curs.fetchall()
-            if company_idx is not None:                
+            if len(company_idx) is not 0:                
                 curs.execute("Select name, sector, idx from tbl_company where idx = %s", company_idx[0][0])
                 company_data = curs.fetchall()
 
