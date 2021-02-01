@@ -56,7 +56,6 @@ def duplicate():
 
 
 class Duplicated_Indexing():    
-
     def indexing(self):
         indexdir = 'db_to_index_duplicate'
         duplicate_list = duplicate()
