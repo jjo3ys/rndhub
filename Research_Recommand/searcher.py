@@ -8,12 +8,12 @@ from whoosh.qparser import QueryParser, MultifieldParser
 from whoosh.analysis import StemmingAnalyzer
 from whoosh import scoring
 
-from konlpy.tag import Kkma
+#from konlpy.tag import Kkma
 
 # indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
 ix = open_dir('db_to_index_duplicate')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
-
+'''
 def kkma_ana(input_word):
     kkma = Kkma()
     stem = StemmingAnalyzer()
@@ -21,7 +21,7 @@ def kkma_ana(input_word):
     english = ' '.join(hangul.findall(input_word))
 
     return ' '.join(kkma.nouns(input_word))+' '.join([token.text for token in stem(english)])
-
+'''
 class Search_engine():
     def searching(self, input_word, page_num, data_count):
         search_results = {}
@@ -86,7 +86,7 @@ class Recommend():
         with ix.searcher() as s:
             docnum = s.document_numbers(idx=input_idx)
 
-            field = 'noun'
+            field = 'title'
             kts = s.key_terms(docnum, fieldname = field, numterms=10)
             
             q = query.Or([query.Term(field, word, boost=weight) for word, weight in kts])
@@ -170,7 +170,7 @@ class Researcher_search():
 
         company_list = list()
 
-        curs.execute("Select idx from tbl_data where resercher_idx = %s", idx)
+        curs.execute("Select idx from tbl_data where researcher_idx = %s", idx)
         data_idx = curs.fetchall()
 
         for i in data_idx:
@@ -191,3 +191,5 @@ class Researcher_search():
         conn.close()
 
         return search_results
+r=Researcher_search()
+print(r.recommend_by_history(10,10))
