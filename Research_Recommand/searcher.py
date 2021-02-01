@@ -24,6 +24,8 @@ class Search_engine():
         search_results['results'] = []
         search_results['data_total_count'] = []
 
+        print(input_word)
+
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
             query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(input_word))
@@ -102,14 +104,16 @@ class Recommend():
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
-        curs.execute("Select inderstry, sector from tbl_company where idx = %s", input_idx)
+        curs.execute("Select industry, sector from tbl_company where idx = %s", input_idx)
         rows = curs.fetchall()
 
         results = {}
 
         for row in rows:
-            results['indestrty'] = row[0]
+            results['industry'] = row[0]
             results['sector'] = row[1]
+            
+            print(row)
             
         conn.close()
             

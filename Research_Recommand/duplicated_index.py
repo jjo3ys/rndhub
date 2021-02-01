@@ -116,3 +116,4 @@ class Duplicated_Indexing():
                                     research_field = research_field)
         wr.commit()
         conn.close()
+Duplicated_Indexing().indexing()
