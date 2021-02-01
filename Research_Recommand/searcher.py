@@ -8,12 +8,12 @@ from whoosh.qparser import QueryParser, MultifieldParser
 from whoosh.analysis import StemmingAnalyzer
 from whoosh import scoring
 
-#from konlpy.tag import Kkma
+from konlpy.tag import Kkma
 
 # indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
 ix = open_dir('db_to_index_duplicate')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
-'''
+
 def kkma_ana(input_word):
     kkma = Kkma()
     stem = StemmingAnalyzer()
@@ -21,14 +21,12 @@ def kkma_ana(input_word):
     english = ' '.join(hangul.findall(input_word))
 
     return ' '.join(kkma.nouns(input_word))+' '.join([token.text for token in stem(english)])
-'''
+
 class Search_engine():
     def searching(self, input_word, page_num, data_count):
         search_results = {}
         search_results['results'] = []
         search_results['data_total_count'] = []
-
-        print(input_word)
 
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
@@ -100,11 +98,13 @@ class Recommend():
             
             search_results['data_total_count'] = r.total
         ix.close()
+        
 
         return search_results
 
     def recommend_by_commpany(self, input_idx, page_num, data_count):
-       
+        department_ix = open_dir('department_index')
+
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
@@ -112,24 +112,45 @@ class Recommend():
         rows = curs.fetchall()
 
         results = {}
+        department_list = list()
+
+        search_results = {}
+        search_results['results'] = []
+        search_results['data_total_count'] = []
 
         for row in rows:
             results['industry'] = row[0]
             results['sector'] = row[1]
-            
-            print(row)
-            
+   
         conn.close()
-        
+            
         if results['sector'] == None:
             search_results = {}
             search_results['results'] = ['none']
             search_results['data_total_count'] = ['0']
             return search_results
+        
+        with department_ix.searcher() as s:
+            query = QueryParser('sector', department_ix.schema, group = qparser.OrGroup).parse(results['sector'])
+            results = s.search(query, limit = None)
 
-        engine = Search_engine()
-        search_results = engine.searching(results['sector'], page_num, data_count)
+            for r in results:
+                department_list.append(r['department'])
 
+        with ix.searcher() as searcher:
+            searcher = searcher.refresh()
+            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(results['sector']))
+            allow_q = query.Term('department', department_list)
+            results = searcher.search_page(query, filter = allow_q, pagenum = page_num, pagelen = data_count)
+
+            for r in results:     
+                if r['department'] in department_list:            
+                    result_dict = dict(r)
+                    search_results['results'].append(result_dict)
+                
+            search_results['data_total_count'] = len(search_results['results'])
+
+        ix.close()
         return search_results
 
 class Researcher_search():
@@ -197,5 +218,3 @@ class Researcher_search():
         conn.close()
 
         return search_results
-r=Researcher_search()
-print(r.recommend_by_history(10,10))

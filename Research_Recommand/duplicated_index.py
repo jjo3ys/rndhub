@@ -1,4 +1,5 @@
 import pymysql
+import csv
 import os
 import re
 
@@ -77,9 +78,9 @@ class Duplicated_Indexing():
         schema = Schema(idx = ID(stored = True),
                         title = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost=2.0),
                         content = KEYWORD(stored = True, analyzer = StemmingAnalyzer(),field_boost=1.5),
-                        researcher_name = TEXT(stored=True),
-                        department = NGRAMWORDS(minsize = 2, maxsize = 2, stored=True, queryor= True, field_boost= 1.1),
-                        research_field = NGRAMWORDS(minsize = 2, maxsize = 2, stored=True, queryor= True, field_boost= 1.2),                        
+                        researcher_name = TEXT(stored = True),
+                        department = KEYWORD(stored = True, field_boost= 1.1),
+                        research_field = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost= 1.2),                        
                         english_name = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost = 2.0))
 
         ix = create_in(indexdir, schema)
@@ -104,16 +105,51 @@ class Duplicated_Indexing():
                                     title = kkma_ana(title),
                                     content = kkma_ana(content),
                                     researcher_name = researcher_name,
-                                    department = department,
-                                    research_field = research_field,
+                                    department = kkma_ana(department),
+                                    research_field = kkma_ana(research_field),
                                     english_name = english_title[data_idx.index(int(idx))])
                 else:
                     wr.add_document(idx = str(idx),
                                     title = kkma_ana(title),                                   
                                     content = kkma_ana(content),
                                     researcher_name = researcher_name,
-                                    department = department,
-                                    research_field = research_field)
+                                    department = kkma_ana(department),
+                                    research_field = kkma_ana(research_field),
         wr.commit()
         conn.close()
-Duplicated_Indexing().indexing()
+
+class Department_indexing():
+
+    def indexing(self):
+        indexdir = 'department_index'
+        if not os.path.exists(indexdir):
+            os.makedirs(indexdir)
+
+        f = open('sector.csv','r',encoding='utf-8')
+        rdr = csv.reader(f)
+        data = list()
+        result = list()
+
+        for line in rdr:
+            data.append(line)
+
+        for i in range(2, len(data)-1):
+            if data[i][0] != '':
+                department = data[i][0] 
+                info = [[department+' '+ data[i][1]], [data[i][2]]]
+
+            else:
+                info = [[department+' '+ data[i][1]], [data[i][2]]]
+
+            result.append(info)
+
+        schema = Schema(department = TEXT(stored = True),
+                        sector = KEYWORD(analyzer = StemmingAnalyzer()))
+
+        ix = create_in(indexdir, schema)
+        wr = ix.writer()
+
+        for line in result:
+            wr.add_document(department =' '.join(line[0]),
+                            sector = kkma_ana(line[1]))
+        wr.commit()
