@@ -114,7 +114,7 @@ class Duplicated_Indexing():
                                     content = kkma_ana(content),
                                     researcher_name = researcher_name,
                                     department = kkma_ana(department),
-                                    research_field = kkma_ana(research_field),
+                                    research_field = kkma_ana(research_field))
         wr.commit()
         conn.close()
 
