@@ -111,7 +111,7 @@ class Recommend():
         curs.execute("Select industry, sector from tbl_company where idx = %s", input_idx)
         rows = curs.fetchall()
 
-        results = {}
+        company = {}
         department_list = list()
 
         search_results = {}
@@ -119,19 +119,20 @@ class Recommend():
         search_results['data_total_count'] = []
 
         for row in rows:
-            results['industry'] = row[0]
-            results['sector'] = row[1]
+            company['industry'] = row[0]
+            company['sector'] = row[1]
    
         conn.close()
             
-        if results['sector'] == None:
+        if company['sector'] == None:
             search_results = {}
             search_results['results'] = ['none']
             search_results['data_total_count'] = ['0']
+            
             return search_results
         
         with department_ix.searcher() as s:
-            query = QueryParser('sector', department_ix.schema, group = qparser.OrGroup).parse(results['sector'])
+            query = QueryParser('sector', department_ix.schema, group = qparser.OrGroup).parse(company['sector'])
             results = s.search(query, limit = None)
 
             for r in results:
@@ -139,9 +140,8 @@ class Recommend():
 
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
-            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(results['sector']))
-            allow_q = query.Term('department', department_list)
-            results = searcher.search_page(query, filter = allow_q, pagenum = page_num, pagelen = data_count)
+            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(company['sector']))
+            results = searcher.search_page(query, pagenum = page_num, pagelen = data_count)
 
             for r in results:     
                 if r['department'] in department_list:            
