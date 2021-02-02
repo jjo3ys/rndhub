@@ -167,9 +167,13 @@ class Researcher_search():
             for r in results:                
                 if r['researcher_name'] not in idx_list:
                     idx_list.append(r['researcher_name'])
-                    search_results['results'].append({'researcher_idx':[field[0][1]],
-                                                      'researcher_name':r['researcher_name'],
-                                                      'research_field':r['research_field']})
+                    curs.execute("Select idx, name, department, research_field from tbl_researcher_data where name = %s", r['researcher_name'])
+                    researcher_data = curs.fetchall()
+                    search_results['results'].append({'researcher_idx':researcher_data[0][0],
+                                                      'researcher_name':researcher_data[0][1],
+                                                      'department':researcher_data[0][2],
+                                                      'research_field':researcher_data[0][3]})
+
 
             search_results['data_total_count'] = len(search_results['results'])
             search_results['results'] = search_results['results'][0:data_count]
