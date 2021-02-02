@@ -102,7 +102,7 @@ class Recommend():
         return search_results
 
     def recommend_by_commpany(self, input_idx, page_num, data_count):
-        department_ix = open_dir('department_index')
+        sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name', 'industry']
 
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
@@ -111,8 +111,6 @@ class Recommend():
         rows = curs.fetchall()
 
         company = {}
-        department_list = list()
-
         search_results = {}
         search_results['results'] = []
         search_results['data_total_count'] = []
@@ -129,26 +127,20 @@ class Recommend():
             search_results['data_total_count'] = ['0']
             
             return search_results
-        print(company['industry'])
-        with department_ix.searcher() as s:
-            query = QueryParser('sector', department_ix.schema, group = qparser.OrGroup).parse(kkma_ana(company['industry']))
-            results = s.search(query, limit = None)
-
-            for r in results:
-                print(r['department'])
-                department_list.append(r['department'])
+        
+        industry = kkma_ana(company['industry'])
+        print(industry)
 
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
-            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(company['industry']))
+            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
             results = searcher.search_page(query, pagenum = page_num, pagelen = data_count)
 
-            for r in results:     
-                if r['department'] in department_list:            
-                    result_dict = dict(r)
-                    search_results['results'].append(result_dict)
+            for r in results:            
+                result_dict = dict(r)
+                search_results['results'].append(result_dict)
                 
-            search_results['data_total_count'] = len(search_results['results'])
+            search_results['data_total_count'] = results.total
 
         ix.close()
         return search_results
@@ -218,5 +210,3 @@ class Researcher_search():
         conn.close()
 
         return search_results
-r = Recommend()
-print(r.recommend_by_commpany(4,1,5))
