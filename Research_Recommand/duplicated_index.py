@@ -151,5 +151,5 @@ class Department_indexing():
 
         for line in result:
             wr.add_document(department =' '.join(line[0]),
-                            sector = kkma_ana(line[1]))
+                            sector = kkma_ana(' '.join(line[1])))
         wr.commit()

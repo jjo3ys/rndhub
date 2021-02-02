@@ -1,6 +1,4 @@
 import os
-import pymysql
-import re
 
 from whoosh import qparser, query
 from whoosh.index import open_dir
