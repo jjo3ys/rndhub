@@ -1,4 +1,6 @@
 import os
+import re
+import pymysql
 
 from whoosh import qparser, query
 from whoosh.index import open_dir
@@ -8,7 +10,6 @@ from whoosh import scoring
 
 from konlpy.tag import Kkma
 
-# indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
 ix = open_dir('db_to_index_duplicate')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
 
@@ -122,23 +123,24 @@ class Recommend():
    
         conn.close()
             
-        if company['sector'] == None:
+        if company['industry'] == None:
             search_results = {}
             search_results['results'] = ['none']
             search_results['data_total_count'] = ['0']
             
             return search_results
-        
+        print(company['industry'])
         with department_ix.searcher() as s:
-            query = QueryParser('sector', department_ix.schema, group = qparser.OrGroup).parse(company['sector'])
+            query = QueryParser('sector', department_ix.schema, group = qparser.OrGroup).parse(kkma_ana(company['industry']))
             results = s.search(query, limit = None)
 
             for r in results:
+                print(r['department'])
                 department_list.append(r['department'])
 
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
-            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(company['sector']))
+            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(company['industry']))
             results = searcher.search_page(query, pagenum = page_num, pagelen = data_count)
 
             for r in results:     
@@ -216,3 +218,5 @@ class Researcher_search():
         conn.close()
 
         return search_results
+r = Recommend()
+print(r.recommend_by_commpany(4,1,5))

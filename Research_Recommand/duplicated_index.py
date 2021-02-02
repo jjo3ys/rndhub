@@ -57,7 +57,6 @@ def duplicate():
 
 
 class Duplicated_Indexing():    
-
     def indexing(self):
         indexdir = 'db_to_index_duplicate'
         duplicate_list = duplicate()
@@ -125,7 +124,7 @@ class Department_indexing():
         if not os.path.exists(indexdir):
             os.makedirs(indexdir)
 
-        f = open('sector.csv','r',encoding='utf-8')
+        f = open('Research_Recommand/sector.csv','r',encoding='utf-8')
         rdr = csv.reader(f)
         data = list()
         result = list()
@@ -151,5 +150,5 @@ class Department_indexing():
 
         for line in result:
             wr.add_document(department =' '.join(line[0]),
-                            sector = kkma_ana(' '.join(line[1])))
+                            sector = kkma_ana(str(line[1])))
         wr.commit()
