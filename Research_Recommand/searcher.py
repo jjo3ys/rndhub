@@ -214,3 +214,36 @@ class Researcher_search():
         conn.close()
 
         return search_results
+
+    def recommend_company_toResearcher(researcher_idx, data_count):
+        company_ix = open_dir("company_index")
+        company_sche_info = "sector", "industry"
+
+        search_results = {}
+        search_results['results'] = []
+        search_results['data_total_count'] = []
+
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()
+
+        curs.execute("Select research_field from tbl_researcher_data where idx = %s", researcher_idx)
+        research_field = curs.fetchall()
+
+        with company_ix.searcher() as searcher:
+            query = MultifieldParser(company_sche_info, company_ix.schema, group = qparser.OrGroup).parse(kkma_ana(research_field[0][0]))
+            results = searcher.search_page(query, pagenum = 1, pagelen = data_count)
+
+            for hit in results:
+                curs.execute("Select name, ceo, sector, industry from tbl_company where company_number = %s", hit['company_number'])
+                company_data = curs.fetchall()
+
+                search_results['results'].append({'company_number':hit['company_number'],
+                                                'company_name':company_data[0][0],
+                                                'company_ceo':company_data[0][1],
+                                                'sector':company_data[0][2],
+                                                'industry':company_data[0][3]})
+
+                search_results['data_total_count'] = results.total
+                search_results['results'] = search_results['results'][0:data_count]
+
+        return search_results
