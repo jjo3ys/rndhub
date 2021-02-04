@@ -42,12 +42,12 @@ class Search_engine():
         return search_results
     
     def department_matcher(self, input_word):
-        ix = open_dir('department_index')
+        dix = open_dir('department_index')
         results_list = list()
 
-        with ix.searcher() as searcher:
+        with dix.searcher() as searcher:
             searcher = searcher.refresh()
-            query = QueryParser('sector', ix.schema, group = qparser.OrGroup).parse(kkma_ana(input_word))
+            query = QueryParser('sector', dix.schema, group = qparser.OrGroup).parse(kkma_ana(input_word))
             results = searcher.search(query, limit = None)
 
             for r in results:
@@ -108,6 +108,10 @@ class Recommend():
         rows = curs.fetchall()
 
         company = {}
+        search_results = {}
+        search_results['results'] = []
+        search_results['data_total_count'] = []
+
 
         for row in rows:
             company['industry'] = row[0]
@@ -127,16 +131,17 @@ class Recommend():
 
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
-            department_filter = query.MultiTerm('department', department)
+            department_filter = query.Or([query.Term('department', department)])
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
-            results = searcher.search_page(uquery, filter = department_filter, pagenum = page_num, pagelen = data_count)
+            results = searcher.search(uquery, filter = department_filter, limit = None)
+            #results = searcher.search_page(uquery, filter = department_filter, pagenum = page_num, pagelen = data_count)
 
             for r in results:            
                 result_dict = dict(r)
                 search_results['results'].append(result_dict)
                 
-            search_results['data_total_count'] = results.total
-
+            #search_results['data_total_count'] = results.total
+    
         return search_results
 
 class Researcher_search():
@@ -193,7 +198,7 @@ class Researcher_search():
         for i in data_idx:
             curs.execute("Select user_idx from tbl_visit_history where target_idx = %s", i[0])
             company_idx = curs.fetchall()
-            if len(company_idx) is not 0:                
+            if len(company_idx) != 0:                
                 curs.execute("Select name, sector, idx from tbl_company where idx = %s", company_idx[0][0])
                 company_data = curs.fetchall()
 
