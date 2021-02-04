@@ -56,6 +56,35 @@ def duplicate():
     return duplicate_list
 
 
+def Company():
+    company_indexdir = 'company_index'
+
+    if not os.path.exists(company_indexdir):
+        os.makedirs(company_indexdir)
+
+    curs.execute("Select company_number, name, ceo, sector, industry from tbl_company")
+    company_data = curs.fetchall()
+
+    schema = Schema(company_number = ID(stored = True),
+                    name = TEXT(),
+                    ceo = TEXT(),
+                    sector = KEYWORD(),
+                    industry = KEYWORD())
+
+    company_ix = create_in(company_indexdir, schema)
+    wr = ix.writer()
+
+    for row in company_data:
+        print(row[4])
+        wr.add_document(company_number = row[0],
+                        name = row[1],
+                        ceo = row[2],
+                        sector = kkma_ana(str(row[3])),
+                        industry = kkma_ana(str(row[4])))
+    wr.commit()
+    conn.close()
+
+
 class Duplicated_Indexing():    
 
     def indexing(self):
