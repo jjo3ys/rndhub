@@ -133,14 +133,13 @@ class Recommend():
             searcher = searcher.refresh()
             department_filter = query.Or([query.Term('department', department)])
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
-            results = searcher.search(uquery, filter = department_filter, limit = None)
-            #results = searcher.search_page(uquery, filter = department_filter, pagenum = page_num, pagelen = data_count)
+            results = searcher.search_page(uquery, filter = department_filter, pagenum = page_num, pagelen = data_count)
 
             for r in results:            
                 result_dict = dict(r)
                 search_results['results'].append(result_dict)
                 
-            #search_results['data_total_count'] = results.total
+            search_results['data_total_count'] = results.total
     
         return search_results
 

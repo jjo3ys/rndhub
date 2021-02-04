@@ -159,9 +159,6 @@ class Department_indexing():
                             sector = kkma_ana(line[2]))
         wr.commit()
 
-<<<<<<< HEAD
-Department_indexing().indexing()
-=======
 # 일단 인덱싱해놓은걸로 4번 해놨는데 안해도 할수있으면 나중에 지우기
 class Company_indexing():
     def indexing(self):
@@ -195,4 +192,3 @@ class Company_indexing():
 Duplicated_Indexing().indexing()
 Department_indexing().indexing()
 Company_indexing().indexing()
->>>>>>> 2689568e25c7d8e0b55e6419df4b73f70c541dac
