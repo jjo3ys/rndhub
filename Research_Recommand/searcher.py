@@ -41,6 +41,21 @@ class Search_engine():
         ix.close()
         return search_results
     
+    def department_matcher(self, input_word):
+        ix = open_dir('department_index')
+        results_list = list()
+
+        with ix.searcher() as searcher:
+            searcher = searcher.refresh()
+            query = QueryParser('sector', ix.schema, group = qparser.OrGroup).parse(kkma_ana(input_word))
+            results = searcher.search(query, limit = None)
+
+            for r in results:
+                if r['college'] not in results_list:
+                    reuslts_list.append(r['college'])
+        
+        return results_list
+
 class Detail():
     def search_detail(self, idx):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
@@ -76,44 +91,23 @@ class Detail():
         
 class Recommend():
     def more_like_idx(self, input_idx, data_count):
-        search_results = {}
-        search_results['results'] = []
-        search_results['data_total_count'] = []
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()
+        curs.execute("Select title from tbl_data where where idx = %s", input_idx)
+        title = curs.fetchall()
 
-        with ix.searcher() as s:
-            docnum = s.document_numbers(idx=input_idx)
-
-            field = 'title'
-            kts = s.key_terms(docnum, fieldname = field, numterms=10)
-            
-            q = query.Or([query.Term(field, word, boost=weight) for word, weight in kts])
-
-            mask_q = query.Term("idx", input_idx)
-            r = s.search_page(q, pagenum = 1, pagelen = data_count, mask=mask_q)
-            
-            for hit in r:                
-                result_dict = dict(hit)
-                search_results['results'].append(result_dict) 
-            
-            search_results['data_total_count'] = r.total
-        ix.close()
-        
-
+        search_results = Search_engine().searching(str(title[0][0]), 1, data_count)
+       
+        conn.close()
         return search_results
 
     def recommend_by_commpany(self, input_idx, page_num, data_count):
-        sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name', 'industry']
-
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
-
         curs.execute("Select industry, sector from tbl_company where idx = %s", input_idx)
         rows = curs.fetchall()
 
         company = {}
-        search_results = {}
-        search_results['results'] = []
-        search_results['data_total_count'] = []
 
         for row in rows:
             company['industry'] = row[0]
@@ -129,12 +123,13 @@ class Recommend():
             return search_results
         
         industry = kkma_ana(company['industry'])
-        print(industry)
+        department = Search_engine().department_matcher(industry)
 
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
-            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
-            results = searcher.search_page(query, pagenum = page_num, pagelen = data_count)
+            department_filter = query.MultiTerm('department', department)
+            uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
+            results = searcher.search_page(uquery, filter = department_filter, pagenum = page_num, pagelen = data_count)
 
             for r in results:            
                 result_dict = dict(r)
@@ -142,7 +137,6 @@ class Recommend():
                 
             search_results['data_total_count'] = results.total
 
-        ix.close()
         return search_results
 
 class Researcher_search():

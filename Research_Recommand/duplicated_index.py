@@ -55,37 +55,13 @@ def duplicate():
 
     return duplicate_list
 
-def Department():
-
-    f = open('sector.csv','r',encoding='utf-8')
-    rdr = csv.reader(f)
-    data = list()
-    department_list = list()
-    industry_list = list()
-
-    for line in rdr:
-        data.append(line)
-
-    for i in range(2, len(data)-1):
-        if data[i][0] != '':
-            department = data[i][0] 
-            department_list.append(department+' '+ data[i][1])
-            industry_list.append(data[i][2])
-
-        else:
-            department_list.append(department+' '+ data[i][1])
-            industry_list.append(data[i][2])
-
-    return department_list, industry_list
 
 class Duplicated_Indexing():    
+
     def indexing(self):
         indexdir = 'db_to_index_duplicate'
-
         duplicate_list = duplicate()
-        print("finish duplicate")
-        department_list, industry_list = Department()
-        print(department_list)
+
         data_idx = list()
         english_title = list()       
 
@@ -105,8 +81,7 @@ class Duplicated_Indexing():
                         researcher_name = TEXT(stored = True),
                         department = KEYWORD(stored = True, field_boost= 1.1),
                         research_field = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost= 1.2),                        
-                        english_name = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost = 2.0),
-                        industry = KEYWORD(analyzer = StemmingAnalyzer(), field_boost = 10.0))
+                        english_name = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost = 2.0))
 
         ix = create_in(indexdir, schema)
         wr = ix.writer()
@@ -124,14 +99,6 @@ class Duplicated_Indexing():
                 researcher_name = researcher_data[0][0]
                 department = researcher_data[0][1]
                 research_field = researcher_data[0][2]
-
-                if department in department_list:
-                    industry = industry_list[department_list.index(department)]                
-                    print('O')
-
-                else:
-                    industry = ''
-                    print('X')
                 
                 if idx in data_idx and english_title[data_idx.index(int(idx))] is not None:         
                     wr.add_document(idx = str(idx),
@@ -140,15 +107,53 @@ class Duplicated_Indexing():
                                     researcher_name = researcher_name,
                                     department = kkma_ana(department),
                                     research_field = kkma_ana(research_field),
-                                    english_name = english_title[data_idx.index(int(idx))],
-                                    industry = kkma_ana(industry))
+                                    english_name = english_title[data_idx.index(int(idx))])
                 else:
                     wr.add_document(idx = str(idx),
                                     title = kkma_ana(title),                                   
                                     content = kkma_ana(content),
                                     researcher_name = researcher_name,
                                     department = kkma_ana(department),
-                                    research_field = kkma_ana(research_field),
-                                    industry = kkma_ana(industry))
+                                    research_field = kkma_ana(research_field))
         wr.commit()
         conn.close()
+
+class Department_indexing():
+
+    def indexing(self):
+        indexdir = 'department_index'
+        if not os.path.exists(indexdir):
+            os.makedirs(indexdir)
+
+        f = open('sector.csv','r',encoding='utf-8')
+        rdr = csv.reader(f)
+        data = list()
+        result = list()
+
+        for line in rdr:
+            data.append(line)
+
+        for i in range(2, len(data)-1):
+            if data[i][0] != '':
+                department = data[i][0] 
+                info = department, data[i][1], data[i][2]
+
+            else:
+                info = department, data[i][1], data[i][2]
+
+            result.append(info)
+
+        schema = Schema(college = TEXT(stored = True),
+                        department = TEXT(),
+                        sector = KEYWORD(analyzer = StemmingAnalyzer()))
+
+        ix = create_in(indexdir, schema)
+        wr = ix.writer()
+
+        for line in result:
+            wr.add_document(college = line[0],
+                            department = line[1],
+                            sector = kkma_ana(line[1]))
+        wr.commit()
+Duplicated_Indexing().indexing()
+Department_indexing().indexing()
