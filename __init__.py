@@ -144,8 +144,8 @@ def recommend_for_researcher():
 
 
 if __name__ == "__main__":
-    # app.run(use_reloader=False, debug=True) 
-    app.run(host='moberan.com', port='22', debug=True)
+    app.run(use_reloader=False, debug=True) 
+    # app.run(host='moberan.com', port='22', debug=True)
 
 
 
