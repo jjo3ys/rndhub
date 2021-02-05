@@ -1,6 +1,6 @@
 import os
-import pymysql
 import re
+import pymysql
 
 from whoosh import qparser, query
 from whoosh.index import open_dir
@@ -10,7 +10,6 @@ from whoosh import scoring
 
 from konlpy.tag import Kkma
 
-# indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
 ix = open_dir('db_to_index_duplicate')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
 
@@ -42,6 +41,21 @@ class Search_engine():
         ix.close()
         return search_results
     
+    def department_matcher(self, input_word):
+        dix = open_dir('department_index')
+        results_list = list()
+
+        with dix.searcher() as searcher:
+            searcher = searcher.refresh()
+            query = QueryParser('sector', dix.schema, group = qparser.OrGroup).parse(kkma_ana(input_word))
+            results = searcher.search(query, limit = None)
+
+            for r in results:
+                if r['college'] not in results_list:
+                    results_list.append(r['college'])
+        
+        return results_list
+
 class Detail():
     def search_detail(self, idx):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
@@ -77,46 +91,27 @@ class Detail():
         
 class Recommend():
     def more_like_idx(self, input_idx, data_count):
-        search_results = {}
-        search_results['results'] = []
-        search_results['data_total_count'] = []
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()
+        curs.execute("Select title from tbl_data where where idx = %s", input_idx)
+        title = curs.fetchall()
 
-        with ix.searcher() as s:
-            docnum = s.document_numbers(idx=input_idx)
-
-            field = 'title'
-            kts = s.key_terms(docnum, fieldname = field, numterms=10)
-            
-            q = query.Or([query.Term(field, word, boost=weight) for word, weight in kts])
-
-            mask_q = query.Term("idx", input_idx)
-            r = s.search_page(q, pagenum = 1, pagelen = data_count, mask=mask_q)
-            
-            for hit in r:                
-                result_dict = dict(hit)
-                search_results['results'].append(result_dict) 
-            
-            search_results['data_total_count'] = r.total
-        ix.close()
-        
-
+        search_results = Search_engine().searching(str(title[0][0]), 1, data_count)
+       
+        conn.close()
         return search_results
 
     def recommend_by_commpany(self, input_idx, page_num, data_count):
-        department_ix = open_dir('department_index')
-
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
-
         curs.execute("Select industry, sector from tbl_company where idx = %s", input_idx)
         rows = curs.fetchall()
 
         company = {}
-        department_list = list()
-
         search_results = {}
         search_results['results'] = []
         search_results['data_total_count'] = []
+
 
         for row in rows:
             company['industry'] = row[0]
@@ -124,33 +119,30 @@ class Recommend():
    
         conn.close()
             
-        if company['sector'] == None:
+        if company['industry'] == None:
             search_results = {}
             search_results['results'] = ['none']
             search_results['data_total_count'] = ['0']
             
             return search_results
         
-        with department_ix.searcher() as s:
-            query = QueryParser('sector', department_ix.schema, group = qparser.OrGroup).parse(company['sector'])
-            results = s.search(query, limit = None)
-
-            for r in results:
-                department_list.append(r['department'])
+        industry = kkma_ana(company['industry'])
+        department = Search_engine().department_matcher(industry)
 
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
-            query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(company['sector']))
-            results = searcher.search_page(query, pagenum = page_num, pagelen = data_count)
+            uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
+            results = searcher.search(uquery, limit = None)        
 
-            for r in results:     
-                if r['department'] in department_list:            
-                    result_dict = dict(r)
-                    search_results['results'].append(result_dict)
+            for r in results:
+                for i in department:
+                    if i in r['department'].split(' '):                            
+                        result_dict = dict(r)
+                        search_results['results'].append(result_dict)
                 
             search_results['data_total_count'] = len(search_results['results'])
-
-        ix.close()
+            search_results['results'] = search_results['results'][(page_num-1)*data_count:page_num*data_count]
+            
         return search_results
 
 class Researcher_search():
@@ -175,9 +167,13 @@ class Researcher_search():
             for r in results:                
                 if r['researcher_name'] not in idx_list:
                     idx_list.append(r['researcher_name'])
-                    search_results['results'].append({'researcher_idx':[field[0][1]],
-                                                      'researcher_name':r['researcher_name'],
-                                                      'research_field':r['research_field']})
+                    curs.execute("Select idx, name, department, research_field from tbl_researcher_data where name = %s", r['researcher_name'])
+                    researcher_data = curs.fetchall()
+                    search_results['results'].append({'researcher_idx':researcher_data[0][0],
+                                                      'researcher_name':researcher_data[0][1],
+                                                      'department':researcher_data[0][2],
+                                                      'research_field':researcher_data[0][3]})
+
 
             search_results['data_total_count'] = len(search_results['results'])
             search_results['results'] = search_results['results'][0:data_count]
@@ -203,7 +199,7 @@ class Researcher_search():
         for i in data_idx:
             curs.execute("Select user_idx from tbl_visit_history where target_idx = %s", i[0])
             company_idx = curs.fetchall()
-            if len(company_idx) is not 0:                
+            if len(company_idx) != 0:                
                 curs.execute("Select name, sector, idx from tbl_company where idx = %s", company_idx[0][0])
                 company_data = curs.fetchall()
 
@@ -216,5 +212,44 @@ class Researcher_search():
         search_results['data_total_count'] = len(search_results['results'])   
         search_results['results'] = search_results['results'][0:data_count]
         conn.close()
+
+        return search_results
+    
+    def recommend_company_toResearcher(self, researcher_idx, data_count):
+        company_ix = open_dir("company_index")
+
+        search_results = {}
+        search_results['results'] = []
+        search_results['data_total_count'] = []
+
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()
+
+        department_ix = open_dir("department_index")
+        with department_ix.searcher() as searcher:
+            curs.execute("Select department from tbl_researcher_data where idx = %s", researcher_idx)
+            department = curs.fetchall()
+
+            d_query = MultifieldParser(["college", "department"], department_ix.schema, group = qparser.OrGroup).parse(kkma_ana(department[0][0]))
+            d_results = searcher.search(d_query, limit=None)
+            
+            sector_list = []
+            for r in d_results:
+                sector_list.append(r["sector"])
+
+            department_ix.close()
+
+        with company_ix.searcher() as searcher:
+            searcher = searcher.refresh()
+            c_query = MultifieldParser(["industry", "sector"], department_ix.schema, group = qparser.OrGroup).parse(kkma_ana(sector_list[0]))
+            results = searcher.search_page(c_query, pagenum =1, pagelen = data_count)
+            
+            for r in results:
+                results_dict = dict(r)
+                search_results['results'].append(results_dict)
+
+            search_results['data_total_count'] = results.total
+
+            company_ix.close()
 
         return search_results

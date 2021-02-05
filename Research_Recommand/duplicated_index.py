@@ -56,6 +56,9 @@ def duplicate():
     return duplicate_list
 
 
+
+
+
 class Duplicated_Indexing():    
 
     def indexing(self):
@@ -125,7 +128,7 @@ class Department_indexing():
         if not os.path.exists(indexdir):
             os.makedirs(indexdir)
 
-        f = open('sector.csv','r',encoding='utf-8')
+        f = open('/home/jjo3ys/project/Research_Recommand/sector.csv','r',encoding='utf-8')
         rdr = csv.reader(f)
         data = list()
         result = list()
@@ -153,5 +156,39 @@ class Department_indexing():
         for line in result:
             wr.add_document(college = line[0],
                             department = line[1],
-                            sector = kkma_ana(line[1]))
+                            sector = kkma_ana(line[2]))
         wr.commit()
+
+# 일단 인덱싱해놓은걸로 4번 해놨는데 안해도 할수있으면 나중에 지우기
+class Company_indexing():
+    def indexing(self):
+        company_indexdir = 'company_index'
+
+        if not os.path.exists(company_indexdir):
+            os.makedirs(company_indexdir)
+
+        curs.execute("Select idx, name, ceo, sector, industry from tbl_company")
+        company_data = curs.fetchall()
+
+        schema = Schema(company_number = ID(stored = True),
+                        name = TEXT(),
+                        ceo = TEXT(),
+                        sector = KEYWORD(),
+                        industry = KEYWORD())
+
+        company_ix = create_in(company_indexdir, schema)
+        wr = company_ix.writer()
+
+        for row in company_data:
+            print(row[4])
+            wr.add_document(company_number = str(row[0]),
+                            name = row[1],
+                            ceo = row[2],
+                            sector = kkma_ana(str(row[3])),
+                            industry = kkma_ana(str(row[4])))
+        wr.commit()
+        conn.close()
+
+Duplicated_Indexing().indexing()
+Department_indexing().indexing()
+Company_indexing().indexing()
