@@ -136,20 +136,22 @@ class Department_indexing():
         for i in range(2, len(data)-1):
             if data[i][0] != '':
                 department = data[i][0] 
-                info = [[department+' '+ data[i][1]], [data[i][2]]]
+                info = department, data[i][1], data[i][2]
 
             else:
-                info = [[department+' '+ data[i][1]], [data[i][2]]]
+                info = department, data[i][1], data[i][2]
 
             result.append(info)
 
-        schema = Schema(department = TEXT(stored = True),
+        schema = Schema(college = TEXT(stored = True),
+                        department = TEXT(),
                         sector = KEYWORD(analyzer = StemmingAnalyzer()))
 
         ix = create_in(indexdir, schema)
         wr = ix.writer()
 
         for line in result:
-            wr.add_document(department =' '.join(line[0]),
+            wr.add_document(college = line[0],
+                            department = line[1],
                             sector = kkma_ana(line[1]))
         wr.commit()
