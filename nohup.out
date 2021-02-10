@@ -1601,3 +1601,10 @@ pymysql.err.ProgrammingError: (1064, "You have an error in your SQL syntax; chec
 192.168.0.1 - - [10/Feb/2021 18:17:24] "[37mGET /test/result_list?input_word=ai&page_num=1&data_count=10 HTTP/1.1[0m" 200 -
 192.168.0.1 - - [10/Feb/2021 18:17:42] "[37mGET /test/result_list?input_word=ai&page_num=1&data_count=10 HTTP/1.1[0m" 200 -
 222.116.13.105 - - [10/Feb/2021 18:18:25] "[37mGET /test/recommend/by_researcher?researcher_idx=12&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 18:24:47] "[37mGET /test/recommend/by_company?company_idx=20&page_num=2&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 18:24:51] "[37mGET /test/recommend/by_content_idx?content_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 18:24:58] "[37mGET /test/recommend/by_content_idx?content_idx=21&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 18:25:04] "[37mGET /test/recommend/by_researcher?researcher_idx=12&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 18:25:36] "[37mGET /test/recommend/by_researcher?researcher_idx=12&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 18:25:58] "[37mGET /test/recommend/by_researcher?researcher_idx=22&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 18:26:03] "[37mGET /test/recommend/by_researcher?researcher_idx=24&data_count=10 HTTP/1.1[0m" 200 -
