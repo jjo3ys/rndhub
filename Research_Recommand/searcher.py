@@ -93,7 +93,7 @@ class Recommend():
     def more_like_idx(self, input_idx, data_count):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
-        curs.execute("Select title from tbl_data where where idx = %s", input_idx)
+        curs.execute("Select title from tbl_data where idx = %s", input_idx)
         title = curs.fetchall()
 
         search_results = Search_engine().searching(str(title[0][0]), 1, data_count)
