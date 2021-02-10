@@ -248,6 +248,7 @@ class Researcher_search():
     
     def recommend_company_toResearcher(self, researcher_idx, data_count):
         company_ix = open_dir("company_index")
+        department_ix = open_dir("department_index")
 
         search_results = {}
         search_results['results'] = []
@@ -255,8 +256,7 @@ class Researcher_search():
 
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
-
-        department_ix = open_dir("department_index")
+  
         with department_ix.searcher() as searcher:
             curs.execute("Select department from tbl_researcher_data where idx = %s", researcher_idx)
             department = curs.fetchall()
@@ -268,15 +268,13 @@ class Researcher_search():
             for r in d_results:
                 sector_list.append(r["sector"])
 
-            department_ix.close()
-
         with company_ix.searcher() as searcher:
             searcher = searcher.refresh()
             c_query = MultifieldParser(["industry", "sector"], department_ix.schema, group = qparser.OrGroup).parse(kkma_ana(sector_list[0]))
             results = searcher.search_page(c_query, pagenum =1, pagelen = data_count)
             
             for r in results:
-                idx = r['company_number']\
+                idx = r['company_number']
                 curs.execute("Select name, industry from tbl_company where idx = %s", idx)
                 company_data = curs.fetchall()
                 search_results['results'].append({'name':company_data[0][0],                                              
@@ -288,4 +286,4 @@ class Researcher_search():
             company_ix.close()
 
         return search_results
-print(Search_engine.searching('김관호',1,10))
+print(Search_engine.searching('기계',1,10))
