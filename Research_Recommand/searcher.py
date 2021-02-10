@@ -9,7 +9,7 @@ from whoosh import scoring
 
 # indexdir = os.path.dirname("Research_Recommand/index/pip.exe")
 ix = open_dir('db_to_index_duplicate')
-sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field']
+sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_title']
 
 class Search_engine():
     def searching(self, input_word, page_num, data_count):
@@ -36,7 +36,7 @@ class Detail():
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
-        curs.execute("Select title, content, resercher_idx, data_type_code from tbl_data where idx = %s", idx)
+        curs.execute("Select title, content, researcher_idx, data_type_code from tbl_data where idx = %s", idx)
         data = curs.fetchall()
         detail_list = {}
         detail_list['results'] = []
@@ -154,7 +154,7 @@ class Researcher_search():
 
         company_list = list()
 
-        curs.execute("Select idx from tbl_data where resercher_idx = %s", idx)
+        curs.execute("Select idx from tbl_data where researcher_idx = %s", idx)
         data_idx = curs.fetchall()
 
         for i in data_idx:
@@ -175,3 +175,7 @@ class Researcher_search():
         conn.close()
 
         return search_results
+r = Search_engine()
+i = input(":")
+a=r.searching(i,25,20)
+print(a['results'])

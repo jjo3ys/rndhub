@@ -18,7 +18,7 @@ def duplicate():
     data_list = list()
     duplicate_list = list()
 
-    curs.execute('Select idx, title, resercher_idx from tbl_data')
+    curs.execute('Select idx, title, researcher_idx from tbl_data')
     rows = curs.fetchall()
 
     for row in rows:
@@ -71,13 +71,13 @@ class Duplicated_Indexing():
                         department = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.1),
                         research_field = NGRAMWORDS(minsize = 2, maxsize = 2, stored = True, queryor= True, field_boost= 1.2),
                         researcher_idx = ID(stored = True),
-                        english_name = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost = 2.0))
+                        english_title = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost = 2.0))
 
         ix = create_in(indexdir, schema)
         wr = ix.writer()
 
         for idx in duplicate_list:
-            curs.execute("Select title, content, resercher_idx, data_type_code from tbl_data where idx =%s", idx)
+            curs.execute("Select title, content, researcher_idx, data_type_code from tbl_data where idx =%s", idx)
             data = curs.fetchall()
 
             for row in data:
@@ -92,7 +92,7 @@ class Duplicated_Indexing():
                                     department = researcher_data[0][1],
                                     research_field = researcher_data[0][2],
                                     researcher_idx = str(row[2]),
-                                    english_name = english_title[data_idx.index(int(idx))])
+                                    english_title = english_title[data_idx.index(int(idx))])
                 else:
                     wr.add_document(idx = str(idx),
                                     title = row[0],
@@ -103,3 +103,4 @@ class Duplicated_Indexing():
                                     researcher_idx = str(row[2]))
         wr.commit()
         conn.close()
+Duplicated_Indexing.indexing(Duplicated_Indexing())
