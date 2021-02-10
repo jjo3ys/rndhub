@@ -80,7 +80,7 @@ class Duplicated_Indexing():
 
         schema = Schema(idx = ID(stored = True),
                         title = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost=2.0),
-                        content = KEYWORD(stored = True, analyzer = StemmingAnalyzer(),field_boost=1.5),
+                        content = KEYWORD(analyzer = StemmingAnalyzer(),field_boost=1.5),
                         researcher_name = TEXT(stored = True),
                         department = KEYWORD(stored = True, field_boost= 1.1),
                         research_field = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost= 1.2),                        
@@ -192,6 +192,6 @@ class Company_indexing():
         wr.commit()
         conn.close()
 
-# Duplicated_Indexing().indexing()
-# Department_indexing().indexing()
+Duplicated_Indexing().indexing()
+Department_indexing().indexing()
 Company_indexing().indexing()
