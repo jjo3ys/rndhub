@@ -11,7 +11,7 @@ api = Api(app)
 #API FORM TEST
 
 
-@app.route('/test/recommend/by_company_idx', methods=['GET'])
+@app.route('/test/recommend/by_company', methods=['GET'])
 def by_company_idx():
     parameter_dict = request.args.to_dict()
 

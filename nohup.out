@@ -1279,3 +1279,325 @@ Traceback (most recent call last):
   File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/err.py", line 143, in raise_mysql_exception
     raise errorclass(errno, errval)
 pymysql.err.ProgrammingError: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'where idx = '10'' at line 1")
+180.64.9.22 - - [10/Feb/2021 17:31:07] "[35m[1mGET /test/recommend/by_content_idx?content_idx=10&data_count=10 HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2464, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2450, in wsgi_app
+    response = self.handle_exception(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask_restful/__init__.py", line 272, in error_router
+    return original_handler(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1867, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask_restful/__init__.py", line 272, in error_router
+    return original_handler(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/rndhub1/Search_engine_Recommend_project/__init__.py", line 81, in by_content_idx
+    recommend_results =  engine_recommend.more_like_idx(content_idx ,int(data_count))
+  File "/home/rndhub1/Search_engine_Recommend_project/Research_Recommand/searcher.py", line 96, in more_like_idx
+    curs.execute("Select title from tbl_data where idx = %s", input_idx)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/cursors.py", line 148, in execute
+    result = self._query(query)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/cursors.py", line 310, in _query
+    conn.query(q)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 548, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 775, in _read_query_result
+    result.read()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 1156, in read
+    first_packet = self.connection._read_packet()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 725, in _read_packet
+    packet.raise_for_error()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/protocol.py", line 221, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/err.py", line 143, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.ProgrammingError: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'where idx = '10'' at line 1")
+222.116.13.105 - - [10/Feb/2021 17:31:14] "[35m[1mGET /test/recommend/by_content_idx?content_idx=21&data_count=10 HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2464, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2450, in wsgi_app
+    response = self.handle_exception(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask_restful/__init__.py", line 272, in error_router
+    return original_handler(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1867, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask_restful/__init__.py", line 272, in error_router
+    return original_handler(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/rndhub1/Search_engine_Recommend_project/__init__.py", line 81, in by_content_idx
+    recommend_results =  engine_recommend.more_like_idx(content_idx ,int(data_count))
+  File "/home/rndhub1/Search_engine_Recommend_project/Research_Recommand/searcher.py", line 96, in more_like_idx
+    curs.execute("Select title from tbl_data where idx = %s", input_idx)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/cursors.py", line 148, in execute
+    result = self._query(query)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/cursors.py", line 310, in _query
+    conn.query(q)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 548, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 775, in _read_query_result
+    result.read()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 1156, in read
+    first_packet = self.connection._read_packet()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 725, in _read_packet
+    packet.raise_for_error()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/protocol.py", line 221, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/err.py", line 143, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.ProgrammingError: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'where idx = '21'' at line 1")
+180.64.9.22 - - [10/Feb/2021 17:34:03] "[35m[1mGET /test/recommend/by_content_idx?content_idx=10&data_count=10 HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2464, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2450, in wsgi_app
+    response = self.handle_exception(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask_restful/__init__.py", line 272, in error_router
+    return original_handler(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1867, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask_restful/__init__.py", line 272, in error_router
+    return original_handler(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/rndhub1/Search_engine_Recommend_project/__init__.py", line 81, in by_content_idx
+    recommend_results =  engine_recommend.more_like_idx(content_idx ,int(data_count))
+  File "/home/rndhub1/Search_engine_Recommend_project/Research_Recommand/searcher.py", line 96, in more_like_idx
+    curs.execute("Select title from tbl_data where idx = '10'")
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/cursors.py", line 148, in execute
+    result = self._query(query)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/cursors.py", line 310, in _query
+    conn.query(q)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 548, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 775, in _read_query_result
+    result.read()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 1156, in read
+    first_packet = self.connection._read_packet()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 725, in _read_packet
+    packet.raise_for_error()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/protocol.py", line 221, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/err.py", line 143, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.ProgrammingError: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'where idx = '10'' at line 1")
+180.64.9.22 - - [10/Feb/2021 17:34:47] "[35m[1mGET /test/recommend/by_content_idx?content_idx=10&data_count=10 HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2464, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2450, in wsgi_app
+    response = self.handle_exception(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask_restful/__init__.py", line 272, in error_router
+    return original_handler(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1867, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask_restful/__init__.py", line 272, in error_router
+    return original_handler(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/rndhub1/Search_engine_Recommend_project/__init__.py", line 81, in by_content_idx
+    recommend_results =  engine_recommend.more_like_idx(content_idx ,int(data_count))
+  File "/home/rndhub1/Search_engine_Recommend_project/Research_Recommand/searcher.py", line 96, in more_like_idx
+    curs.execute("Select title from tbl_data where idx = '11'")
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/cursors.py", line 148, in execute
+    result = self._query(query)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/cursors.py", line 310, in _query
+    conn.query(q)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 548, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 775, in _read_query_result
+    result.read()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 1156, in read
+    first_packet = self.connection._read_packet()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 725, in _read_packet
+    packet.raise_for_error()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/protocol.py", line 221, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/err.py", line 143, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.ProgrammingError: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'where idx = '10'' at line 1")
+180.64.9.22 - - [10/Feb/2021 17:34:49] "[35m[1mGET /test/recommend/by_content_idx?content_idx=10&data_count=10 HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2464, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2450, in wsgi_app
+    response = self.handle_exception(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask_restful/__init__.py", line 272, in error_router
+    return original_handler(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1867, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask_restful/__init__.py", line 272, in error_router
+    return original_handler(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/rndhub1/Search_engine_Recommend_project/__init__.py", line 81, in by_content_idx
+    recommend_results =  engine_recommend.more_like_idx(content_idx ,int(data_count))
+  File "/home/rndhub1/Search_engine_Recommend_project/Research_Recommand/searcher.py", line 96, in more_like_idx
+    curs.execute("Select title from tbl_data where idx = '11'")
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/cursors.py", line 148, in execute
+    result = self._query(query)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/cursors.py", line 310, in _query
+    conn.query(q)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 548, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 775, in _read_query_result
+    result.read()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 1156, in read
+    first_packet = self.connection._read_packet()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 725, in _read_packet
+    packet.raise_for_error()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/protocol.py", line 221, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/err.py", line 143, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.ProgrammingError: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'where idx = '10'' at line 1")
+180.64.9.22 - - [10/Feb/2021 17:34:55] "[35m[1mGET /test/recommend/by_content_idx?content_idx=10&data_count=10 HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2464, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2450, in wsgi_app
+    response = self.handle_exception(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask_restful/__init__.py", line 272, in error_router
+    return original_handler(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1867, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask_restful/__init__.py", line 272, in error_router
+    return original_handler(e)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/rndhub1/Search_engine_Recommend_project/__init__.py", line 81, in by_content_idx
+    recommend_results =  engine_recommend.more_like_idx(content_idx ,int(data_count))
+  File "/home/rndhub1/Search_engine_Recommend_project/Research_Recommand/searcher.py", line 96, in more_like_idx
+    curs.execute("Select title from tbl_data where idx = '11'")
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/cursors.py", line 148, in execute
+    result = self._query(query)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/cursors.py", line 310, in _query
+    conn.query(q)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 548, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 775, in _read_query_result
+    result.read()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 1156, in read
+    first_packet = self.connection._read_packet()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/connections.py", line 725, in _read_packet
+    packet.raise_for_error()
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/protocol.py", line 221, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "/home/rndhub1/.local/lib/python3.6/site-packages/pymysql/err.py", line 143, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.ProgrammingError: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'where idx = '10'' at line 1")
+ * Serving Flask app "__init__" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: on
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+222.116.13.105 - - [10/Feb/2021 17:42:14] "[37mGET /test/recommend/by_content_idx?content_idx=21&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 17:42:21] "[37mGET /test/recommend/by_content_idx?content_idx=21&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 17:42:25] "[37mGET /test/recommend/by_company_idx?company_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 17:42:47] "[37mGET /test/recommend/by_content_idx?content_idx=10&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 17:43:01] "[37mGET /test/result_list?input_word=ai&page_num=1&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 17:43:15] "[33mGET /test/by_company?company_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 404 -
+222.116.13.105 - - [10/Feb/2021 17:43:21] "[33mGET /test/recommend/by_company?company_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 404 -
+222.116.13.105 - - [10/Feb/2021 17:43:43] "[33mGET /test/recommend/by_company?company_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 404 -
+222.116.13.105 - - [10/Feb/2021 17:44:09] "[37mGET /test/recommend/by_company_idx?company_idx=124&page_num=2&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 17:44:29] "[37mGET /test/recommend/by_company_idx?company_idx=20&page_num=2&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 17:44:47] "[33mGET /test/by_company?company_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 404 -
+222.116.13.105 - - [10/Feb/2021 17:44:55] "[33mGET /test/recommend/by_company?company_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 404 -
+222.116.13.105 - - [10/Feb/2021 17:45:18] "[37mGET /test/recommend/by_company_idx?company_idx=20&page_num=2&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 17:46:16] "[37mGET /test/recommend/by_company_idx?company_idx=20&page_num=2&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 17:48:42] "[37mGET /test/recommend/by_company_idx?company_idx=20&page_num=2&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 18:01:53] "[33mGET /test/recommend/by_company?company_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 404 -
+ * Serving Flask app "__init__" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: on
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+222.116.13.105 - - [10/Feb/2021 18:14:10] "[37mGET /test/recommend/by_researcher?researcher_idx=12&data_count=10 HTTP/1.1[0m" 200 -
+192.168.0.1 - - [10/Feb/2021 18:15:55] "[37mGET /test/result_list?input_word=ai&page_num=1&data_count=10 HTTP/1.1[0m" 200 -
+192.168.0.1 - - [10/Feb/2021 18:16:08] "[33mGET /test/by_company?company_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 404 -
+192.168.0.1 - - [10/Feb/2021 18:16:26] "[33mGET /test/by_company?company_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 404 -
+222.116.13.105 - - [10/Feb/2021 18:16:30] "[37mGET /test/result_list?input_word=ai&page_num=1&data_count=10 HTTP/1.1[0m" 200 -
+192.168.0.1 - - [10/Feb/2021 18:16:31] "[33mGET /test/recomand/by_company?company_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 404 -
+222.116.13.105 - - [10/Feb/2021 18:16:37] "[33mGET /test/by_company?company_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 404 -
+192.168.0.1 - - [10/Feb/2021 18:16:45] "[37mGET /test/recommend/by_company?company_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 18:16:48] "[37mGET /test/recommend/by_company?company_idx=20&page_num=1&data_count=10 HTTP/1.1[0m" 200 -
+192.168.0.1 - - [10/Feb/2021 18:17:24] "[37mGET /test/result_list?input_word=ai&page_num=1&data_count=10 HTTP/1.1[0m" 200 -
+192.168.0.1 - - [10/Feb/2021 18:17:42] "[37mGET /test/result_list?input_word=ai&page_num=1&data_count=10 HTTP/1.1[0m" 200 -
+222.116.13.105 - - [10/Feb/2021 18:18:25] "[37mGET /test/recommend/by_researcher?researcher_idx=12&data_count=10 HTTP/1.1[0m" 200 -
