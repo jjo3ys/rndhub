@@ -1,93 +1,148 @@
-from flask import Flask, render_template, redirect, url_for, request, session, jsonify,json, make_response
-import os
-import sys
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
-# import Research_Recommand.searcher
-from Research_Recommand.searcher import Search_engine, Detail, Recommend
-from io import StringIO
-
-app = Flask(__name__, static_url_path='/static')
-
-#START PAGE
-@app.route("/")
-def home():
-    # return render_template("index.html")
-    return redirect(url_for("search_page"))
-
-
-#MAIN SEARCH PAGE
-@app.route("/search_page", methods=['POST', 'GET'])
-def search_page():
-    if request.method == 'POST':
-        word = request.form["search_word"]
-
-        return redirect(url_for("results_list", input_word = word))
-    else:
-        return render_template("main.html")
-
-#RESULT PAGE
-@app.route("/results_list/<input_word>", methods=['POST','GET'])
-def results_list(input_word): 
-    engine = Search_engine()
-
-    if request.method == 'GET':
-        data_len = len(engine.searching(input_word)['results'])
-
-        data = json.dumps(engine.searching(input_word))         
-
-    print(make_response(data))
-    return render_template("search_result.html", input_word = input_word, str_data = data, data_len = data_len)
-    
+from flask import Flask, make_response, json, jsonify, request
+from flask_restful import reqparse, Api, Resource
+from Research_Recommand.searcher import Search_engine, Detail, Recommend, Researcher_search
+# from Research_Recommand.duplicated_index import Duplicated_Indexing
 
 
 
-#SPECIFIC PAGE
-@app.route("/specific", methods = ["POST"])
-def specific_page():
-    if request.method == 'POST':
-        id = request.form["idx"]
+app = Flask(__name__)
+api = Api(app)
 
-        return redirect(url_for("specific_result", idx = id))
+#API FORM TEST
 
-@app.route("/specific/<idx>", methods=["GET"])
-def specific_result(idx):
-    limit_num = 5
-    engine_idx = Detail()
+
+@app.route('/test/recommend/by_company_idx', methods=['GET'])
+def by_company_idx():
+    parameter_dict = request.args.to_dict()
+
+    company_idx = parameter_dict['company_idx']
+    page_num = parameter_dict['page_num']
+    data_count = parameter_dict['data_count']
+
+
     engine_recommend =  Recommend()
 
-    if request.method == 'GET':
-        spec_data = engine_idx.search_detail(idx)
-        spec_data_name = spec_data['results'][0]['title']
+    data = engine_recommend.recommend_by_commpany(company_idx, int(page_num), int(data_count))
+
+    response = make_response(
+        jsonify(
+                {"message": 'OK',
+                 "data" : data["results"],
+                 "data_count": data_count,
+                 "data_total_count": data["data_total_count"],
+                 }
+            ),
+            200,
+        )
+    
+    response.headers["Content-Type"] = "application/json"
+
+    return response
 
 
-        recommend_results =  engine_recommend.more_like_idx(idx, limit_num)
 
-        data = json.dumps(spec_data)
-        recommend_data = json.dumps(recommend_results)
+@app.route('/test/result_list', methods=['GET'])
+def result_list():
+    parameter_dict = request.args.to_dict()
 
-        return render_template("specific_page.html", str_data = data, str_recommend_results = recommend_results)
+    input_word = parameter_dict['input_word']
+    page_num = parameter_dict['page_num']
+    data_count = parameter_dict['data_count']
+
+    engine = Search_engine()
+
+    data = engine.searching(input_word, int(page_num), int(data_count))
+
+    response = make_response(
+        jsonify(
+                {"message": 'OK',
+                 "data_count": data_count,
+                 "data_total_count": data["data_total_count"],
+                 "data": data["results"],
+                 "page_num": page_num
+                 }
+            ),
+            200,
+        )
+    
+    response.headers["Content-Type"] = "application/json"
+    
+    return response
 
 
+@app.route('/test/recommend/by_content_idx', methods=['GET'])
+def by_content_idx():
+    parameter_dict = request.args.to_dict()
 
-#QUERY TEST
-#/test?a=3&b=4
-@app.route('/test', methods=['POST', 'GET'])
-def test():
+    content_idx = parameter_dict['content_idx']
+    data_count = parameter_dict['data_count']
 
-    if request.args:
-        args = request.args
+    engine_recommend =  Recommend()
+    recommend_results =  engine_recommend.more_like_idx(content_idx ,int(data_count))
+    
+    response = make_response(
+        jsonify(
+                {"message": 'OK',
+                 "data" : recommend_results["results"],
+                 "data_total_count": recommend_results["data_total_count"],
+                 "data_count": data_count,
+                 }
+            ),
+            200,
+        )
+    response.headers["Content-Type"] = "application/json"
+    return response
 
-        print(args)
-        print(f'a: {args["a"]}, b: {args["b"]}')
 
-    return request.query_string
+@app.route('/test/recommend/by_researcher',methods=['GET'])
+def recommend_for_researcher():
+    parameter_dict = request.args.to_dict()
 
+    researcher_idx = parameter_dict['researcher_idx']
+    data_count = parameter_dict['data_count']
+
+
+    engine_recommend =  Researcher_search()
+
+    researcher_data = engine_recommend.recommend_by_researcher(researcher_idx, int(data_count))
+    company_data = engine_recommend.recommend_by_history(researcher_idx, int(data_count))
+
+    response = make_response(
+        jsonify(
+                {"message": 'OK',
+                 "researcher_data" : researcher_data["results"],
+                 "company_data" : company_data["results"],
+                 "data_count": data_count,
+                 "researcher_data_total_count": researcher_data["data_total_count"],
+                 "company_data_total_count" : company_data["data_total_count"]
+                 }
+            ),
+            200,
+        )
+    
+    response.headers["Content-Type"] = "application/json"
+
+    return response
+
+
+# index request api
+# @app.route('/test/indexing/request', methods=['GET'])
+# def indexing_request():
+#     engine = Duplicated_Indexing()
+#     engine.indexing()
+    
+#     response = make_response(
+#         jsonify(
+#                 {"message": 'Done'}
+#             ),
+#             200,
+#         )
+    
+#     response.headers["Content-Type"] = "application/json"
+
+#     return response
 
 
 if __name__ == "__main__":
-    # app.run(host='192.168.0.74', port='8800', threaded=True,debug=True) #라즈베리파이용
-
-    # 깃헙 로드 확인과정임다
-    # 깃헙 로드 2번째 확인과정임다
-    app.run(use_reloader=False, debug=True) #local 용
-    # 연결 확인(ys)
+    app.run(host = "0.0.0.0", use_reloader = False, debug = True) 
+    # app.run(host='moberan.com', port='22', debug=True)
