@@ -119,6 +119,7 @@ class Duplicated_Indexing():
                                     department = kkma_ana(department),
                                     research_field = kkma_ana(research_field))
         wr.commit()
+
         conn.close()
 
 class Department_indexing():
@@ -162,6 +163,9 @@ class Department_indexing():
 # 일단 인덱싱해놓은걸로 4번 해놨는데 안해도 할수있으면 나중에 지우기
 class Company_indexing():
     def indexing(self):
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()
+        
         company_indexdir = 'company_index'
 
         if not os.path.exists(company_indexdir):
@@ -180,7 +184,6 @@ class Company_indexing():
         wr = company_ix.writer()
 
         for row in company_data:
-            print(row[4])
             wr.add_document(company_number = str(row[0]),
                             name = row[1],
                             ceo = row[2],
@@ -189,6 +192,6 @@ class Company_indexing():
         wr.commit()
         conn.close()
 
-Duplicated_Indexing().indexing()
-Department_indexing().indexing()
+# Duplicated_Indexing().indexing()
+# Department_indexing().indexing()
 Company_indexing().indexing()
