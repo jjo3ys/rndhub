@@ -79,12 +79,18 @@ class Duplicated_Indexing():
             os.makedirs(indexdir)
 
         schema = Schema(idx = ID(stored = True),
+<<<<<<< HEAD
                         title = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost=2.0),
                         content = KEYWORD(analyzer = StemmingAnalyzer(),field_boost=1.5),
                         researcher_name = TEXT(stored = True),
+=======
+                        title = KEYWORD(analyzer = StemmingAnalyzer(), field_boost=2.0),
+                        content = KEYWORD(analyzer = StemmingAnalyzer(),field_boost=1.5),
+                        researcher_name = TEXT(),
+>>>>>>> 931b6ccb561fa9c3cc4eace4428cc39a268d9d2d
                         department = KEYWORD(stored = True, field_boost= 1.1),
-                        research_field = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost= 1.2),                        
-                        english_name = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost = 2.0))
+                        research_field = KEYWORD(analyzer = StemmingAnalyzer(), field_boost= 1.2),                        
+                        english_name = KEYWORD(analyzer = StemmingAnalyzer(), field_boost = 2.0))
 
         ix = create_in(indexdir, schema)
         wr = ix.writer()
@@ -129,7 +135,7 @@ class Department_indexing():
         if not os.path.exists(indexdir):
             os.makedirs(indexdir)
 
-        f = open('Research_Recommand/sector.csv','r',encoding='utf-8')
+        f = open('sector.csv','r',encoding='utf-8')
         rdr = csv.reader(f)
         data = list()
         result = list()
@@ -192,6 +198,10 @@ class Company_indexing():
         wr.commit()
         conn.close()
 
+<<<<<<< HEAD
 Duplicated_Indexing().indexing()
+=======
+#Duplicated_Indexing().indexing()
+>>>>>>> 931b6ccb561fa9c3cc4eace4428cc39a268d9d2d
 Department_indexing().indexing()
 Company_indexing().indexing()

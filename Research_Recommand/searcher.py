@@ -21,8 +21,40 @@ def kkma_ana(input_word):
 
     return ' '.join(kkma.nouns(input_word))+' '.join([token.text for token in stem(english)])
 
+def result_list(r, search_results):
+    conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+    curs = conn.cursor()
+
+    idx = r['idx']
+    curs.execute("Select title, content, researcher_idx from tbl_data where idx = %s", str(idx))
+    content_data = curs.fetchall()
+
+    title = content_data[0][0]
+    content = content_data[0][1]
+    researcher_idx = content_data[0][2]
+
+    curs.execute("Select name, department, research_field from tbl_researcher_data where idx = %s", researcher_idx)
+    researcher_data = curs.fetchall()
+
+    name = researcher_data[0][0]
+    department = researcher_data[0][1]
+    research_field = researcher_data[0][2]
+
+    return search_results['results'].append({'title':title,
+                                             'content':content,
+                                             'name':name,
+                                             'department':department,
+                                             'research_field':research_field,
+                                             'idx':idx,
+                                             'researcher_idx':researcher_idx})
+
+    
+
 class Search_engine():
-    def searching(self, input_word, page_num, data_count):
+    def searching(input_word, page_num, data_count):
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()
+
         search_results = {}
         search_results['results'] = []
         search_results['data_total_count'] = []
@@ -33,8 +65,7 @@ class Search_engine():
             results = searcher.search_page(query, pagenum = page_num, pagelen=data_count)
 
             for r in results:                 
-                result_dict = dict(r)
-                search_results['results'].append(result_dict)
+                result_list(r, search_results)
                 
             search_results['data_total_count'] = results.total
 
@@ -104,6 +135,7 @@ class Recommend():
     def recommend_by_commpany(self, input_idx, page_num, data_count):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
+
         curs.execute("Select industry, sector from tbl_company where idx = %s", input_idx)
         rows = curs.fetchall()
 
@@ -137,8 +169,7 @@ class Recommend():
             for r in results:
                 for i in department:
                     if i in r['department'].split(' '):                            
-                        result_dict = dict(r)
-                        search_results['results'].append(result_dict)
+                        result_list(r, search_results)
                 
             search_results['data_total_count'] = len(search_results['results'])
             search_results['results'] = search_results['results'][(page_num-1)*data_count:page_num*data_count]
@@ -146,19 +177,19 @@ class Recommend():
         return search_results
 
 class Researcher_search():
+
     def recommend_by_researcher(self, idx, data_count):       
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
+
+        curs.execute("Select research_field, name from tbl_researcher_data where idx = %s", idx)
+        field = curs.fetchall()
 
         search_results = {}
         search_results['results'] = []
         search_results['data_total_count'] = []
 
         idx_list = list()
-
-        curs.execute("Select research_field, name from tbl_researcher_data where idx = %s", idx)
-        field = curs.fetchall()
-
         with ix.searcher() as s:
             restrict = query.Term('researcher_name', field[0][1])
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(field[0][0]))
@@ -245,8 +276,12 @@ class Researcher_search():
             results = searcher.search_page(c_query, pagenum =1, pagelen = data_count)
             
             for r in results:
-                results_dict = dict(r)
-                search_results['results'].append(results_dict)
+                idx = r['company_number']
+                curs.execute("Select name, industry from tbl_company where idx = %s", idx)
+                company_data = curs.fetchall()
+                search_results['results'].append({'name':company_data[0][0],                                              
+                                                  'industry':company_data[0][1],
+                                                  'user_idx':idx})
 
             search_results['data_total_count'] = results.total
 

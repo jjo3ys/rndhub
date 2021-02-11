@@ -105,7 +105,7 @@ def recommend_for_researcher():
     engine_recommend =  Researcher_search()
 
     researcher_data = engine_recommend.recommend_by_researcher(researcher_idx, int(data_count))
-    company_data = engine_recommend.recommend_by_history(researcher_idx, int(data_count))
+    company_data = engine_recommend.recommend_company_toResearcher(researcher_idx, int(data_count))
 
     response = make_response(
         jsonify(
@@ -146,4 +146,5 @@ def recommend_for_researcher():
 if __name__ == "__main__":
     app.run(host="0.0.0.0", use_reloader=False, debug=True) 
     # app.run(host='moberan.com', port='22', debug=True)
+    #app.run(use_reloader=False, debug=True)
 
