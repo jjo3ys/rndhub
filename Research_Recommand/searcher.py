@@ -1,6 +1,7 @@
 import os
 import re
 import pymysql
+import random
 
 from whoosh import qparser, query
 from whoosh.index import open_dir
@@ -21,34 +22,53 @@ def kkma_ana(input_word):
 
     return ' '.join(kkma.nouns(input_word))+' '.join([token.text for token in stem(english)])
 
-def result_list(r, search_results):
+def result_list(search_results):
     conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
     curs = conn.cursor()
 
-    idx = r['idx']
-    curs.execute("Select title, content, researcher_idx from tbl_data where idx = %s", str(idx))
-    content_data = curs.fetchall()
+    for i in range(len(search_results['results'])):
+        idx = search_results['results'][i]
+        curs.execute("Select title, content, researcher_idx from tbl_data where idx = %s", str(idx))
+        content_data = curs.fetchall()
 
-    title = content_data[0][0]
-    content = content_data[0][1]
-    researcher_idx = content_data[0][2]
+        title = content_data[0][0]
+        content = content_data[0][1]
+        researcher_idx = content_data[0][2]
 
-    curs.execute("Select name, department, research_field from tbl_researcher_data where idx = %s", researcher_idx)
-    researcher_data = curs.fetchall()
+        curs.execute("Select name, department, research_field from tbl_researcher_data where idx = %s", researcher_idx)
+        researcher_data = curs.fetchall()
 
-    name = researcher_data[0][0]
-    department = researcher_data[0][1]
-    research_field = researcher_data[0][2]
+        name = researcher_data[0][0]
+        department = researcher_data[0][1]
+        research_field = researcher_data[0][2]
 
-    return search_results['results'].append({'title':title,
-                                             'content':content,
-                                             'name':name,
-                                             'department':department,
-                                             'research_field':research_field,
-                                             'idx':idx,
-                                             'researcher_idx':researcher_idx})
+        search_results['results'][i] = {'title':title,
+                                        'content':content,
+                                        'name':name,
+                                        'department':department,
+                                        'research_field':research_field,
+                                        'idx':idx,
+                                        'researcher_idx':researcher_idx}
 
+    return search_results['results']
+
+def mixer(search_results, data_count):
+    data_count = int(data_count)
+    total_count = len(search_results['results'])
+    g1 = g2 = g3 = list()
     
+    g1 = search_results['results'][0:int(total_count*0.3)]
+    g2 = search_results['results'][int(total_count*0.3):int(total_count*0.6)]
+    g3 = search_results['results'][int(total_count*0.6):int(total_count*0.9)]
+
+    g1 = random.sample(g1, int(data_count*0.5))
+    g2 = random.sample(g2, int(data_count*0.3))
+    g3 = random.sample(g3, int(data_count*0.2))
+
+    search_results['results'] = g1 + g2 + g3
+    search_results['data_total_count'] = total_count
+
+    return search_results
 
 class Search_engine():
     def searching(self, input_word, page_num, data_count):
@@ -60,13 +80,15 @@ class Search_engine():
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
             query = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(input_word))
-            results = searcher.search_page(query, pagenum = page_num, pagelen=data_count)
+            results = searcher.search(query, limit = None)
 
-            for r in results:                 
-                result_list(r, search_results)
-                
-            search_results['data_total_count'] = results.total
+            for r in results:
+                search_results['results'].append(r['idx'])   
 
+            search_results['data_total_count'] = len(search_results['results'])                 
+            search_results['results'] = search_results['results'][(page_num-1)*data_count:page_num*data_count]
+            search_results['resutls'] = result_list(search_results)
+            
         ix.close()
         return search_results
     
@@ -158,19 +180,19 @@ class Recommend():
         
         industry = kkma_ana(company['industry'])
         department = Search_engine().department_matcher(industry)
-
+        
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
-            results = searcher.search(uquery, limit = None)        
+            results = searcher.search(uquery, limit = None) 
 
             for r in results:
                 for i in department:
                     if i in r['department'].split(' '):                            
-                        result_list(r, search_results)
-                
-            search_results['data_total_count'] = len(search_results['results'])
-            search_results['results'] = search_results['results'][(page_num-1)*data_count:page_num*data_count]
+                        search_results['results'].append(r['idx'])
+
+            search_results = mixer(search_results, data_count)            
+            search_results['results'] = result_list(search_results)
             
         return search_results
 
@@ -284,4 +306,3 @@ class Researcher_search():
             company_ix.close()
 
         return search_results
-print(Search_engine.searching('기계',1,10))
