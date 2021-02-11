@@ -285,9 +285,5 @@ class Researcher_search():
 
             company_ix.close()
 
-<<<<<<< HEAD
         return search_results
 print(Search_engine.searching('기계',1,10))
-=======
-        return search_results
->>>>>>> 931b6ccb561fa9c3cc4eace4428cc39a268d9d2d
