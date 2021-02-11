@@ -129,7 +129,7 @@ class Department_indexing():
         if not os.path.exists(indexdir):
             os.makedirs(indexdir)
 
-        f = open('sector.csv','r',encoding='utf-8')
+        f = open('Research_Recommand/sector.csv','r',encoding='utf-8')
         rdr = csv.reader(f)
         data = list()
         result = list()
