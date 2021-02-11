@@ -79,12 +79,12 @@ class Duplicated_Indexing():
             os.makedirs(indexdir)
 
         schema = Schema(idx = ID(stored = True),
-                        title = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost=2.0),
-                        content = KEYWORD(stored = True, analyzer = StemmingAnalyzer(),field_boost=1.5),
-                        researcher_name = TEXT(stored = True),
+                        title = KEYWORD(analyzer = StemmingAnalyzer(), field_boost=2.0),
+                        content = KEYWORD(analyzer = StemmingAnalyzer(),field_boost=1.5),
+                        researcher_name = TEXT(),
                         department = KEYWORD(stored = True, field_boost= 1.1),
-                        research_field = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost= 1.2),                        
-                        english_name = KEYWORD(stored = True, analyzer = StemmingAnalyzer(), field_boost = 2.0))
+                        research_field = KEYWORD(analyzer = StemmingAnalyzer(), field_boost= 1.2),                        
+                        english_name = KEYWORD(analyzer = StemmingAnalyzer(), field_boost = 2.0))
 
         ix = create_in(indexdir, schema)
         wr = ix.writer()
