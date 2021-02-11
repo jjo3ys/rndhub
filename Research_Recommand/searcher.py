@@ -51,9 +51,7 @@ def result_list(r, search_results):
     
 
 class Search_engine():
-    def searching(input_word, page_num, data_count):
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        curs = conn.cursor()
+    def searching(self, input_word, page_num, data_count):
 
         search_results = {}
         search_results['results'] = []
