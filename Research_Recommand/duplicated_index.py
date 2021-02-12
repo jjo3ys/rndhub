@@ -128,7 +128,7 @@ class Department_indexing():
         if not os.path.exists(indexdir):
             os.makedirs(indexdir)
 
-        f = open('Research_Recommand/sector.csv','r',encoding='utf-8')
+        f = open('/home/jjo3ys/project/Research_Recommand/sector.csv','r',encoding='utf-8')
         rdr = csv.reader(f)
         data = list()
         result = list()
@@ -180,7 +180,6 @@ class Company_indexing():
         wr = company_ix.writer()
 
         for row in company_data:
-            print(row[4])
             wr.add_document(company_number = str(row[0]),
                             name = row[1],
                             ceo = row[2],
