@@ -53,7 +53,7 @@ def result_list(search_results):
     return search_results['results']
 
 def mixer(search_results, data_count):
-    data_count = int(data_count)
+    data_count = int(data_count)    
     total_count = len(search_results['results'])
     g1 = g2 = g3 = list()
     
@@ -178,7 +178,7 @@ class Recommend():
             
             return search_results
         
-        industry = kkma_ana(company['industry'])
+        industry = kkma_ana(company['industry']) + kkma_ana(company['sector'])
         department = Search_engine().department_matcher(industry)
         
         with ix.searcher() as searcher:
@@ -190,6 +190,14 @@ class Recommend():
                 for i in department:
                     if i in r['department'].split(' '):                            
                         search_results['results'].append(r['idx'])
+
+        
+
+            if(len(search_results['results']) < data_count ):
+                search_results['results'] = result_list(search_results)
+                search_results['data_total_count'] = len(search_results['results'])
+
+                return search_results
 
             search_results = mixer(search_results, data_count)            
             search_results['results'] = result_list(search_results)
