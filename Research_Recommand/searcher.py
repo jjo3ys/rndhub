@@ -266,7 +266,6 @@ class Researcher_search():
     def recommend_company_toResearcher(self, researcher_idx, data_count):
 
         company_ix = open_dir("company_index")
-        department_ix = open_dir("department_index")
 
         search_results = {}
         search_results['results'] = []
@@ -274,7 +273,8 @@ class Researcher_search():
 
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
-  
+
+        department_ix = open_dir("department_index")
         with department_ix.searcher() as searcher:
             curs.execute("Select department from tbl_researcher_data where idx = %s", researcher_idx)
             department = curs.fetchall()
@@ -285,6 +285,8 @@ class Researcher_search():
             sector_list = []
             for r in d_results:
                 sector_list.append(r["sector"])
+
+            department_ix.close()
 
         with company_ix.searcher() as searcher:
             searcher = searcher.refresh()

@@ -187,6 +187,7 @@ class Company_indexing():
         wr.commit()
         conn.close()
 
-#Duplicated_Indexing().indexing()
-#Department_indexing().indexing()
-#Company_indexing().indexing()
+
+Duplicated_Indexing().indexing()
+Department_indexing().indexing()
+Company_indexing().indexing()
