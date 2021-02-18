@@ -27,7 +27,11 @@ def result_list(search_results):
     curs = conn.cursor()
 
     for i in range(len(search_results['results'])):
-        idx = search_results['results'][i]
+        if len(search_results['results'][i]) > 1:
+            idx = search_results['results'][i][0]
+        else:
+            idx = search_results['results'][i]
+
         curs.execute("Select title, content, researcher_idx from tbl_data where idx = %s", str(idx))
         content_data = curs.fetchall()
 
@@ -51,24 +55,6 @@ def result_list(search_results):
                                         'researcher_idx':researcher_idx}
 
     return search_results['results']
-
-def mixer(search_results, data_count):
-    data_count = int(data_count)
-    total_count = len(search_results['results'])
-    g1 = g2 = g3 = list()
-    
-    g1 = search_results['results'][0:int(total_count*0.3)]
-    g2 = search_results['results'][int(total_count*0.3):int(total_count*0.6)]
-    g3 = search_results['results'][int(total_count*0.6):int(total_count*0.9)]
-
-    g1 = random.sample(g1, int(data_count*0.5))
-    g2 = random.sample(g2, int(data_count*0.3))
-    g3 = random.sample(g3, int(data_count*0.2))
-
-    search_results['results'] = g1 + g2 + g3
-    search_results['data_total_count'] = total_count
-
-    return search_results
 
 class Search_engine():
     def searching(self, input_word, page_num, data_count):
@@ -95,6 +81,7 @@ class Search_engine():
     def department_matcher(self, input_word):
         dix = open_dir('department_index')
         results_list = list()
+        r_list = list()
 
         with dix.searcher() as searcher:
             searcher = searcher.refresh()
@@ -102,8 +89,9 @@ class Search_engine():
             results = searcher.search(query, limit = None)
 
             for r in results:
-                if r['college'] not in results_list:
-                    results_list.append(r['college'])
+                if r['department'] not in results_list:
+                    r_list.append(r['department'])
+                    results_list.append(kkma_ana(r['department']))
         
         return results_list
 
@@ -178,7 +166,7 @@ class Recommend():
             
             return search_results
         
-        industry = kkma_ana(company['industry'])
+        industry = kkma_ana(company['industry'] + company['sector'])
         department = Search_engine().department_matcher(industry)
         
         with ix.searcher() as searcher:
@@ -188,15 +176,24 @@ class Recommend():
 
             for r in results:
                 for i in department:
-                    if i in r['department'].split(' '):                            
-                        search_results['results'].append(r['idx'])
+                    if i == r['department']:                         
+                        search_results['results'].append([r['idx'], r['weight']+r.score])
+            
+            if len(search_results['results']) < data_count:
+                search_results['results'] = result_list(search_results)
+                search_results['data_total_count'] = len(search_results['results'])
 
-            search_results = mixer(search_results, data_count)            
+                return search_results
+
+            search_results['results'].sort(key = lambda x: -x[1])
+            search_results['data_total_count'] = len(search_results['results'])             
+            search_results['results'] = search_results['results'][(page_num-1)*data_count:page_num*data_count]          
             search_results['results'] = result_list(search_results)
             
         return search_results
 
 class Researcher_search():
+
 
     def recommend_by_researcher(self, idx, data_count):       
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
@@ -267,6 +264,7 @@ class Researcher_search():
         return search_results
     
     def recommend_company_toResearcher(self, researcher_idx, data_count):
+
         company_ix = open_dir("company_index")
         department_ix = open_dir("department_index")
 

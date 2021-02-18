@@ -2,6 +2,7 @@ import pymysql
 import csv
 import os
 import re
+import random
 
 from difflib import SequenceMatcher
 from whoosh.index import create_in
@@ -55,14 +56,10 @@ def duplicate():
 
     return duplicate_list
 
-
-
-
-
 class Duplicated_Indexing():    
 
     def indexing(self):
-        indexdir = 'db_to_index_duplicate'
+        indexdir = 'db_to_index_duplicate/'
         duplicate_list = duplicate()
 
         data_idx = list()
@@ -84,10 +81,11 @@ class Duplicated_Indexing():
                         researcher_name = TEXT(),
                         department = KEYWORD(stored = True, field_boost= 1.1),
                         research_field = KEYWORD(analyzer = StemmingAnalyzer(), field_boost= 1.2),                        
-                        english_name = KEYWORD(analyzer = StemmingAnalyzer(), field_boost = 2.0))
+                        english_name = KEYWORD(analyzer = StemmingAnalyzer(), field_boost = 2.0),
+                        weight = NUMERIC(stored = True))
 
         ix = create_in(indexdir, schema)
-        wr = ix.writer()
+        wr = ix.writer()        
 
         for idx in duplicate_list:
             curs.execute("Select title, content, researcher_idx, data_type_code from tbl_data where idx =%s", idx)
@@ -102,7 +100,8 @@ class Duplicated_Indexing():
                 researcher_name = researcher_data[0][0]
                 department = researcher_data[0][1]
                 research_field = researcher_data[0][2]
-                
+                weight = random.randrange(-5, 6)
+
                 if idx in data_idx and english_title[data_idx.index(int(idx))] is not None:         
                     wr.add_document(idx = str(idx),
                                     title = kkma_ana(title),
@@ -110,14 +109,16 @@ class Duplicated_Indexing():
                                     researcher_name = researcher_name,
                                     department = kkma_ana(department),
                                     research_field = kkma_ana(research_field),
-                                    english_name = english_title[data_idx.index(int(idx))])
+                                    english_name = english_title[data_idx.index(int(idx))],
+                                    weight = weight)
                 else:
                     wr.add_document(idx = str(idx),
                                     title = kkma_ana(title),                                   
                                     content = kkma_ana(content),
                                     researcher_name = researcher_name,
                                     department = kkma_ana(department),
-                                    research_field = kkma_ana(research_field))
+                                    research_field = kkma_ana(research_field),
+                                    weight = weight)
         wr.commit()
         conn.close()
 
@@ -128,7 +129,7 @@ class Department_indexing():
         if not os.path.exists(indexdir):
             os.makedirs(indexdir)
 
-        f = open('/home/jjo3ys/project/Research_Recommand/sector.csv','r',encoding='utf-8')
+        f = open('sector.csv','r',encoding='utf-8')
         rdr = csv.reader(f)
         data = list()
         result = list()
@@ -139,24 +140,22 @@ class Department_indexing():
         for i in range(2, len(data)-1):
             if data[i][0] != '':
                 department = data[i][0] 
-                info = department, data[i][1], data[i][2]
+                info = department + ' ' + data[i][1], data[i][2]
 
             else:
-                info = department, data[i][1], data[i][2]
+                info = department + ' ' + data[i][1], data[i][2]
 
             result.append(info)
 
-        schema = Schema(college = TEXT(stored = True),
-                        department = TEXT(),
+        schema = Schema(department = TEXT(stored = True),
                         sector = KEYWORD(analyzer = StemmingAnalyzer()))
 
         ix = create_in(indexdir, schema)
         wr = ix.writer()
 
         for line in result:
-            wr.add_document(college = line[0],
-                            department = line[1],
-                            sector = kkma_ana(line[2]))
+            wr.add_document(department = line[0],
+                            sector = kkma_ana(line[1]))
         wr.commit()
 
 # 일단 인덱싱해놓은걸로 4번 해놨는데 안해도 할수있으면 나중에 지우기
@@ -188,6 +187,6 @@ class Company_indexing():
         wr.commit()
         conn.close()
 
-Duplicated_Indexing().indexing()
-Department_indexing().indexing()
-Company_indexing().indexing()
+#Duplicated_Indexing().indexing()
+#Department_indexing().indexing()
+#Company_indexing().indexing()
