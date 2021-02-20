@@ -11,7 +11,7 @@ from whoosh import scoring
 
 from konlpy.tag import Kkma
 
-ix = open_dir('db_to_index_duplicate')
+ix = open_dir('/home/jjo3ys/project/Research_Recommand/db_to_index_duplicate')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
 
 def kkma_ana(input_word):
@@ -57,13 +57,13 @@ def mixer(search_results, data_count):
     total_count = len(search_results['results'])
     g1 = g2 = g3 = list()
     
-    g1 = search_results['results'][0:int(total_count*0.3)]
-    g2 = search_results['results'][int(total_count*0.3):int(total_count*0.6)]
-    g3 = search_results['results'][int(total_count*0.6):int(total_count*0.9)]
+    g1 = search_results['results'][0:int(total_count*0.1)]
+    g2 = search_results['results'][int(total_count*0.1):int(total_count*0.3)]
+    g3 = search_results['results'][int(total_count*0.3):int(total_count*0.9)]
 
-    g1 = random.sample(g1, int(data_count*0.5))
-    g2 = random.sample(g2, int(data_count*0.3))
-    g3 = random.sample(g3, int(data_count*0.2))
+    g1 = random.sample(g1, int(data_count*0.7))
+    g2 = random.sample(g2, int(data_count*0.2))
+    g3 = random.sample(g3, int(data_count*0.1))
 
     search_results['results'] = g1 + g2 + g3
     search_results['data_total_count'] = total_count
@@ -93,8 +93,9 @@ class Search_engine():
         return search_results
     
     def department_matcher(self, input_word):
-        dix = open_dir('department_index')
+        dix = open_dir('/home/jjo3ys/project/Research_Recommand/department_index')
         results_list = list()
+        sort_list = list()
 
         with dix.searcher() as searcher:
             searcher = searcher.refresh()
@@ -102,8 +103,10 @@ class Search_engine():
             results = searcher.search(query, limit = None)
 
             for r in results:
-                if r['college'] not in results_list:
-                    results_list.append(r['college'])
+                if r['department'] not in sort_list:
+                    sort_list.append(r['department'])
+                    department = kkma_ana(r['department'])
+                    results_list.append(department)
         
         return results_list
 
@@ -171,24 +174,25 @@ class Recommend():
    
         conn.close()
             
-        if company['industry'] == None:
+        if company['industry'] == None and company['sector'] == None:
             search_results = {}
             search_results['results'] = ['none']
             search_results['data_total_count'] = ['0']
             
             return search_results
         
-        industry = kkma_ana(company['industry']) + kkma_ana(company['sector'])
-        department = Search_engine().department_matcher(industry)
+        industry = kkma_ana(company['industry'] + ' ' + company['sector'])
         
+        department = Search_engine().department_matcher(industry)
+
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
             results = searcher.search(uquery, limit = None) 
 
             for r in results:
-                for i in department:
-                    if i in r['department'].split(' '):                            
+                for i in department:                
+                    if i == r['department']:                            
                         search_results['results'].append(r['idx'])
 
         

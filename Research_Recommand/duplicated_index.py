@@ -62,7 +62,7 @@ def duplicate():
 class Duplicated_Indexing():    
 
     def indexing(self):
-        indexdir = 'db_to_index_duplicate'
+        indexdir = '/home/jjo3ys/project/Research_Recommand/db_to_index_duplicate'
         duplicate_list = duplicate()
 
         data_idx = list()
@@ -124,7 +124,7 @@ class Duplicated_Indexing():
 class Department_indexing():
 
     def indexing(self):
-        indexdir = 'department_index'
+        indexdir = '/home/jjo3ys/project/Research_Recommand/department_index'
         if not os.path.exists(indexdir):
             os.makedirs(indexdir)
 
@@ -139,24 +139,21 @@ class Department_indexing():
         for i in range(2, len(data)-1):
             if data[i][0] != '':
                 department = data[i][0] 
-                info = department, data[i][1], data[i][2]
+                info = department + ' ' + data[i][1], data[i][2]
 
             else:
-                info = department, data[i][1], data[i][2]
-
+                info = department + ' ' + data[i][1], data[i][2]
             result.append(info)
 
-        schema = Schema(college = TEXT(stored = True),
-                        department = TEXT(),
+        schema = Schema(department = TEXT(stored = True),
                         sector = KEYWORD(analyzer = StemmingAnalyzer()))
 
         ix = create_in(indexdir, schema)
         wr = ix.writer()
 
         for line in result:
-            wr.add_document(college = line[0],
-                            department = line[1],
-                            sector = kkma_ana(line[2]))
+            wr.add_document(department = line[0],
+                            sector = kkma_ana(line[1]))
         wr.commit()
 
 # 일단 인덱싱해놓은걸로 4번 해놨는데 안해도 할수있으면 나중에 지우기
@@ -189,6 +186,6 @@ class Company_indexing():
         conn.close()
 
 
-Duplicated_Indexing().indexing()
+#Duplicated_Indexing().indexing()
 Department_indexing().indexing()
-Company_indexing().indexing()
+#Company_indexing().indexing()
