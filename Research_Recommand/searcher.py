@@ -27,7 +27,11 @@ def result_list(search_results):
     curs = conn.cursor()
 
     for i in range(len(search_results['results'])):
-        idx = search_results['results'][i]
+        if len(search_results['results'][i]) > 1:
+            idx = search_results['results'][i][0]
+        else:
+            idx = search_results['results'][i]
+
         curs.execute("Select title, content, researcher_idx from tbl_data where idx = %s", str(idx))
         content_data = curs.fetchall()
 
@@ -52,6 +56,7 @@ def result_list(search_results):
 
     return search_results['results']
 
+<<<<<<< HEAD
 def mixer(search_results, data_count):
     data_count = int(data_count)    
     total_count = len(search_results['results'])
@@ -70,6 +75,8 @@ def mixer(search_results, data_count):
 
     return search_results
 
+=======
+>>>>>>> afe6b1ef63a9f9aa57dcca7debda872abc2fd22b
 class Search_engine():
     def searching(self, input_word, page_num, data_count):
 
@@ -95,7 +102,11 @@ class Search_engine():
     def department_matcher(self, input_word):
         dix = open_dir('/home/jjo3ys/project/Research_Recommand/department_index')
         results_list = list()
+<<<<<<< HEAD
         sort_list = list()
+=======
+        r_list = list()
+>>>>>>> afe6b1ef63a9f9aa57dcca7debda872abc2fd22b
 
         with dix.searcher() as searcher:
             searcher = searcher.refresh()
@@ -103,10 +114,16 @@ class Search_engine():
             results = searcher.search(query, limit = None)
 
             for r in results:
+<<<<<<< HEAD
                 if r['department'] not in sort_list:
                     sort_list.append(r['department'])
                     department = kkma_ana(r['department'])
                     results_list.append(department)
+=======
+                if r['department'] not in results_list:
+                    r_list.append(r['department'])
+                    results_list.append(kkma_ana(r['department']))
+>>>>>>> afe6b1ef63a9f9aa57dcca7debda872abc2fd22b
         
         return results_list
 
@@ -181,7 +198,12 @@ class Recommend():
             
             return search_results
         
+<<<<<<< HEAD
         industry = kkma_ana(company['industry'] + ' ' + company['sector'])
+=======
+        industry = kkma_ana(company['industry'] + company['sector'])
+        department = Search_engine().department_matcher(industry)
+>>>>>>> afe6b1ef63a9f9aa57dcca7debda872abc2fd22b
         
         department = Search_engine().department_matcher(industry)
 
@@ -191,6 +213,7 @@ class Recommend():
             results = searcher.search(uquery, limit = None) 
 
             for r in results:
+<<<<<<< HEAD
                 for i in department:                
                     if i == r['department']:                            
                         search_results['results'].append(r['idx'])
@@ -198,17 +221,27 @@ class Recommend():
         
 
             if(len(search_results['results']) < data_count ):
+=======
+                for i in department:
+                    if i == r['department']:                         
+                        search_results['results'].append([r['idx'], r['weight']+r.score])
+            
+            if len(search_results['results']) < data_count:
+>>>>>>> afe6b1ef63a9f9aa57dcca7debda872abc2fd22b
                 search_results['results'] = result_list(search_results)
                 search_results['data_total_count'] = len(search_results['results'])
 
                 return search_results
 
-            search_results = mixer(search_results, data_count)            
+            search_results['results'].sort(key = lambda x: -x[1])
+            search_results['data_total_count'] = len(search_results['results'])             
+            search_results['results'] = search_results['results'][(page_num-1)*data_count:page_num*data_count]          
             search_results['results'] = result_list(search_results)
             
         return search_results
 
 class Researcher_search():
+
 
     def recommend_by_researcher(self, idx, data_count):       
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
@@ -279,6 +312,7 @@ class Researcher_search():
         return search_results
     
     def recommend_company_toResearcher(self, researcher_idx, data_count):
+
         company_ix = open_dir("company_index")
 
         search_results = {}
