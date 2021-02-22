@@ -10,7 +10,7 @@ from searcher import Search_engine
 #ix = open_dir(indexdir)
 ix = open_dir('db_to_index_duplicate')
 sche_info =['data_name', 'abstracts', 'part', 'researcher_fields']
-
+#123
 class Recommand():
     def recoman(self, data_name):       
            
