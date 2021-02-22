@@ -11,9 +11,9 @@ from whoosh import scoring
 
 from konlpy.tag import Kkma
 
-ix = open_dir('/home/jjo3ys/project/Research_Recommand/db_to_index_duplicate')
-dix = open_dir('/home/jjo3ys/project/Research_Recommand/department_index')
-cix = open_dir('/home/jjo3ys/project/Research_Recommand/company_index')
+ix = open_dir('Research_Recommand/db_to_index_duplicate')
+dix = open_dir('Research_Recommand/department_index')
+cix = open_dir('Research_Recommand/company_index')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
 
 def kkma_ana(input_word):
