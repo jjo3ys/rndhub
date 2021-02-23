@@ -1,5 +1,11 @@
 from flask import Flask, make_response, json, jsonify, request
 from flask_restful import reqparse, Api, Resource
+<<<<<<< HEAD
+=======
+from Research_Recommand.searcher import Search_engine, Detail, Recommend, Researcher_search
+from Research_Recommand.duplicated_index import Duplicated_Indexing, Department_indexing, Company_indexing
+
+>>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
 
 from Research_Recommend.searcher import Search_engine, Detail, Recommend, Researcher_search
 from Research_Recommend.duplicated_index import Duplicated_Indexing, Company_indexing, Department_indexing
@@ -126,6 +132,7 @@ def recommend_for_researcher():
 # index request api
 @app.route('/test/indexing/request', methods=['GET'])
 def indexing_request():
+<<<<<<< HEAD
 
     engine = Duplicated_Indexing()
     engine.indexing()
@@ -144,6 +151,28 @@ def indexing_request():
         )
     
     response.headers["Content-Type"] = "application/json"
+=======
+    print('start')
+    engine = Duplicated_Indexing()
+    engine.indexing()
+    print('finishing Duplicated_indexing')
+    engine = Department_indexing()
+    engine.indexing()
+    print('finishing Department_indexing')
+    engine = Company_indexing()
+    engine.indexing()
+    print('finishing Company_indexing')
+    response = make_response(
+        jsonify(
+                {"message": 'Done'}
+            ),
+            200,
+        )
+    
+    response.headers["Content-Type"] = "application/json"
+
+    return response
+>>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
 
     return response
 

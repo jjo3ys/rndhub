@@ -58,10 +58,24 @@ def duplicate():
 class Duplicated_Indexing():    
 
     def indexing(self):
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:Research_Recommend/duplicated_index.py
+>>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
         indexdir = 'Research_Recommend/db_to_index_duplicate'
+<<<<<<< HEAD
+=======
+========
+<<<<<<< HEAD
+        indexdir = '/home/jjo3ys/project/Research_Recommand/db_to_index_duplicate'
+=======
+        indexdir = 'db_to_index_duplicate/'
+>>>>>>> afe6b1ef63a9f9aa57dcca7debda872abc2fd22b
+>>>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f:Research_Recommand/duplicated_index.py
+>>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
         duplicate_list = duplicate()
 
         data_idx = list()
@@ -127,8 +141,16 @@ class Duplicated_Indexing():
 class Department_indexing():
 
     def indexing(self):
+<<<<<<< HEAD
         indexdir = 'Research_Recommend/department_index'
 
+=======
+<<<<<<<< HEAD:Research_Recommend/duplicated_index.py
+        indexdir = 'Research_Recommend/department_index'
+========
+        indexdir = '/home/jjo3ys/project/Research_Recommand/department_index'
+>>>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f:Research_Recommand/duplicated_index.py
+>>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
         if not os.path.exists(indexdir):
             os.makedirs(indexdir)
 
@@ -147,7 +169,14 @@ class Department_indexing():
 
             else:
                 info = department + ' ' + data[i][1], data[i][2]
+<<<<<<< HEAD
 
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> afe6b1ef63a9f9aa57dcca7debda872abc2fd22b
+>>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
             result.append(info)
 
         schema = Schema(department = TEXT(stored = True),
@@ -195,5 +224,9 @@ class Company_indexing():
 
 
 #Duplicated_Indexing().indexing()
+<<<<<<< HEAD
 #Department_indexing().indexing()
+=======
+Department_indexing().indexing()
+>>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
 #Company_indexing().indexing()
