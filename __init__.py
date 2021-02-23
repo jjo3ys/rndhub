@@ -133,6 +133,7 @@ def recommend_for_researcher():
 @app.route('/test/indexing/request', methods=['GET'])
 def indexing_request():
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     engine = Duplicated_Indexing()
     engine.indexing()
@@ -152,6 +153,8 @@ def indexing_request():
     
     response.headers["Content-Type"] = "application/json"
 =======
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
     print('start')
     engine = Duplicated_Indexing()
     engine.indexing()
@@ -172,7 +175,10 @@ def indexing_request():
     response.headers["Content-Type"] = "application/json"
 
     return response
+<<<<<<< HEAD
 >>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
 
     return response
 

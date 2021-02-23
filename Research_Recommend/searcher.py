@@ -12,19 +12,27 @@ from whoosh import scoring
 from konlpy.tag import Kkma
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ix = open_dir('Research_Recommend/db_to_index_duplicate')
 dix = open_dir('Research_Recommend/department_index')
 cix = open_dir('Research_Recommend/company_index')
 =======
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
 <<<<<<<< HEAD:Research_Recommend/searcher.py
 ix = open_dir('Research_Recommand/db_to_index_duplicate')
 dix = open_dir('Research_Recommand/department_index')
 cix = open_dir('Research_Recommand/company_index')
 ========
 ix = open_dir('/home/jjo3ys/project/Research_Recommand/db_to_index_duplicate')
+<<<<<<< HEAD
 >>>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f:Research_Recommand/searcher.py
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
 >>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
+=======
+>>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1:Research_Recommand/searcher.py
+sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
 
 def kkma_ana(input_word):
     kkma = Kkma()
@@ -69,8 +77,11 @@ def result_list(search_results):
     return search_results['results']
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
 def mixer(search_results, data_count):
     data_count = int(data_count)    
     total_count = len(search_results['results'])
@@ -91,7 +102,10 @@ def mixer(search_results, data_count):
 
 =======
 >>>>>>> afe6b1ef63a9f9aa57dcca7debda872abc2fd22b
+<<<<<<< HEAD
 >>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
 class Search_engine():
     def searching(self, input_word, page_num, data_count):
 
@@ -115,22 +129,32 @@ class Search_engine():
     
     def department_matcher(self, input_word):
 <<<<<<< HEAD
+<<<<<<< HEAD
         results_list = list()
         r_list = list()
 
 =======
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
 <<<<<<<< HEAD:Research_Recommend/searcher.py
         
 ========
         dix = open_dir('/home/jjo3ys/project/Research_Recommand/department_index')
+<<<<<<< HEAD
 >>>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f:Research_Recommand/searcher.py
+=======
+>>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1:Research_Recommand/searcher.py
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
         results_list = list()
 <<<<<<< HEAD
         sort_list = list()
 =======
         r_list = list()
 >>>>>>> afe6b1ef63a9f9aa57dcca7debda872abc2fd22b
+<<<<<<< HEAD
 >>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
 
         with dix.searcher() as searcher:
             searcher = searcher.refresh()
@@ -138,6 +162,7 @@ class Search_engine():
             results = searcher.search(query, limit = None)
 
             for r in results:
+<<<<<<< HEAD
 <<<<<<< HEAD
                 if r['department'] not in results_list:
                     r_list.append(r['department'])
@@ -147,6 +172,8 @@ class Search_engine():
 
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
                 if r['department'] not in sort_list:
                     sort_list.append(r['department'])
                     department = kkma_ana(r['department'])
@@ -192,7 +219,10 @@ class Detail():
         conn.close()
         return detail_list
         
+<<<<<<< HEAD
 >>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
 class Recommend():
     def more_like_idx(self, input_idx, data_count):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
@@ -200,10 +230,13 @@ class Recommend():
         curs.execute("Select title from tbl_data where idx = %s", input_idx)
         title = curs.fetchall()
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         search_results = Search_engine().searching(str(title[0][0]), 1, data_count)
 =======
 >>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
         
         search_results = {}
         search_results['results'] = []
@@ -255,13 +288,19 @@ class Recommend():
         industry = kkma_ana(company['industry'] + ' ' + company['sector'])
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
         industry = kkma_ana(company['industry'] + ' ' + company['sector'])
 =======
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
         industry = kkma_ana(company['industry'] + company['sector'])
         department = Search_engine().department_matcher(industry)
 >>>>>>> afe6b1ef63a9f9aa57dcca7debda872abc2fd22b
         
+<<<<<<< HEAD
 >>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
         department = Search_engine().department_matcher(industry)
 
         with ix.searcher() as searcher:
@@ -271,8 +310,11 @@ class Recommend():
 
             for r in results:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
                 for i in department:                
                     if i == r['department']:                            
                         search_results['results'].append(r['idx'])
@@ -281,7 +323,10 @@ class Recommend():
 
             if(len(search_results['results']) < data_count ):
 =======
+<<<<<<< HEAD
 >>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
+=======
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
                 for i in department:
                     if i == r['department']:                         
                         search_results['results'].append([r['idx'], r['weight']+r.score])
@@ -290,18 +335,26 @@ class Recommend():
                         
             if len(search_results['results']) < data_count:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> afe6b1ef63a9f9aa57dcca7debda872abc2fd22b
 >>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
+=======
+>>>>>>> afe6b1ef63a9f9aa57dcca7debda872abc2fd22b
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
                 search_results['results'] = result_list(search_results)
                 search_results['data_total_count'] = len(search_results['results'])
 
                 return search_results
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
+=======
+
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
             search_results['data_total_count'] = len(search_results['results'])             
             search_results['results'] = search_results['results'][(page_num-1)*data_count:page_num*data_count]          
             search_results['results'] = result_list(search_results)
@@ -387,9 +440,13 @@ class Researcher_search():
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> 6d799e5e0a6a05e9d556fbfe508552e940ba090f
+=======
+
+>>>>>>> 9316d92d01ed37bc968b2e0942c8c7fc51d5bca1
         with dix.searcher() as searcher:
             curs.execute("Select department from tbl_researcher_data where idx = %s", researcher_idx)
             department = curs.fetchall()
