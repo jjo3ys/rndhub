@@ -10,9 +10,6 @@ from whoosh.analysis import StemmingAnalyzer
 from whoosh.fields import*
 
 from konlpy.tag import Kkma
-
-conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-curs = conn.cursor()
     
 def similarity(a, b):
 
@@ -25,6 +22,8 @@ def kkma_ana(input_word):
     return ' '.join(kkma.nouns(input_word)) + ' '.join(hangul.findall(input_word))
 
 def duplicate():
+    conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+    curs = conn.cursor()
 
     num_list = list()
     data_list = list()
@@ -59,6 +58,9 @@ def duplicate():
 class Duplicated_Indexing():    
 
     def indexing(self):
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()
+
         indexdir = 'Research_Recommend/db_to_index_duplicate'
         duplicate_list = duplicate()
 
@@ -80,7 +82,7 @@ class Duplicated_Indexing():
                         content = KEYWORD(analyzer = StemmingAnalyzer(),field_boost=1.5),
                         researcher_name = TEXT(stored = True),
                         department = KEYWORD(stored = True, field_boost= 1.1),
-                        research_field = KEYWORD(analyzer = StemmingAnalyzer(), field_boost= 1.2),                        
+                        research_field = KEYWORD(analyzer = StemmingAnalyzer(), field_boost= 1.2),                      
                         english_name = KEYWORD(analyzer = StemmingAnalyzer(), field_boost = 2.0),
                         weight = NUMERIC(stored = True))
 
@@ -125,11 +127,12 @@ class Duplicated_Indexing():
 class Department_indexing():
 
     def indexing(self):
-        indexdir = '/home/jjo3ys/project/Research_Recommend/department_index'
+        indexdir = 'Research_Recommend/department_index'
+
         if not os.path.exists(indexdir):
             os.makedirs(indexdir)
 
-        f = open('sector.csv','r',encoding='utf-8')
+        f = open('Research_Recommend/sector.csv','r',encoding='utf-8')
         rdr = csv.reader(f)
         data = list()
         result = list()
@@ -144,10 +147,11 @@ class Department_indexing():
 
             else:
                 info = department + ' ' + data[i][1], data[i][2]
+
             result.append(info)
 
         schema = Schema(department = TEXT(stored = True),
-                        sector = KEYWORD(analyzer = StemmingAnalyzer()))
+                        sector = KEYWORD(stored = True, analyzer = StemmingAnalyzer()))
 
         ix = create_in(indexdir, schema)
         wr = ix.writer()
@@ -160,6 +164,9 @@ class Department_indexing():
 # 일단 인덱싱해놓은걸로 4번 해놨는데 안해도 할수있으면 나중에 지우기
 class Company_indexing():
     def indexing(self):
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()   
+
         company_indexdir = 'Research_Recommend/company_index'
 
         if not os.path.exists(company_indexdir):

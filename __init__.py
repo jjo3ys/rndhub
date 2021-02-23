@@ -1,9 +1,8 @@
 from flask import Flask, make_response, json, jsonify, request
 from flask_restful import reqparse, Api, Resource
+
 from Research_Recommend.searcher import Search_engine, Detail, Recommend, Researcher_search
 from Research_Recommend.duplicated_index import Duplicated_Indexing, Company_indexing, Department_indexing
-
-
 
 app = Flask(__name__)
 api = Api(app)
@@ -124,19 +123,19 @@ def recommend_for_researcher():
 
     return response
 
-
-#index request api
+# index request api
 @app.route('/test/indexing/request', methods=['GET'])
 def indexing_request():
+
     engine = Duplicated_Indexing()
     engine.indexing()
 
     engine = Department_indexing()
     engine.indexing()
-
+    
     engine = Company_indexing()
     engine.indexing()
-    
+
     response = make_response(
         jsonify(
                 {"message": 'Done'}
@@ -148,9 +147,6 @@ def indexing_request():
 
     return response
 
-
 if __name__ == "__main__":
-    #app.run(host="0.0.0.0", use_reloader=False, debug=True) 
-    #app.run(host='moberan.com', port='22', debug=True)
-    app.run(use_reloader=False, debug=True)
-
+    app.run(host="0.0.0.0", use_reloader=False, debug=True) 
+    #app.run(use_reloader=False, debug=True) 로컬용
