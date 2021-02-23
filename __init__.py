@@ -1,7 +1,7 @@
 from flask import Flask, make_response, json, jsonify, request
 from flask_restful import reqparse, Api, Resource
-from Research_Recommand.searcher import Search_engine, Detail, Recommend, Researcher_search
-# from Research_Recommand.duplicated_index import Duplicated_Indexing
+from Research_Recommend.searcher import Search_engine, Detail, Recommend, Researcher_search
+from Research_Recommend.duplicated_index import Duplicated_Indexing, Company_indexing, Department_indexing
 
 
 
@@ -125,31 +125,32 @@ def recommend_for_researcher():
     return response
 
 
-# index request api
-# @app.route('/test/indexing/request', methods=['GET'])
-# def indexing_request():
-#     engine = Duplicated_Indexing()
-#     engine.indexing()
-    
-#     response = make_response(
-#         jsonify(
-#                 {"message": 'Done'}
-#             ),
-#             200,
-#         )
-    
-#     response.headers["Content-Type"] = "application/json"
+#index request api
+@app.route('/test/indexing/request', methods=['GET'])
+def indexing_request():
+    engine = Duplicated_Indexing()
+    engine.indexing()
 
-#     return response
+    engine = Department_indexing()
+    engine.indexing()
+
+    engine = Company_indexing()
+    engine.indexing()
+    
+    response = make_response(
+        jsonify(
+                {"message": 'Done'}
+            ),
+            200,
+        )
+    
+    response.headers["Content-Type"] = "application/json"
+
+    return response
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    #$app.run(host="0.0.0.0", use_reloader=False, debug=True) 
-    # app.run(host='moberan.com', port='22', debug=True)
-=======
     #app.run(host="0.0.0.0", use_reloader=False, debug=True) 
     #app.run(host='moberan.com', port='22', debug=True)
->>>>>>> afe6b1ef63a9f9aa57dcca7debda872abc2fd22b
     app.run(use_reloader=False, debug=True)
 

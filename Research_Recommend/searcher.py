@@ -11,9 +11,9 @@ from whoosh import scoring
 
 from konlpy.tag import Kkma
 
-ix = open_dir('Research_Recommend/db_to_index_duplicate')
-cix = open_dir("Research_Recommend/company_index")
-dix = open_dir("Research_Recommend/department_index")
+ix = open_dir('/home/jjo3ys/project/Research_Recommend/db_to_index_duplicate')
+dix = open_dir('/home/jjo3ys/project/Research_Recommend/department_index')
+#cix = open_dir('/home/jjo3ys/project/Research_Recommend/company_index')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
 
 def kkma_ana(input_word):
@@ -28,12 +28,12 @@ def result_list(search_results):
     conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
     curs = conn.cursor()
 
+    
     for i in range(len(search_results['results'])):
-        if len(search_results['results'][i]) > 1:
-            idx = search_results['results'][i][0]
-        else:
-            idx = search_results['results'][i]
-
+        idx = search_results['results'][i]
+        if idx == list():
+            print('1')
+        
         curs.execute("Select title, content, researcher_idx from tbl_data where idx = %s", str(idx))
         content_data = curs.fetchall()
 
@@ -75,12 +75,14 @@ class Search_engine():
 
             search_results['data_total_count'] = len(search_results['results'])                 
             search_results['results'] = search_results['results'][(page_num-1)*data_count:page_num*data_count]
+            print(search_results['results'])
             search_results['resutls'] = result_list(search_results)
             
         ix.close()
         return search_results
     
     def department_matcher(self, input_word):
+        
         results_list = list()
         r_list = list()
 
@@ -211,14 +213,13 @@ class Researcher_search():
 
         idx_list = list()
         with ix.searcher() as s:
-            restrict = query.Term('researcher_name', field[0][1])
+            restrict = query.Term('researcher_idx', idx)
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(field[0][0]))
             results = s.search(uquery, mask = restrict, limit = None)
 
-            for r in results:
+            for r in results:   
                 curs.execute("Select researcher_idx from tbl_data where idx = %s", r['idx'])   
-                idx = curs.fetchall()   
-
+                idx = curs.fetchall()          
                 if idx[0][0] not in idx_list:
                     idx_list.append(idx[0][0])
                     curs.execute("Select name, department, research_field from tbl_researcher_data where idx = %s", idx[0][0])
@@ -227,6 +228,7 @@ class Researcher_search():
                                                       'researcher_name':researcher_data[0][0],
                                                       'department':researcher_data[0][1],
                                                       'research_field':researcher_data[0][2]})
+
 
             search_results['data_total_count'] = len(search_results['results'])
             search_results['results'] = search_results['results'][0:data_count]
@@ -281,7 +283,7 @@ class Researcher_search():
             curs.execute("Select department from tbl_researcher_data where idx = %s", researcher_idx)
             department = curs.fetchall()
 
-            d_query = MultifieldParser(["college", "department"], department_ix.schema, group = qparser.OrGroup).parse(kkma_ana(department[0][0]))
+            d_query = QueryParser(["department"], dix.schema, group = qparser.OrGroup).parse(kkma_ana(department[0][0]))
             d_results = searcher.search(d_query, limit=None)
             
             sector_list = []
@@ -292,7 +294,7 @@ class Researcher_search():
 
         with cix.searcher() as searcher:
             searcher = searcher.refresh()
-            c_query = MultifieldParser(["industry", "sector"], department_ix.schema, group = qparser.OrGroup).parse(kkma_ana(sector_list[0]))
+            c_query = MultifieldParser(["industry", "sector"], cix.schema, group = qparser.OrGroup).parse(kkma_ana(sector_list[0]))
             results = searcher.search_page(c_query, pagenum =1, pagelen = data_count)
             
             for r in results:
@@ -308,3 +310,5 @@ class Researcher_search():
             company_ix.close()
 
         return search_results
+Recommend().more_like_idx(15,10)
+Recommend().recommend_by_commpany(1,1,10)
