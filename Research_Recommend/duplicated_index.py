@@ -128,6 +128,7 @@ class Department_indexing():
 
     def indexing(self):
         indexdir = 'Research_Recommend/department_index'
+
         if not os.path.exists(indexdir):
             os.makedirs(indexdir)
 
@@ -194,5 +195,5 @@ class Company_indexing():
 
 
 #Duplicated_Indexing().indexing()
-Department_indexing().indexing()
-Company_indexing().indexing()
+#Department_indexing().indexing()
+#Company_indexing().indexing()

@@ -11,10 +11,9 @@ from whoosh import scoring
 
 from konlpy.tag import Kkma
 
-ix = open_dir('Research_Recommand/db_to_index_duplicate')
-dix = open_dir('Research_Recommand/department_index')
-cix = open_dir('Research_Recommand/company_index')
-sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
+ix = open_dir('Research_Recommend/db_to_index_duplicate')
+dix = open_dir('Research_Recommend/department_index')
+cix = open_dir('Research_Recommend/company_index')
 
 def kkma_ana(input_word):
     kkma = Kkma()
@@ -80,9 +79,9 @@ class Search_engine():
         return search_results
     
     def department_matcher(self, input_word):
-        
         results_list = list()
         r_list = list()
+
 
         with dix.searcher() as searcher:
             searcher = searcher.refresh()
@@ -93,15 +92,23 @@ class Search_engine():
                 if r['department'] not in results_list:
                     r_list.append(r['department'])
                     results_list.append(kkma_ana(r['department']))
+<<<<<<< HEAD
         
         return results_list
         
+=======
+
+        return results_list
+
+>>>>>>> 33bfd8a37c171d2396f0333b7476a088b52899dc
 class Recommend():
     def more_like_idx(self, input_idx, data_count):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
         curs.execute("Select title from tbl_data where idx = %s", input_idx)
         title = curs.fetchall()
+
+        search_results = Search_engine().searching(str(title[0][0]), 1, data_count)
         
         search_results = {}
         search_results['results'] = []
@@ -149,9 +156,9 @@ class Recommend():
             
             return search_results
         
-        industry = kkma_ana(company['industry'] + company['sector'])
+        industry = kkma_ana(company['industry'] + ' ' + company['sector'])
         department = Search_engine().department_matcher(industry)
-        
+
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
@@ -169,7 +176,6 @@ class Recommend():
                 search_results['data_total_count'] = len(search_results['results'])
 
                 return search_results
-
 
             search_results['data_total_count'] = len(search_results['results'])             
             search_results['results'] = search_results['results'][(page_num-1)*data_count:page_num*data_count]          
@@ -255,7 +261,6 @@ class Researcher_search():
 
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
-
         with dix.searcher() as searcher:
             curs.execute("Select department from tbl_researcher_data where idx = %s", researcher_idx)
             department = curs.fetchall()
