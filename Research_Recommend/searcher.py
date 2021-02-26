@@ -95,39 +95,6 @@ class Search_engine():
                     results_list.append(kkma_ana(r['department']))
         
         return results_list
-
-class Detail():
-    def search_detail(self, idx):
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        curs = conn.cursor()
-
-        curs.execute("Select title, content, resercher_idx, data_type_code from tbl_data where idx = %s", idx)
-        data = curs.fetchall()
-        detail_list = {}
-        detail_list['results'] = []
-        
-        
-        for row in data:
-            curs.execute("Select name, school, department, email, research_field, homepage from tbl_researcher_data where idx = %s", row[2])
-            researcher_data = curs.fetchall()
-            curs.execute("Select type_name from tbl_data_type_code where type_code = %s", row[3])
-            data_type = curs.fetchall()            
-
-            detail_dict = {'title':row[0], 
-                           'content':row[1],                            
-                           'researcher_name':researcher_data[0][0],                       
-                           'part':researcher_data[0][2], 
-                           'researcher_email':researcher_data[0][3], 
-                           'research_field':researcher_data[0][4], 
-                           'homepage':researcher_data[0][5], 
-                           'school':researcher_data[0][1],
-                           'type':data_type[0][0]
-                           }
-
-            detail_list['results'].append(detail_dict)   
-
-        conn.close()
-        return detail_list
         
 class Recommend():
     def more_like_idx(self, input_idx, data_count):
@@ -175,7 +142,7 @@ class Recommend():
    
         conn.close()
             
-        if company['industry'] == None:
+        if company['industry'] == None and company['sector'] == None:
             search_results = {}
             search_results['results'] = ['none']
             search_results['data_total_count'] = ['0']
