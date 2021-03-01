@@ -160,11 +160,10 @@ class Recommend():
 
             for r in results:
                 for i in department:
-                    if i == r['department']:                         
+                    if i == r['department'] and [r['idx'], r['weight']+r.score] not in search_results['results']:                         
                         search_results['results'].append([r['idx'], r['weight']+r.score])
-                        
-            search_results['results'].sort(key = lambda x: -x[1])
-                        
+                       
+            search_results['results'].sort(key = lambda x: -x[1])            
             if len(search_results['results']) < data_count:
                 search_results['results'] = result_list(search_results)
                 search_results['data_total_count'] = len(search_results['results'])

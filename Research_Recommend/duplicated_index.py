@@ -127,12 +127,12 @@ class Duplicated_Indexing():
 class Department_indexing():
 
     def indexing(self):
-        indexdir = 'Research_Recommend/department_index'
+        indexdir = '/Research_Recommend/department_index'
 
         if not os.path.exists(indexdir):
             os.makedirs(indexdir)
 
-        f = open('Research_Recommend/sector.csv','r',encoding='utf-8')
+        f = open('/Research_Recommend/sector.csv','r',encoding='utf-8')
         rdr = csv.reader(f)
         data = list()
         result = list()
@@ -167,7 +167,7 @@ class Company_indexing():
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()   
 
-        company_indexdir = 'Research_Recommend/company_index'
+        company_indexdir = '/Research_Recommend/company_index'
 
         if not os.path.exists(company_indexdir):
             os.makedirs(company_indexdir)
