@@ -69,7 +69,7 @@ class Duplicated_Indexing():
             if i[1] =='1':
                 image_list.append(i[0])
 
-        indexdir = '/home/jjo3ys/project/Research_Recommend/db_to_index_duplicate'
+        indexdir = 'Research_Recommend/db_to_index_duplicate'
         duplicate_list = duplicate()
 
         data_idx = list()
@@ -220,6 +220,6 @@ class Company_indexing():
         conn.close()
 
 
-Duplicated_Indexing().indexing()
+#Duplicated_Indexing().indexing()
 #Department_indexing().indexing()
 #Company_indexing().indexing()
