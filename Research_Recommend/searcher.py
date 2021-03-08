@@ -2,7 +2,10 @@ import os
 import re
 import pymysql
 import random
+import csv
+import datetime
 
+from datetime import date
 from whoosh import qparser, query
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser, MultifieldParser
@@ -11,9 +14,12 @@ from whoosh import scoring
 
 from konlpy.tag import Kkma
 
-ix = open_dir('/Research_Recommend/db_to_index_duplicate')
-dix = open_dir('/Research_Recommend/department_index')
-cix = open_dir('/Research_Recommend/company_index')
+conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+curs = conn.cursor()
+
+ix = open_dir('/home/jjo3ys/project/Research_Recommend/db_to_index_duplicate')
+dix = open_dir('/home/jjo3ys/project/Research_Recommend/department_index')
+cix = open_dir('/home/jjo3ys/project/Research_Recommend/company_index')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
 
 def kkma_ana(input_word):
@@ -25,9 +31,6 @@ def kkma_ana(input_word):
     return ' '.join(kkma.nouns(input_word))+' '.join([token.text for token in stem(english)])
 
 def result_list(search_results):
-    conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-    curs = conn.cursor()
-
     for i in range(len(search_results['results'])):
         if type(search_results['results'][i]) == list:
             idx = search_results['results'][i][0]
@@ -48,6 +51,8 @@ def result_list(search_results):
         department = researcher_data[0][1]
         research_field = researcher_data[0][2]
 
+        #search_results['results'][i] = {'title':title}
+
         search_results['results'][i] = {'title':title,
                                         'content':content,
                                         'name':name,
@@ -58,8 +63,66 @@ def result_list(search_results):
 
     return search_results['results']
 
+def Append(idx, content_idx, score_list, researcher_idx, search_results):
+    curs.execute('Select target_idx, target_type_code, visit_date from tbl_visit_history where user_idx = %s', idx)
+    record = curs.fetchall()
+    record_list = list()
+
+    if len(record) == 0:
+        for i in range(len(search_results['results'])):
+            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], score_list[i]]
+        
+        return search_results
+
+    for r in record:
+        record_list.append([r[0], r[1], r[2]])
+
+    record_list.sort(key = lambda x: x[2], reverse = True)
+    record_list = record_list[0:min(5,len(record_list))]#최근검색 최대 5개 추출 추후 조정
+    remove_list = list()
+    append_list = list()
+
+    for r in record_list:
+        if r[1] == '1' and r[0] in content_idx:
+            remove_list.append(content_idx.index(r[0]))
+        elif r[1] == '0' and r[0] in researcher_idx:
+            append_list.append(researcher_idx.index(r[0]))    
+
+    remove_list.sort()
+    for i in range(len(remove_list)):
+        del search_results['results'][remove_list[i]-i]
+        del score_list[remove_list[i]-i]
+        del researcher_idx[remove_list[i]-i]
+
+    for i in append_list:
+        score_list[i] = score_list[i]+0.1 #가중치로 추후 조정
+    
+    for i in range(len(search_results['results'])):
+        search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], score_list[i]]
+
+    return search_results
+
+def Sort(search_results):
+    now = datetime.datetime.now()
+    for i in range(len(search_results['results'])):
+        curs.execute('select start_date from tbl_data where idx = %s', search_results['results'][i][0])
+        date = curs.fetchall()
+        if len(date) == 0 or date[0][0] == None:
+            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1]+ search_results['results'][i][2]*0.1]
+        
+        else:
+            daya = date[0][0]
+            daya = daya.strftime('%Y-%m-%d')
+            daya = datetime.datetime.strptime(daya, '%Y-%m-%d')
+            day = (now-daya).days
+            score = 0.2-(day/20000)
+            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1]+ search_results['results'][i][2]*0.1+score]
+    return search_results
+
 class Search_engine():
     def searching(self, input_word, page_num, data_count):
+        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        curs = conn.cursor()
 
         search_results = {}
         search_results['results'] = []
@@ -76,7 +139,8 @@ class Search_engine():
             search_results['data_total_count'] = len(search_results['results'])                 
             search_results['results'] = search_results['results'][(page_num-1)*data_count:page_num*data_count]
             search_results['resutls'] = result_list(search_results)
-            
+
+        conn.close()    
         return search_results
     
     def department_matcher(self, input_word):
@@ -135,13 +199,19 @@ class Recommend():
         search_results['results'] = []
         search_results['data_total_count'] = []
 
-
+        """with open('append_data.csv', 'r', encoding = "cp949") as f:
+            rdr = csv.reader(f)
+            for line in rdr:
+                if line[0] == str(input_idx):
+                    a = line[1]
+                    b = line[2]
+                else:
+                    a = ' '
+                    b = ' '"""
         for row in rows:
 
             company['industry'] = row[0]
             company['sector'] = row[1]
-   
-        conn.close()
             
         if company['industry'] == None and company['sector'] == None:
             search_results = {}
@@ -149,37 +219,48 @@ class Recommend():
             search_results['data_total_count'] = ['0']
             
             return search_results
-        
-        industry = kkma_ana(str(company['industry'])) + kkma_ana(str(company['sector']))
+
+        #industry = kkma_ana(str(company['industry']) + str(company['sector']) + a + b)
+        industry = kkma_ana(str(company['industry']) + str(company['sector']))
         department = Search_engine().department_matcher(industry)
-        
+
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
             results = searcher.search(uquery, limit = None) 
+            normal = results[0].score + results[0]['weight']    
+            content_idx = list()
+            score_list = list()
+            researcher_idx = list()
 
-            for r in results:
+            for r in results:               
                 for i in department:
-                    if i == r['department'] and [r['idx'], r['weight']+r.score] not in search_results['results']:                         
-                        search_results['results'].append([r['idx'], r['weight']+r.score])
-                       
-            search_results['results'].sort(key = lambda x: -x[1])            
+                    if i == r['department'] and r['idx'] not in content_idx:                        
+                        score_list.append((r['weight']+r.score)/normal)
+                        researcher_idx.append(r['researcher_idx'])
+                        content_idx.append(r['idx'])
+                        search_results['results'].append([r['idx'], r['image_num']])
+                if len(search_results['results']) > data_count * page_num:
+                    break   
+                        
             if len(search_results['results']) < data_count:
                 search_results['results'] = result_list(search_results)
                 search_results['data_total_count'] = len(search_results['results'])
 
                 return search_results
 
+            search_results = Append(input_idx, content_idx, score_list, researcher_idx, search_results)           
+            search_results = Sort(search_results)  
 
-            search_results['data_total_count'] = len(search_results['results'])             
+            search_results['results'].sort(key = lambda x: -x[1])  
+            search_results['data_total_count'] = len(results)             
             search_results['results'] = search_results['results'][(page_num-1)*data_count:page_num*data_count]          
             search_results['results'] = result_list(search_results)
-            
+        
+        conn.close()   
         return search_results
 
 class Researcher_search():
-
-
     def recommend_by_researcher(self, idx, data_count):       
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
@@ -193,13 +274,13 @@ class Researcher_search():
 
         idx_list = list()
         with ix.searcher() as s:
-            restrict = query.Term('researcher_name', field[0][1])
+            restrict = query.Term('researcher_idx', field[0][1])
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(field[0][0]))
             results = s.search(uquery, mask = restrict, limit = None)
 
             for r in results:                
-                if r['researcher_name'] not in idx_list:
-                    idx_list.append(r['researcher_name'])
+                if r['researcher_idx'] not in idx_list:
+                    idx_list.append(r['researcher_idx'])
                     curs.execute("Select idx, name, department, research_field from tbl_researcher_data where name = %s", r['researcher_name'])
                     researcher_data = curs.fetchall()
                     search_results['results'].append({'researcher_idx':researcher_data[0][0],
@@ -282,4 +363,7 @@ class Researcher_search():
 
             search_results['data_total_count'] = results.total
 
+        conn.close()
         return search_results
+for i in range(1, 10):
+    Recommend().recommend_by_commpany(i,1,10)
