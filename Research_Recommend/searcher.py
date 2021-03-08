@@ -365,5 +365,3 @@ class Researcher_search():
 
         conn.close()
         return search_results
-for i in range(1, 10):
-    Recommend().recommend_by_commpany(i,1,10)
