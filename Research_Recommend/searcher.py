@@ -2,7 +2,7 @@ import os
 import re
 import pymysql
 import random
-import csv
+#import csv
 import datetime
 
 from datetime import date
@@ -51,8 +51,6 @@ def result_list(search_results):
         department = researcher_data[0][1]
         research_field = researcher_data[0][2]
 
-        #search_results['results'][i] = {'title':title}
-
         search_results['results'][i] = {'title':title,
                                         'content':content,
                                         'name':name,
@@ -70,7 +68,7 @@ def Append(idx, content_idx, score_list, researcher_idx, search_results):
 
     if len(record) == 0:
         for i in range(len(search_results['results'])):
-            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], score_list[i]]
+            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], search_results['results'][i][2], score_list[i]]
         
         return search_results
 
@@ -98,25 +96,22 @@ def Append(idx, content_idx, score_list, researcher_idx, search_results):
         score_list[i] = score_list[i]+0.1 #가중치로 추후 조정
     
     for i in range(len(search_results['results'])):
-        search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], score_list[i]]
+        search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], search_results['results'][i][2], score_list[i]]
 
     return search_results
 
 def Sort(search_results):
     now = datetime.datetime.now()
     for i in range(len(search_results['results'])):
-        curs.execute('select start_date from tbl_data where idx = %s', search_results['results'][i][0])
-        date = curs.fetchall()
-        if len(date) == 0 or date[0][0] == None:
-            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1]+ search_results['results'][i][2]*0.1]
+        if search_results['results'][i][2] == '1-1-1':
+            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], search_results['results'][i][3]]
         
         else:
-            daya = date[0][0]
-            daya = daya.strftime('%Y-%m-%d')
-            daya = datetime.datetime.strptime(daya, '%Y-%m-%d')
-            day = (now-daya).days
+            day = datetime.datetime.strptime(search_results['results'][i][2], '%Y-%m-%d')
+            day = (now-day).days
             score = 0.2-(day/20000)
-            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1]+ search_results['results'][i][2]*0.1+score]
+            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], search_results['results'][i][3] + score]
+            
     return search_results
 
 class Search_engine():
@@ -228,20 +223,20 @@ class Recommend():
             searcher = searcher.refresh()
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
             results = searcher.search(uquery, limit = None) 
-            normal = results[0].score + results[0]['weight']    
+            normal = results[0].score #+ results[0]['weight']    
             content_idx = list()
             score_list = list()
             researcher_idx = list()
 
             for r in results:               
                 for i in department:
-                    if i == r['department'] and r['idx'] not in content_idx:                        
-                        score_list.append((r['weight']+r.score)/normal)
+                    if i == r['department'] and r['idx'] not in content_idx:  
+                        score = r.score/normal
+                        #score = (r['weight']+r.score)/normal                     
+                        score_list.append(score)
                         researcher_idx.append(r['researcher_idx'])
                         content_idx.append(r['idx'])
-                        search_results['results'].append([r['idx'], r['image_num']])
-                if len(search_results['results']) > data_count * page_num:
-                    break   
+                        search_results['results'].append([r['idx'], int(r['image_num']), r['date'], score])
                         
             if len(search_results['results']) < data_count:
                 search_results['results'] = result_list(search_results)
@@ -249,10 +244,9 @@ class Recommend():
 
                 return search_results
 
-            search_results = Append(input_idx, content_idx, score_list, researcher_idx, search_results)           
+            #search_results = Append(input_idx, content_idx, score_list, researcher_idx, search_results)           
             search_results = Sort(search_results)  
-
-            search_results['results'].sort(key = lambda x: -x[1])  
+            search_results['results'].sort(key = lambda x: (-x[1], -x[2]))  
             search_results['data_total_count'] = len(results)             
             search_results['results'] = search_results['results'][(page_num-1)*data_count:page_num*data_count]          
             search_results['results'] = result_list(search_results)
@@ -281,7 +275,7 @@ class Researcher_search():
             for r in results:                
                 if r['researcher_idx'] not in idx_list:
                     idx_list.append(r['researcher_idx'])
-                    curs.execute("Select idx, name, department, research_field from tbl_researcher_data where name = %s", r['researcher_name'])
+                    curs.execute("Select idx, name, department, research_field from tbl_researcher_data where idx = %s", r['researcher_idx'])
                     researcher_data = curs.fetchall()
                     search_results['results'].append({'researcher_idx':researcher_data[0][0],
                                                       'researcher_name':researcher_data[0][1],

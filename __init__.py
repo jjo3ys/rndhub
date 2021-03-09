@@ -1,7 +1,7 @@
 from flask import Flask, make_response, json, jsonify, request
 from flask_restful import reqparse, Api, Resource
 
-from Research_Recommend.searcher import Search_engine, Detail, Recommend, Researcher_search
+from Research_Recommend.searcher import Search_engine, Recommend, Researcher_search
 from Research_Recommend.duplicated_index import Duplicated_Indexing, Company_indexing, Department_indexing
 
 app = Flask(__name__)
@@ -148,5 +148,5 @@ def indexing_request():
     return response
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", use_reloader=False, debug=True) 
-    #app.run(use_reloader=False, debug=True) 로컬용
+    #app.run(host="0.0.0.0", use_reloader=False, debug=True) 
+    app.run(use_reloader=False, debug=True) #로컬용

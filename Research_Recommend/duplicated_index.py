@@ -3,6 +3,7 @@ import csv
 import os
 import re
 import random
+import datetime
 
 from difflib import SequenceMatcher
 from whoosh.index import create_in
@@ -66,10 +67,10 @@ class Duplicated_Indexing():
         image_list = list()
 
         for i in image:
-            if i[1] =='1':
+            if i[1] == 1:
                 image_list.append(i[0])
 
-        indexdir = 'Research_Recommend/db_to_index_duplicate'
+        indexdir = '/Research_Recommend/db_to_index_duplicate'
         duplicate_list = duplicate()
 
         data_idx = list()
@@ -93,6 +94,7 @@ class Duplicated_Indexing():
                         department = KEYWORD(stored = True, field_boost= 1.1),
                         research_field = KEYWORD(analyzer = StemmingAnalyzer(), field_boost= 1.2),                      
                         english_name = KEYWORD(analyzer = StemmingAnalyzer(), field_boost = 2.0),
+                        date = TEXT(stored = True),
                         image_num = NUMERIC(stored = True),
                         start_date = DATETIME(stored = True),
                         weight = NUMERIC(stored = True))
@@ -101,52 +103,60 @@ class Duplicated_Indexing():
         wr = ix.writer()        
 
         for idx in duplicate_list:
-            curs.execute("Select title, content, researcher_idx from tbl_data where idx =%s", idx)
+            curs.execute("Select title, content, researcher_idx, start_date from tbl_data where idx =%s", idx)
             data = curs.fetchall()
+
+            curs.execute("Select name, department, research_field from tbl_researcher_data where idx = %s", data[0][2])
+            researcher_data = curs.fetchall()
+
+            title = str(data[0][0])  
+            content = str(data[0][1])
+            researcher_name = researcher_data[0][0]
+            researcher_idx = str(data[0][2])
+            department = researcher_data[0][1]
+            research_field = researcher_data[0][2]
+            weight = random.randrange(-5, 6)
+            date = data[0][3]
+
+            if date == None:
+                date =  '1-1-1'
             
-            for row in data:
-                curs.execute("Select name, department, research_field from tbl_researcher_data where idx = %s", row[2])
-                researcher_data = curs.fetchall()
+            else:
+                date = date.strftime('%Y-%m-%d')
 
-                title = str(row[0])  
-                content = str(row[1])
-                researcher_name = researcher_data[0][0]
-                researcher_idx = str(row[2])
-                department = researcher_data[0][1]
-                research_field = researcher_data[0][2]
-                weight = random.randrange(-5, 6)
-
-                if idx in image_list:
-                    curs.execute('Select idx from tbl_data_image where target_idx = %s', idx)
-                    image = curs.fetchall()
-                    if len(image) >= 2:
-                        image_num = 2
-                    else:
-                        image_num = 1
+            if idx in image_list:
+                curs.execute('Select idx from tbl_data_image where target_idx = %s', idx)
+                image = curs.fetchall()
+                if len(image) >= 2:
+                    image_num = 2
                 else:
-                    image_num = 0
+                    image_num = 1
+            else:
+                image_num = 0
 
-                if idx in data_idx and english_title[data_idx.index(int(idx))] is not None:         
-                    wr.add_document(idx = str(idx),
-                                    title = kkma_ana(title),
-                                    content = kkma_ana(content),
-                                    researcher_name = researcher_name,
-                                    researcher_idx = researcher_idx,
-                                    department = kkma_ana(department),
-                                    research_field = kkma_ana(research_field),
-                                    english_name = english_title[data_idx.index(int(idx))],
-                                    image_num = image_num,
-                                    weight = weight)
-                else:
-                    wr.add_document(idx = str(idx),
-                                    title = kkma_ana(title),                                   
-                                    content = kkma_ana(content),
-                                    researcher_name = researcher_name,
-                                    researcher_idx = researcher_idx,
-                                    department = kkma_ana(department),
-                                    research_field = kkma_ana(research_field),
-                                    image_num = image_num,
-                                    weight = weight)
+            if idx in data_idx and english_title[data_idx.index(int(idx))] is not None:         
+                wr.add_document(idx = str(idx),
+                                title = kkma_ana(title),
+                                content = kkma_ana(content),
+                                researcher_name = researcher_name,
+                                researcher_idx = researcher_idx,
+                                department = kkma_ana(department),
+                                research_field = kkma_ana(research_field),
+                                english_name = english_title[data_idx.index(int(idx))],
+                                date = date,
+                                image_num = image_num,
+                                weight = weight)
+            else:
+                wr.add_document(idx = str(idx),
+                                title = kkma_ana(title),                                   
+                                content = kkma_ana(content),
+                                researcher_name = researcher_name,
+                                researcher_idx = researcher_idx,
+                                department = kkma_ana(department),
+                                research_field = kkma_ana(research_field),
+                                date = date,
+                                image_num = image_num,
+                                weight = weight)
         wr.commit()
         conn.close()
 
