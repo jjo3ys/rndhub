@@ -17,9 +17,9 @@ from konlpy.tag import Kkma
 conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
 curs = conn.cursor()
 
-ix = open_dir('/Research_Recommend/db_to_index_duplicate')
-dix = open_dir('/Research_Recommend/department_index')
-cix = open_dir('/Research_Recommend/company_index')
+ix = open_dir('/home/jjo3ys/project/Research_Recommend/db_to_index_duplicate')
+dix = open_dir('/home/jjo3ys/project/Research_Recommend/department_index')
+cix = open_dir('/home/jjo3ys/project/Research_Recommend/company_index')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
 
 def kkma_ana(input_word):
