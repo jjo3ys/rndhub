@@ -148,5 +148,5 @@ def indexing_request():
     return response
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", use_reloader=False, debug=True) 
-    #app.run(use_reloader=False, debug=True) 로컬용
+    #app.run(host="0.0.0.0", use_reloader=False, debug=True) 
+    app.run(use_reloader=False, debug=True) #로컬용
