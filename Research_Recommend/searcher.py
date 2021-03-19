@@ -81,9 +81,9 @@ def Append(idx, content_idx, score_list, researcher_idx, search_results):
     append_list = list()
 
     for r in record_list:
-        if r[1] == '1' and r[0] in content_idx:
+        if r[1] == 1 and r[0] in content_idx:
             remove_list.append(content_idx.index(r[0]))
-        elif r[1] == '0' and r[0] in researcher_idx:
+        elif r[1] == 0 and r[0] in researcher_idx:
             append_list.append(researcher_idx.index(r[0]))    
 
     remove_list.sort()
