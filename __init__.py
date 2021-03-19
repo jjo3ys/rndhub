@@ -2,7 +2,8 @@ from flask import Flask, make_response, json, jsonify, request
 from flask_restful import reqparse, Api, Resource
 
 from Research_Recommend.searcher import Search_engine, Recommend, Researcher_search
-from Research_Recommend.duplicated_index import Duplicated_Indexing, Company_indexing, Department_indexing
+from Research_Recommend.duplicated_index import Duplicated_Indexing, Department_indexing, Company_indexing
+
 
 app = Flask(__name__)
 api = Api(app)

@@ -62,12 +62,12 @@ class Duplicated_Indexing():
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
-        curs.execute('Select idx, target_type_code from tbl_data_image')
+        curs.execute('Select target_idx, target_type_code from tbl_data_image')
         image = curs.fetchall()
         image_list = list()
 
         for i in image:
-            if i[1] == 1:
+            if i[1] == 1 and i[0] not in image_list:
                 image_list.append(i[0])
 
         indexdir = '/Research_Recommend/db_to_index_duplicate'
@@ -89,7 +89,7 @@ class Duplicated_Indexing():
         schema = Schema(idx = ID(stored = True),
                         title = KEYWORD(analyzer = StemmingAnalyzer(), field_boost=2.0),
                         content = KEYWORD(analyzer = StemmingAnalyzer(),field_boost=1.5),
-                        researcher_name = TEXT(),
+                        researcher_name = TEXT(analyzer = StemmingAnalyzer()),
                         researcher_idx = ID(stored = True),
                         department = KEYWORD(stored = True, field_boost= 1.1),
                         research_field = KEYWORD(analyzer = StemmingAnalyzer(), field_boost= 1.2),                      
@@ -97,13 +97,14 @@ class Duplicated_Indexing():
                         date = TEXT(stored = True),
                         image_num = NUMERIC(stored = True),
                         start_date = DATETIME(stored = True),
+                        type_code = NUMERIC(stored = True),
                         weight = NUMERIC(stored = True))
 
         ix = create_in(indexdir, schema)
         wr = ix.writer()        
 
         for idx in duplicate_list:
-            curs.execute("Select title, content, researcher_idx, start_date from tbl_data where idx =%s", idx)
+            curs.execute("Select title, content, researcher_idx, start_date, data_type_code  from tbl_data where idx =%s", idx)
             data = curs.fetchall()
 
             curs.execute("Select name, department, research_field from tbl_researcher_data where idx = %s", data[0][2])
@@ -117,6 +118,7 @@ class Duplicated_Indexing():
             research_field = researcher_data[0][2]
             weight = random.randrange(-5, 6)
             date = data[0][3]
+            type_code = data[0][4]
 
             if date == None:
                 date =  '1-1-1'
@@ -134,28 +136,30 @@ class Duplicated_Indexing():
             else:
                 image_num = 0
 
-            if idx in data_idx and english_title[data_idx.index(int(idx))] is not None:         
+            if idx in data_idx and english_title[data_idx.index(idx)] is not None:         
                 wr.add_document(idx = str(idx),
                                 title = kkma_ana(title),
                                 content = kkma_ana(content),
-                                researcher_name = researcher_name,
+                                researcher_name = kkma_ana(researcher_name),
                                 researcher_idx = researcher_idx,
                                 department = kkma_ana(department),
                                 research_field = kkma_ana(research_field),
-                                english_name = english_title[data_idx.index(int(idx))],
+                                english_name = english_title[data_idx.index(idx)],
                                 date = date,
                                 image_num = image_num,
+                                type_code = type_code,
                                 weight = weight)
             else:
                 wr.add_document(idx = str(idx),
                                 title = kkma_ana(title),                                   
                                 content = kkma_ana(content),
-                                researcher_name = researcher_name,
+                                researcher_name = kkma_ana(researcher_name),
                                 researcher_idx = researcher_idx,
                                 department = kkma_ana(department),
                                 research_field = kkma_ana(research_field),
                                 date = date,
                                 image_num = image_num,
+                                type_code = type_code,
                                 weight = weight)
         wr.commit()
         conn.close()
