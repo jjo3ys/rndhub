@@ -14,9 +14,12 @@ from whoosh import scoring
 
 from konlpy.tag import Kkma
 
-ix = open_dir('/Research_Recommend/db_to_index_duplicate')
+"""ix = open_dir('/Research_Recommend/db_to_index_duplicate')
 dix = open_dir('/Research_Recommend/department_index')
-cix = open_dir('/Research_Recommend/company_index')
+cix = open_dir('/Research_Recommend/company_index')"""
+ix = open_dir('/home/jjo3ys/project/Research_Recommend/db_to_index_duplicate')
+dix = open_dir('/home/jjo3ys/project/Research_Recommend/department_index')
+cix = open_dir('/home/jjo3ys/project/Research_Recommend/company_index')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
 
 def kkma_ana(input_word):
@@ -47,14 +50,13 @@ def result_list(search_results, curs):
         name = researcher_data[0][0]
         department = researcher_data[0][1]
         research_field = researcher_data[0][2]
-        search_results['results'][i] = {'idx':idx}
-        """search_results['results'][i] = {'title':title,
+        search_results['results'][i] = {'title':title,
                                         'content':content,
                                         'name':name,
                                         'department':department,
                                         'research_field':research_field,
                                         'idx':idx,
-                                        'researcher_idx':researcher_idx}"""
+                                        'researcher_idx':researcher_idx}
 
     return search_results['results']
 
@@ -73,6 +75,8 @@ def Sort(search_results):
     return search_results
 
 def Filter(search_results, r_type):
+    print(r_type)
+    print(type(r_type))
     if r_type == [0]:
         return search_results
 
@@ -375,4 +379,3 @@ class Interaction_Recommend():
             search_results['results'][i][3] = score_list[i]
 
         return search_results
-print(Recommend().recommend_by_commpany(888,1,10,[0]))
