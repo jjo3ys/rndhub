@@ -14,9 +14,6 @@ from whoosh import scoring
 
 from konlpy.tag import Kkma
 
-conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-curs = conn.cursor()
-
 ix = open_dir('/Research_Recommend/db_to_index_duplicate')
 dix = open_dir('/Research_Recommend/department_index')
 cix = open_dir('/Research_Recommend/company_index')
@@ -30,7 +27,7 @@ def kkma_ana(input_word):
 
     return ' '.join(kkma.nouns(input_word))+' '.join([token.text for token in stem(english)])
 
-def result_list(search_results):
+def result_list(search_results, curs):
     for i in range(len(search_results['results'])):
         if type(search_results['results'][i]) == list:
             idx = search_results['results'][i][0]
@@ -61,61 +58,62 @@ def result_list(search_results):
 
     return search_results['results']
 
-def Append(idx, content_idx, score_list, researcher_idx, search_results):
-    curs.execute('Select target_idx, target_type_code, visit_date from tbl_visit_history where user_idx = %s', idx)
-    record = curs.fetchall()
-    record_list = list()
-
-    if len(record) == 0:
-        for i in range(len(search_results['results'])):
-            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], search_results['results'][i][2], score_list[i]]
-        
-        return search_results
-
-    for r in record:
-        record_list.append([r[0], r[1], r[2]])
-
-    record_list.sort(key = lambda x: x[2], reverse = True)
-    record_list = record_list[0:min(5,len(record_list))]#최근검색 최대 5개 추출 추후 조정
-    remove_list = list()
-    append_list = list()
-
-    for r in record_list:
-        if r[1] == '1' and r[0] in content_idx:
-            remove_list.append(content_idx.index(r[0]))
-        elif r[1] == '0' and r[0] in researcher_idx:
-            append_list.append(researcher_idx.index(r[0]))    
-
-    remove_list.sort()
-    for i in range(len(remove_list)):
-        del search_results['results'][remove_list[i]-i]
-        del score_list[remove_list[i]-i]
-        del researcher_idx[remove_list[i]-i]
-
-    for i in append_list:
-        score_list[i] = score_list[i]+0.1 #가중치로 추후 조정
-    
-    for i in range(len(search_results['results'])):
-        search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], search_results['results'][i][2], score_list[i]]
-
-    return search_results
-
 def Sort(search_results):
     now = datetime.datetime.now()
     for i in range(len(search_results['results'])):
         if search_results['results'][i][2] == '1-1-1':
-            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], search_results['results'][i][3]]
+            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], search_results['results'][i][3], search_results['results'][i][4]]
         
         else:
             day = datetime.datetime.strptime(search_results['results'][i][2], '%Y-%m-%d')
             day = (now-day).days
             score = 0.2-(day/20000)
-            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], search_results['results'][i][3] + score]
+            search_results['results'][i] = [search_results['results'][i][0], search_results['results'][i][1], search_results['results'][i][3] + score, search_results['results'][i][4]]
             
     return search_results
 
+def Filter(search_results, r_type):
+    if r_type == [0]:
+        return search_results
+
+    """filtered_results = {}
+    filtered_results['results'] = []
+    filtered_results['data_total_count'] = []"""
+
+    for r in search_results['results']:
+        if r[-1] not in r_type:
+            search_results['results'].remove(r)
+
+    """curs.execute('Select idx, data_type_code from tbl_data')
+    data = curs.fetchall()
+    idx_list = list()
+    type_list = list()
+
+    for d in data:
+        idx_list.append(str(d[0]))
+        type_list.append(d[1])
+
+    if type(search_results['results'][0]) == list:
+        for i in range(len(search_results['results'])):
+            if search_results['results'][i][0] in idx_list:
+                n = idx_list.index(search_results['results'][i][0])
+                d_type = type_list[n]
+                if d_type in r_type:
+                    filtered_results['results'].append(search_results['results'][i])
+
+    else:     
+        for i in range(len(search_results['results'])):
+            if search_results['results'][i] in idx_list:
+                n = idx_list.index(search_results['results'][i])
+                d_type = type_list[n]
+                if d_type in r_type:
+                    filtered_results['results'].append(search_results['results'][i])      """     
+  
+    return search_results
+
+
 class Search_engine():
-    def searching(self, input_word, page_num, data_count):
+    def searching(self, input_word, page_num, data_count, r_type):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
@@ -129,18 +127,19 @@ class Search_engine():
             results = searcher.search(query, limit = None)
 
             for r in results:
-                search_results['results'].append(r['idx'])   
+                search_results['results'].append(r['idx'], r['type_code'])   
 
-            search_results['data_total_count'] = len(search_results['results'])                 
-            search_results['results'] = search_results['results'][(page_num-1)*data_count:min(search_results['data_total_count'], page_num*data_count)]
-            search_results['resutls'] = result_list(search_results)
+        search_results = Filter(search_results, r_type)
+        search_results['data_total_count'] = len(search_results['results'])                 
+        search_results['results'] = search_results['results'][(page_num-1)*data_count:min(search_results['data_total_count'], page_num*data_count)]
+        search_results['resutls'] = result_list(search_results, curs)
 
         conn.close()    
         return search_results
     
     def department_matcher(self, input_word):
         
-        results_list = list()
+        department_list = list()
         r_list = list()
 
         with dix.searcher() as searcher:
@@ -149,11 +148,11 @@ class Search_engine():
             results = searcher.search(query, limit = None)
 
             for r in results:
-                if r['department'] not in results_list:
+                if r['department'] not in r_list:
                     r_list.append(r['department'])
-                    results_list.append(kkma_ana(r['department']))
+                    department_list.append(kkma_ana(r['department']))
         
-        return results_list
+        return department_list
         
 class Recommend():
     def more_like_idx(self, input_idx, data_count):
@@ -177,12 +176,12 @@ class Recommend():
 
             search_results['data_total_count'] = len(search_results['results'])                 
             search_results['results'] = search_results['results'][0:min(search_results['data_total_count'], data_count)]
-            search_results['resutls'] = result_list(search_results)
+            search_results['resutls'] = result_list(search_results, curs)
        
         conn.close()
         return search_results
 
-    def recommend_by_commpany(self, input_idx, page_num, data_count):
+    def recommend_by_commpany(self, input_idx, page_num, data_count, r_type):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
         curs = conn.cursor()
 
@@ -237,20 +236,22 @@ class Recommend():
                         score_list.append(score)
                         researcher_idx.append(r['researcher_idx'])
                         content_idx.append(r['idx'])
-                        search_results['results'].append([r['idx'], int(r['image_num']), r['date'], score])
+                        search_results['results'].append([r['idx'], int(r['image_num']), r['date'], score, r['type_code']])
                         
             """if len(search_results['results']) < data_count:
                 search_results['results'] = result_list(search_results)
                 search_results['data_total_count'] = len(search_results['results'])
 
                 return search_results"""
+            
+        search_results = Interaction_Recommend().Append(input_idx, content_idx, score_list, researcher_idx, search_results)           
+        search_results = Sort(search_results)  
+        search_results = Filter(search_results, r_type)
 
-            #search_results = Append(input_idx, content_idx, score_list, researcher_idx, search_results)           
-            search_results = Sort(search_results)  
-            search_results['results'].sort(key = lambda x: (-x[1], -x[2]))  
-            search_results['data_total_count'] = len(search_results['results'])             
-            search_results['results'] = search_results['results'][(page_num-1)*data_count:min(search_results['data_total_count'], page_num*data_count)]          
-            search_results['results'] = result_list(search_results)
+        search_results['results'].sort(key = lambda x: (-x[1], -x[2]))  
+        search_results['data_total_count'] = len(search_results['results'])             
+        search_results['results'] = search_results['results'][(page_num-1)*data_count:min(search_results['data_total_count'], page_num*data_count)]          
+        search_results['results'] = result_list(search_results, curs)
         
         conn.close()   
         return search_results
@@ -361,4 +362,42 @@ class Researcher_search():
                                                 'industry':company_data[0][1],
                                                 'user_idx':search_results['results'][i]}
         conn.close()
+        return search_results
+
+class Interaction_Recommend():
+    def Append(self, idx, content_idx, score_list, researcher_idx, search_results):
+        curs.execute('Select target_idx, target_type_code, reg_date from tbl_user_history where company_idx = %s', idx)
+        record = curs.fetchall()
+        record_list = list()
+
+        if len(record) == 0:           
+            return search_results
+
+        for r in record:
+            idx = str(r[0])
+            record_list.append([idx, r[1], r[2]])
+
+        record_list.sort(key = lambda x: x[2], reverse = True)
+        record_list = record_list[0:min(5,len(record_list))]#최근검색 최대 5개 추출 추후 조정
+        remove_list = list()
+        append_list = list()
+
+        for r in record_list:
+            if r[1] == 1 and r[0] in content_idx:
+                remove_list.append(content_idx.index(r[0]))
+            elif r[1] == 0 and r[0] in researcher_idx:
+                append_list.append(researcher_idx.index(r[0]))                 
+        remove_list.sort()
+
+        for i in range(len(remove_list)):
+            del search_results['results'][remove_list[i]-i]
+            del score_list[remove_list[i]-i]
+            del researcher_idx[remove_list[i]-i]
+
+        for i in append_list:
+            score_list[i] = score_list[i]+0.1 #가중치로 추후 조정
+        
+        for i in range(len(search_results['results'])):
+            search_results['results'][i][3] = score_list[i]
+
         return search_results
