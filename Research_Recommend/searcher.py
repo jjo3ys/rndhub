@@ -75,8 +75,6 @@ def Sort(search_results):
     return search_results
 
 def Filter(search_results, r_type):
-    print(r_type)
-    print(type(r_type))
     if r_type == [0]:
         return search_results
 
