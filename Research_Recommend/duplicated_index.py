@@ -234,6 +234,6 @@ class Company_indexing():
         conn.close()
 
 
-Duplicated_Indexing().indexing()
+#Duplicated_Indexing().indexing()
 #Department_indexing().indexing()
 #Company_indexing().indexing()

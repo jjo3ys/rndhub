@@ -14,9 +14,12 @@ from whoosh import scoring
 
 from konlpy.tag import Kkma
 
-ix = open_dir('/Research_Recommend/db_to_index_duplicate')
+"""ix = open_dir('/Research_Recommend/db_to_index_duplicate')
 dix = open_dir('/Research_Recommend/department_index')
-cix = open_dir('/Research_Recommend/company_index')
+cix = open_dir('/Research_Recommend/company_index')"""
+ix = open_dir('/home/jjo3ys/project/Research_Recommend/db_to_index_duplicate')
+dix = open_dir('/home/jjo3ys/project/Research_Recommend/department_index')
+cix = open_dir('/home/jjo3ys/project/Research_Recommend/company_index')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
 
 def kkma_ana(input_word):
@@ -47,7 +50,6 @@ def result_list(search_results, curs):
         name = researcher_data[0][0]
         department = researcher_data[0][1]
         research_field = researcher_data[0][2]
-
         search_results['results'][i] = {'title':title,
                                         'content':content,
                                         'name':name,
@@ -76,40 +78,15 @@ def Filter(search_results, r_type):
     if r_type == [0]:
         return search_results
 
-    """filtered_results = {}
+    filtered_results = {}
     filtered_results['results'] = []
-    filtered_results['data_total_count'] = []"""
+    filtered_results['data_total_count'] = []
 
     for r in search_results['results']:
-        if r[-1] not in r_type:
-            search_results['results'].remove(r)
-
-    """curs.execute('Select idx, data_type_code from tbl_data')
-    data = curs.fetchall()
-    idx_list = list()
-    type_list = list()
-
-    for d in data:
-        idx_list.append(str(d[0]))
-        type_list.append(d[1])
-
-    if type(search_results['results'][0]) == list:
-        for i in range(len(search_results['results'])):
-            if search_results['results'][i][0] in idx_list:
-                n = idx_list.index(search_results['results'][i][0])
-                d_type = type_list[n]
-                if d_type in r_type:
-                    filtered_results['results'].append(search_results['results'][i])
-
-    else:     
-        for i in range(len(search_results['results'])):
-            if search_results['results'][i] in idx_list:
-                n = idx_list.index(search_results['results'][i])
-                d_type = type_list[n]
-                if d_type in r_type:
-                    filtered_results['results'].append(search_results['results'][i])      """     
+        if r[-1] in r_type:
+            filtered_results['results'].append(r) 
   
-    return search_results
+    return filtered_results
 
 
 class Search_engine():
@@ -127,12 +104,12 @@ class Search_engine():
             results = searcher.search(query, limit = None)
 
             for r in results:
-                search_results['results'].append(r['idx'], r['type_code'])   
+                search_results['results'].append([r['idx'], r['type_code']])   
 
         search_results = Filter(search_results, r_type)
         search_results['data_total_count'] = len(search_results['results'])                 
         search_results['results'] = search_results['results'][(page_num-1)*data_count:min(search_results['data_total_count'], page_num*data_count)]
-        search_results['resutls'] = result_list(search_results, curs)
+        search_results['results'] = result_list(search_results, curs)
 
         conn.close()    
         return search_results
@@ -226,6 +203,11 @@ class Recommend():
             searcher = searcher.refresh()
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
             results = searcher.search(uquery, limit = None) 
+            if len(results) == 0:
+                search_results['results'] = ['none']
+                search_results['data_total_count'] = ['0']
+
+                return search_results
             normal = results[0].score #+ results[0]['weight']    
 
             for r in results:               
@@ -237,14 +219,8 @@ class Recommend():
                         researcher_idx.append(r['researcher_idx'])
                         content_idx.append(r['idx'])
                         search_results['results'].append([r['idx'], int(r['image_num']), r['date'], score, r['type_code']])
-                        
-            """if len(search_results['results']) < data_count:
-                search_results['results'] = result_list(search_results)
-                search_results['data_total_count'] = len(search_results['results'])
-
-                return search_results"""
             
-        search_results = Interaction_Recommend().Append(input_idx, content_idx, score_list, researcher_idx, search_results)           
+        search_results = Interaction_Recommend().Append(input_idx, content_idx, score_list, researcher_idx, search_results, curs)           
         search_results = Sort(search_results)  
         search_results = Filter(search_results, r_type)
 
@@ -365,7 +341,7 @@ class Researcher_search():
         return search_results
 
 class Interaction_Recommend():
-    def Append(self, idx, content_idx, score_list, researcher_idx, search_results):
+    def Append(self, idx, content_idx, score_list, researcher_idx, search_results, curs):
         curs.execute('Select target_idx, target_type_code, reg_date from tbl_user_history where company_idx = %s', idx)
         record = curs.fetchall()
         record_list = list()

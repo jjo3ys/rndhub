@@ -18,11 +18,12 @@ def by_company_idx():
     company_idx = parameter_dict['company_idx']
     page_num = parameter_dict['page_num']
     data_count = parameter_dict['data_count']
-
-
+    data_type = parameter_dict['type']
+    data_type = list(map(int, data_type.split(sep=',')))
+    
     engine_recommend =  Recommend()
 
-    data = engine_recommend.recommend_by_commpany(company_idx, int(page_num), int(data_count))
+    data = engine_recommend.recommend_by_commpany(company_idx, int(page_num), int(data_count), data_type)
 
     response = make_response(
         jsonify(
@@ -48,10 +49,12 @@ def result_list():
     input_word = parameter_dict['input_word']
     page_num = parameter_dict['page_num']
     data_count = parameter_dict['data_count']
+    data_type = parameter_dict['type']
+    data_type = list(map(int, data_type.split(sep=',')))
 
     engine = Search_engine()
 
-    data = engine.searching(input_word, int(page_num), int(data_count))
+    data = engine.searching(input_word, int(page_num), int(data_count), data_type)
 
     response = make_response(
         jsonify(
@@ -76,9 +79,12 @@ def by_content_idx():
 
     content_idx = parameter_dict['content_idx']
     data_count = parameter_dict['data_count']
+    #data_type = parameter_dict['type']
+    #data_type = list(map(int, data_type.split(sep=',')))
 
     engine_recommend =  Recommend()
     recommend_results =  engine_recommend.more_like_idx(content_idx ,int(data_count))
+    #recommend_results =  engine_recommend.more_like_idx(content_idx ,int(data_count), data_type)
     
     response = make_response(
         jsonify(
@@ -100,12 +106,15 @@ def recommend_for_researcher():
 
     researcher_idx = parameter_dict['researcher_idx']
     data_count = parameter_dict['data_count']
-
+    #data_type = parameter_dict['type']
+    #data_type = list(map(int, data_type.split(sep=',')))
 
     engine_recommend =  Researcher_search()
 
     researcher_data = engine_recommend.recommend_by_researcher(researcher_idx, int(data_count))
     company_data = engine_recommend.recommend_company_toResearcher(researcher_idx, int(data_count))
+    #researcher_data = engine_recommend.recommend_by_researcher(researcher_idx, int(data_count), data_type)
+    #company_data = engine_recommend.recommend_company_toResearcher(researcher_idx, int(data_count), data_type)
 
     response = make_response(
         jsonify(
