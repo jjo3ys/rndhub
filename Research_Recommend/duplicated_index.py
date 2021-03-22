@@ -70,7 +70,7 @@ class Duplicated_Indexing():
             if i[1] == 1 and i[0] not in image_list:
                 image_list.append(i[0])
 
-        indexdir = '/Research_Recommend/db_to_index_duplicate'
+        indexdir = '/home/jjo3ys/project/Research_Recommend/db_to_index_duplicate'
         duplicate_list = duplicate()
 
         data_idx = list()
