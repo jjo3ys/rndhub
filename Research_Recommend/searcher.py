@@ -14,13 +14,19 @@ from whoosh import scoring
 
 from konlpy.tag import Kkma
 
-"""ix = open_dir('/Research_Recommend/db_to_index_duplicate')
-dix = open_dir('/Research_Recommend/department_index')
-cix = open_dir('/Research_Recommend/company_index')"""
+"""ix = open_dir('/home/rndhub1/Search_engine_Recommend_project/Research_Recommend/db_to_index_duplicate')
+dix = open_dir('/home/rndhub1/Search_engine_Recommend_project/Research_Recommend/department_index')
+cix = open_dir('/home/rndhub1/Search_engine_Recommend_project/Research_Recommend/company_index')"""
 ix = open_dir('/home/jjo3ys/project/Research_Recommend/db_to_index_duplicate')
 dix = open_dir('/home/jjo3ys/project/Research_Recommend/department_index')
 cix = open_dir('/home/jjo3ys/project/Research_Recommend/company_index')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
+
+def connect():
+    conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+    curs = conn.cursor()
+
+    return curs, conn
 
 def kkma_ana(input_word):
     kkma = Kkma()
@@ -91,8 +97,7 @@ def Filter(search_results, r_type):
 
 class Search_engine():
     def searching(self, input_word, page_num, data_count, r_type):
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        curs = conn.cursor()
+        curs, conn = connect()
 
         search_results = {}
         search_results['results'] = []
@@ -133,8 +138,7 @@ class Search_engine():
         
 class Recommend():
     def more_like_idx(self, input_idx, data_count):
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        curs = conn.cursor()
+        curs, conn = connect()
         curs.execute("Select title from tbl_data where idx = %s", input_idx)
         title = curs.fetchall()
         
@@ -144,7 +148,7 @@ class Recommend():
 
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
-            restrict = query.Term('title', str(title[0][0]))
+            restrict = query.Term('idx', input_idx)
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(kkma_ana(str(title[0][0])))
             results = searcher.search(uquery, mask = restrict, limit = None)
 
@@ -159,9 +163,7 @@ class Recommend():
         return search_results
 
     def recommend_by_commpany(self, input_idx, page_num, data_count, r_type):
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        curs = conn.cursor()
-
+        curs, conn = connect()
         curs.execute("Select industry, sector from tbl_company where idx = %s", input_idx)
         rows = curs.fetchall()
 
@@ -184,14 +186,19 @@ class Recommend():
                     a = ' '
                     b = ' '"""
         for row in rows:
-
-            company['industry'] = row[0]
-            company['sector'] = row[1]
+            if row[0] != None:
+                company['industry'] = row[0]
+            else:
+                company['industry'] = ''
+            if row[1] != None:
+                company['sector'] = row[1]
+            else:
+                company['sector'] = ''
             
         if company['industry'] == None and company['sector'] == None:
             search_results = {}
-            search_results['results'] = ['none']
-            search_results['data_total_count'] = ['0']
+            search_results['results'] = []
+            search_results['data_total_count'] = 0
             
             return search_results
 
@@ -204,8 +211,8 @@ class Recommend():
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
             results = searcher.search(uquery, limit = None) 
             if len(results) == 0:
-                search_results['results'] = ['none']
-                search_results['data_total_count'] = ['0']
+                search_results['results'] = []
+                search_results['data_total_count'] = 0
 
                 return search_results
             normal = results[0].score #+ results[0]['weight']    
@@ -234,9 +241,7 @@ class Recommend():
 
 class Researcher_search():
     def recommend_by_researcher(self, idx, data_count):       
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        curs = conn.cursor()
-
+        curs, conn = connect()
         curs.execute("Select research_field, name from tbl_researcher_data where idx = %s", idx)
         field = curs.fetchall()
 
@@ -269,9 +274,7 @@ class Researcher_search():
         return search_results
 
     def recommend_by_history(self, idx, data_count):
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        curs = conn.cursor()
-
+        curs, conn = connect()
         search_results = {}
         search_results['results'] = []
         search_results['data_total_count'] = []
@@ -301,13 +304,10 @@ class Researcher_search():
         return search_results
     
     def recommend_company_toResearcher(self, researcher_idx, data_count):
-
+        curs, conn = connect()
         search_results = {}
         search_results['results'] = []
         search_results['data_total_count'] = []
-
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        curs = conn.cursor()
 
         with dix.searcher() as searcher:
             curs.execute("Select department from tbl_researcher_data where idx = %s", researcher_idx)
