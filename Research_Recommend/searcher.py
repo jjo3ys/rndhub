@@ -354,7 +354,7 @@ class Interaction_Recommend():
             record_list.append([idx, r[1], r[2]])
 
         record_list.sort(key = lambda x: x[2], reverse = True)
-        record_list = record_list[0:min(5,len(record_list))]#최근검색 최대 5개 추출 추후 조정
+        record_list = record_list[:min(10,len(record_list))]#최근검색 최대 5개 추출 추후 조정
         remove_list = list()
         append_list = list()
 
@@ -363,17 +363,54 @@ class Interaction_Recommend():
                 remove_list.append(content_idx.index(r[0]))
             elif r[1] == 0 and r[0] in researcher_idx:
                 append_list.append(researcher_idx.index(r[0]))                 
-        remove_list.sort()
 
-        for i in range(len(remove_list)):
-            del search_results['results'][remove_list[i]-i]
-            del score_list[remove_list[i]-i]
-            del researcher_idx[remove_list[i]-i]
+        for i in remove_list:
+            score_list[i] = score_list[i] - 0.2
 
         for i in append_list:
-            score_list[i] = score_list[i]+0.1 #가중치로 추후 조정
+            score_list[i] = score_list[i] + 0.1 #가중치로 추후 조정
         
         for i in range(len(search_results['results'])):
             search_results['results'][i][3] = score_list[i]
 
+        return search_results
+    
+"""    def remove(self, idx, content_idx, search_results, curs):
+        now = datetime.datetime.now()
+        curs.execute("Select target_idx, target_type_code, reg_date from tbl_user_history where company_idx = %s", idx)
+        history = curs.fetchall()
+        history_list = list()
+
+        for h in history:
+            if h[1] == 1 and (now - h[2]).days <= 1:
+                history_list.append(h[0])
+
+        for h in history_list:
+            if h not in content_idx:
+"""
+class Recent_content():
+    def recent(self, page_num, data_count, data_type):
+        curs, conn = connect()
+        search_results = {}
+        search_results['results'] = []
+        search_results['data_total_count'] = []
+    
+        with ix.searcher() as searcher:
+            for i in range(3):
+                searcher = searcher.refresh()
+                query = QueryParser('image_num', ix.schema).parse(str(i))
+                results = searcher.search(query, limit = None)
+
+                for r in results:
+                    if r['date'] != '1-1-1':
+                        search_results['results'].append([r['idx'], r['image_num'], datetime.datetime.strptime(r['date'], '%Y-%m-%d'), r['type_code']])
+       
+        search_results = Filter(search_results, data_type)
+        search_results['results'].sort(key = lambda x: (x[1], x[2]), reverse = True)
+
+        search_results['data_total_count'] = len(search_results['results'])
+        search_results['results'] = search_results['results'][(page_num-1)*data_count:min(search_results['data_total_count'], page_num*data_count)]          
+        search_results['results'] = result_list(search_results, curs)
+
+        conn.close()
         return search_results

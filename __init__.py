@@ -1,7 +1,7 @@
 from flask import Flask, make_response, json, jsonify, request
 from flask_restful import reqparse, Api, Resource
 
-from Research_Recommend.searcher import Search_engine, Recommend, Researcher_search
+from Research_Recommend.searcher import Search_engine, Recommend, Researcher_search, Recent_content
 from Research_Recommend.duplicated_index import Duplicated_Indexing, Department_indexing, Company_indexing
 
 
@@ -14,13 +14,17 @@ api = Api(app)
 @app.route('/test/recommend/by_company', methods=['GET'])
 def by_company_idx():
     parameter_dict = request.args.to_dict()
-
+    
     company_idx = parameter_dict['company_idx']
     page_num = parameter_dict['page_num']
     data_count = parameter_dict['data_count']
-    data_type = parameter_dict['type']
-    data_type = list(map(int, data_type.split(sep=',')))
-    
+
+    if len(parameter_dict) == 4:        
+        data_type = parameter_dict['type']
+        data_type = list(map(int, data_type.split(sep=',')))
+    else:
+        data_type = [0]
+        
     engine_recommend =  Recommend()
 
     data = engine_recommend.recommend_by_commpany(company_idx, int(page_num), int(data_count), data_type)
@@ -45,16 +49,26 @@ def by_company_idx():
 @app.route('/test/result_list', methods=['GET'])
 def result_list():
     parameter_dict = request.args.to_dict()
-
+    
     input_word = parameter_dict['input_word']
     page_num = parameter_dict['page_num']
     data_count = parameter_dict['data_count']
-    data_type = parameter_dict['type']
-    data_type = list(map(int, data_type.split(sep=',')))
+    
+    if len(parameter_dict) == 4:
+        data_type = parameter_dict['type']
+        data_type = list(map(int, data_type.split(sep=',')))
+    else:
+        data_type = [0]
 
-    engine = Search_engine()
+    if len(input_word) == 0:
+        engine = Recent_content()
 
-    data = engine.searching(input_word, int(page_num), int(data_count), data_type)
+        data = engine.recent(int(page_num), int(data_count), data_type)
+        
+    else:    
+        engine = Search_engine()
+
+        data = engine.searching(input_word, int(page_num), int(data_count), data_type)
 
     response = make_response(
         jsonify(
