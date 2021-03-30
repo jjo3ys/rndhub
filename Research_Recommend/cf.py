@@ -25,32 +25,44 @@ dix = open_dir('/home/jjo3ys/project/Research_Recommend/department_index')
 cix = open_dir('/home/jjo3ys/project/Research_Recommend/company_index')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
 
-curs.execute('Select industry, sector, idx from tbl_company')
-user_data = curs.fetchall()
+
+user_data = [1, 23, 863, 872, 1611]
 
 result_list = list()
 
-for i in user_data:
-    if i[0] == None:
-        industry = ''
-    else:
-        industry = i[0]
+for idx in user_data:
+    curs.execute('Select industry, sector from tbl_company where idx = %s', idx)
+    data = curs.fetchall()
+    for i in data:
+        if i[0] == None:
+            industry = ''
+        else:
+            industry = i[0]
 
-    if i[1] == None:
-        sector = ''
-    else: 
-        sector = i[1]
-    idx = i[2]
+        if i[1] == None:
+            sector = ''
+        else: 
+            sector = i[1]
 
+    curs.execute('Select target_idx, target_type_code from tbl_bookmark where company_idx = %s', idx)
+    bookmark = curs.fetchall()
+    curs.execute('Select target_idx, target_type_code from tbl_user_history where company_idx = %s', idx)
+    more = curs.fetchall()
+    curs.execute('Select target_idx, target_type_code from tbl_request_data where company_idx = %s', idx)
+    request = curs.fetchall()
+    curs.execute('Select searched_keyword from tbl_search_history where user_idx = %s', idx)
+    history = curs.fetchall()
     info = kkma_ana(industry + sector)
+    print(info)
     if info == '':
         continue
 
-    department = list()
-    r_list = list()
-    idx_list = list()
+
+
 
     with dix.searcher() as searcher:
+        department = list()
+        r_list = list()
         searcher = searcher.refresh()
         query = QueryParser('sector', dix.schema, group = qparser.OrGroup).parse(info)
         results = searcher.search(query, limit = None)
@@ -61,6 +73,10 @@ for i in user_data:
                 department.append(kkma_ana(r['department']))
 
     with ix.searcher() as searcher:
+        idx_list = list()
+        researcher_list = list()
+        score_list = list()
+
         searcher = searcher.refresh()
         uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(info)
         results = searcher.search(uquery, limit = None) 
@@ -70,13 +86,62 @@ for i in user_data:
 
         for r in results:               
             if r['department'] in department:
-                score = r.score/normal*3.5
-                if score >= 1.0:
-                    idx_list.append(r['idx'])
-                    result_list.append([idx, r['idx'], score])
-            if len(idx_list) >=11:
-                break
-    print(idx)
+                score = r.score/normal*2
+                idx_list.append(r['idx'])
+                researcher_list.append(int(r['researcher_idx']))
+                score_list.append(score)
+
+                if score <=1:
+                    break
+
+    
+    for b in bookmark:
+        if b[1] == 1:
+            if b[0] in idx_list:
+                i = idx_list.index(b[0])
+                score_list[i] += 1
+            else:
+                idx_list.append(b[0])
+                score_list.append(4)
+
+        elif b[1] == 0:
+            for r in researcher_list:
+                if r == b[0]:
+                    i = researcher_list.index(r)
+                    score_list[i] += 1
+
+    for b in more:
+        if b[1] == 1:
+            if b[0] in idx_list:
+                i = idx_list.index(b[0])
+                score_list[i] += 1
+            else:
+                idx_list.append(b[0])
+                score_list.append(4)
+
+        elif b[1] == 0:
+            for r in researcher_list:
+                if r == b[0]:
+                    i = researcher_list.index(r)
+                    score_list[i] += 1
+    
+    for b in request:
+        if b[1] == 1:
+            if b[0] in idx_list:
+                i = idx_list.index(b[0])
+                score_list[i] += 1
+            else:
+                idx_list.append(b[0])
+                score_list.append(4)
+
+        elif b[1] == 0:
+            for r in researcher_list:
+                if r == b[0]:
+                    i = researcher_list.index(r)
+                    score_list[i] += 1
+    
+    for i in range(len(idx_list)):
+        result_list.append([idx, idx_list[i], min(5, score_list[i])])
 
 with open('/home/jjo3ys/project/Research_Recommend/score.csv','w', newline='', encoding='cp949') as f:
     wr = csv.writer(f)
