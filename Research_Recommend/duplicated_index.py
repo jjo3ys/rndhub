@@ -18,9 +18,11 @@ def similarity(a, b):
 
 def kkma_ana(input_word):
     kkma = Kkma()
+    stem = StemmingAnalyzer()
     hangul = re.compile('[^ ㄱ-ㅣ가-힣]+')
+    english = ' '.join(hangul.findall(input_word))
 
-    return ' '.join(kkma.nouns(input_word)) + ' '.join(hangul.findall(input_word))
+    return ' '.join(kkma.nouns(input_word))+' '.join([token.text for token in stem(english)])
 
 def duplicate():
     conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
@@ -87,13 +89,13 @@ class Duplicated_Indexing():
             os.makedirs(indexdir)
 
         schema = Schema(idx = ID(stored = True),
-                        title = KEYWORD(analyzer = StemmingAnalyzer(), field_boost=2.0),
-                        content = KEYWORD(analyzer = StemmingAnalyzer(),field_boost=1.5),
-                        researcher_name = TEXT(analyzer = StemmingAnalyzer()),
+                        title = KEYWORD(field_boost=7.5),
+                        content = KEYWORD(field_boost=1.5),
+                        researcher_name = TEXT(),
                         researcher_idx = ID(stored = True),
                         department = KEYWORD(stored = True, field_boost= 1.1),
-                        research_field = KEYWORD(analyzer = StemmingAnalyzer(), field_boost= 1.2),                      
-                        english_name = KEYWORD(analyzer = StemmingAnalyzer(), field_boost = 2.0),
+                        research_field = KEYWORD(field_boost= 1.2),                      
+                        english_name = KEYWORD(field_boost = 7.5),
                         date = TEXT(stored = True),
                         image_num = NUMERIC(stored = True),
                         start_date = DATETIME(stored = True),
@@ -201,7 +203,6 @@ class Department_indexing():
                             sector = kkma_ana(line[1]))
         wr.commit()
 
-# 일단 인덱싱해놓은걸로 4번 해놨는데 안해도 할수있으면 나중에 지우기
 class Company_indexing():
     def indexing(self):
         conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")

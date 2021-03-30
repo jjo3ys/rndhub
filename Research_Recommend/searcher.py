@@ -37,11 +37,8 @@ def kkma_ana(input_word):
     return ' '.join(kkma.nouns(input_word))+' '.join([token.text for token in stem(english)])
 
 def result_list(search_results, curs):
-    for i in range(len(search_results['results'])):
-        if type(search_results['results'][i]) == list:
-            idx = search_results['results'][i][0]
-        else:
-            idx = search_results['results'][i]
+    for i in range(len(search_results['results'])):        
+        idx = search_results['results'][i][0]
 
         curs.execute("Select title, content, researcher_idx from tbl_data where idx = %s", str(idx))
         content_data = curs.fetchall()
@@ -56,6 +53,7 @@ def result_list(search_results, curs):
         name = researcher_data[0][0]
         department = researcher_data[0][1]
         research_field = researcher_data[0][2]
+        
         search_results['results'][i] = {'title':title,
                                         'content':content,
                                         'name':name,
@@ -153,7 +151,8 @@ class Recommend():
             results = searcher.search(uquery, mask = restrict, limit = None)
 
             for r in results:
-                search_results['results'].append(r['idx'])   
+                if r['idx'] not in search_results['results']:
+                    search_results['results'].append([r['idx'], r['type_code']])   
 
             search_results['data_total_count'] = len(search_results['results'])                 
             search_results['results'] = search_results['results'][0:min(search_results['data_total_count'], data_count)]
@@ -171,20 +170,11 @@ class Recommend():
         search_results = {}
         search_results['results'] = []
         search_results['data_total_count'] = []
+
         content_idx = list()
         score_list = list()
         researcher_idx = list()
 
-
-        """with open('append_data.csv', 'r', encoding = "cp949") as f:
-            rdr = csv.reader(f)
-            for line in rdr:
-                if line[0] == str(input_idx):
-                    a = line[1]
-                    b = line[2]
-                else:
-                    a = ' '
-                    b = ' '"""
         for row in rows:
             if row[0] != None:
                 company['industry'] = row[0]
@@ -195,14 +185,13 @@ class Recommend():
             else:
                 company['sector'] = ''
             
-        if company['industry'] == None and company['sector'] == None:
+        if company['industry'] == '' and company['sector'] == '':
             search_results = {}
             search_results['results'] = []
             search_results['data_total_count'] = 0
             
             return search_results
 
-        #industry = kkma_ana(str(company['industry']) + str(company['sector']) + a + b)
         industry = kkma_ana(str(company['industry']) + str(company['sector']))
         department = Search_engine().department_matcher(industry)
 
@@ -217,15 +206,19 @@ class Recommend():
                 return search_results
             normal = results[0].score #+ results[0]['weight']    
 
-            for r in results:               
-                for i in department:
-                    if i == r['department'] and r['idx'] not in content_idx:  
-                        score = r.score/normal
-                        #score = (r['weight']+r.score)/normal                     
-                        score_list.append(score)
-                        researcher_idx.append(r['researcher_idx'])
-                        content_idx.append(r['idx'])
-                        search_results['results'].append([r['idx'], int(r['image_num']), r['date'], score, r['type_code']])
+            for r in results:  
+                if r['department'] in department and r['idx'] not in content_idx:                 
+                    if r['image_num'] != 0:  
+                        image_num = 1
+                    else:
+                        image_num = 0
+
+                    score = r.score/normal
+                    #score = (r['weight']+r.score)/normal                     
+                    score_list.append(score)
+                    researcher_idx.append(r['researcher_idx'])
+                    content_idx.append(r['idx'])
+                    search_results['results'].append([r['idx'], image_num, r['date'], score, r['type_code']])
             
         search_results = Interaction_Recommend().Append(input_idx, content_idx, score_list, researcher_idx, search_results, curs)           
         search_results = Sort(search_results)  
@@ -350,11 +343,10 @@ class Interaction_Recommend():
             return search_results
 
         for r in record:
-            idx = str(r[0])
-            record_list.append([idx, r[1], r[2]])
+            record_list.append([str(r[0]), r[1], r[2]])
 
         record_list.sort(key = lambda x: x[2], reverse = True)
-        record_list = record_list[:min(10,len(record_list))]#최근검색 최대 5개 추출 추후 조정
+        record_list = record_list[:min(10,len(record_list))]#최근검색 최대 10개 추출 추후 조정
         remove_list = list()
         append_list = list()
 
@@ -374,20 +366,7 @@ class Interaction_Recommend():
             search_results['results'][i][3] = score_list[i]
 
         return search_results
-    
-"""    def remove(self, idx, content_idx, search_results, curs):
-        now = datetime.datetime.now()
-        curs.execute("Select target_idx, target_type_code, reg_date from tbl_user_history where company_idx = %s", idx)
-        history = curs.fetchall()
-        history_list = list()
 
-        for h in history:
-            if h[1] == 1 and (now - h[2]).days <= 1:
-                history_list.append(h[0])
-
-        for h in history_list:
-            if h not in content_idx:
-"""
 class Recent_content():
     def recent(self, page_num, data_count, data_type):
         curs, conn = connect()
