@@ -8,4 +8,6 @@ Research_Recommend/company_index/
 Research_Recommend/db_to_index_duplicate/
 Research_Recommend/department_index/
 env/
+*.out
+*.txt
 *.csv
