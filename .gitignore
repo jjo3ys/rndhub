@@ -5,3 +5,4 @@ __pycache__/
 !/Research_Recommend/*.py
 /Research_Recommend/connect.py
 /env/
+*.csv
