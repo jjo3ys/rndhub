@@ -4,6 +4,7 @@
 
 __pycache__
 /__pycache__
+env
 .vscode
 nohup.out
 score_semi_final.csv
