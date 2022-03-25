@@ -4,5 +4,8 @@ __pycache__/
 /Research_Recommend/*
 !/Research_Recommend/*.py
 /Research_Recommend/connect.py
+/Research_Recommend/company_index/
+/Research_Recommend/db_to_index_duplicate/
+/Research_Recommend/department_index/
 /env/
 *.csv
