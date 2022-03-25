@@ -1,3 +1,7 @@
-*
-!*.py
-Research_Recommend/connect.py
+.vscode/
+.__pycache__
+__pycache__/
+/Research_Recommend/*
+!/Research_Recommend/*.py
+/Research_Recommend/connect.py
+/env/
