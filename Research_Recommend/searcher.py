@@ -1,18 +1,14 @@
-import os
 import re
-import pymysql
-import random
-#import csv
 import datetime
+import time
 
-from datetime import date
 from whoosh import qparser, query
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser, MultifieldParser
 from whoosh.analysis import StemmingAnalyzer
-from whoosh import scoring
 
 from konlpy.tag import Kkma
+from .connect import connector
 
 """ix = open_dir('/home/rndhub1/Search_engine_Recommend_project/Research_Recommend/db_to_index_duplicate')
 dix = open_dir('/home/rndhub1/Search_engine_Recommend_project/Research_Recommend/department_index')
@@ -21,12 +17,6 @@ ix = open_dir('/home/jjo3ys/project/Research_Recommend/db_to_index_duplicate')
 dix = open_dir('/home/jjo3ys/project/Research_Recommend/department_index')
 cix = open_dir('/home/jjo3ys/project/Research_Recommend/company_index')
 sche_info = ['title', 'content', 'department', 'researcher_name', 'research_field', 'english_name']
-
-def connect():
-    conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-    curs = conn.cursor()
-
-    return curs, conn
 
 def kkma_ana(input_word):
     kkma = Kkma()
@@ -54,6 +44,7 @@ def result_list(search_results, curs):
         department = researcher_data[0][1]
         research_field = researcher_data[0][2]
         
+        #search_results['results'][i] = {'title':title}
         search_results['results'][i] = {'title':title,
                                         'content':content,
                                         'name':name,
@@ -92,10 +83,23 @@ def Filter(search_results, r_type):
   
     return filtered_results
 
+def Split(company):
+    df_list = ['서비스', '서비스업', '개발', '제조업', '기타', '제조']
+    sector = company['sector'].replace(',', ' ').replace('/', ' ')
+    industry = company['industry'].replace(',', ' ').replace('/', ' ')
+
+    for t in df_list:
+        sector = sector.replace(t, '')
+        industry = industry.replace(t, '')
+    company['sector'] = sector
+    company['industry'] = industry
+
+    return company
 
 class Search_engine():
     def searching(self, input_word, page_num, data_count, r_type):
-        curs, conn = connect()
+        conn = connector()
+        curs = conn.cursor()
 
         search_results = {}
         search_results['results'] = []
@@ -136,7 +140,9 @@ class Search_engine():
         
 class Recommend():
     def more_like_idx(self, input_idx, data_count):
-        curs, conn = connect()
+        conn = connector()
+        curs = conn.cursor()
+
         curs.execute("Select title from tbl_data where idx = %s", input_idx)
         title = curs.fetchall()
         
@@ -162,7 +168,10 @@ class Recommend():
         return search_results
 
     def recommend_by_commpany(self, input_idx, page_num, data_count, r_type):
-        curs, conn = connect()
+        start = time.time()
+        sche_info = ['title', 'content', 'researcher_field']
+        conn = connector()
+        curs = conn.cursor()
         curs.execute("Select industry, sector from tbl_company where idx = %s", input_idx)
         rows = curs.fetchall()
 
@@ -184,17 +193,17 @@ class Recommend():
                 company['sector'] = row[1]
             else:
                 company['sector'] = ''
+
+        company = Split(company)
             
         if company['industry'] == '' and company['sector'] == '':
-            search_results = {}
-            search_results['results'] = []
-            search_results['data_total_count'] = 0
+            search_results = Recent_content().recent(page_num, data_count, r_type)
             
             return search_results
 
         industry = kkma_ana(str(company['industry']) + str(company['sector']))
         department = Search_engine().department_matcher(industry)
-
+        print('department_matcher :', time.time()-start)
         with ix.searcher() as searcher:
             searcher = searcher.refresh()
             uquery = MultifieldParser(sche_info, ix.schema, group = qparser.OrGroup).parse(industry)
@@ -207,34 +216,30 @@ class Recommend():
             normal = results[0].score #+ results[0]['weight']    
 
             for r in results:  
-                if r['department'] in department and r['idx'] not in content_idx:                 
-                    if r['image_num'] != 0:  
-                        image_num = 1
-                    else:
-                        image_num = 0
-
+                if r['department'] in department:                 
                     score = r.score/normal
-                    #score = (r['weight']+r.score)/normal                     
                     score_list.append(score)
                     researcher_idx.append(r['researcher_idx'])
                     content_idx.append(r['idx'])
-                    search_results['results'].append([r['idx'], image_num, r['date'], score, r['type_code']])
-            
+                    search_results['results'].append([r['idx'], r['image_num'], r['date'], score, r['type_code']])
+        print('search_duration :', time.time()-start)
+        search_results = Filter(search_results, r_type)
         search_results = Interaction_Recommend().Append(input_idx, content_idx, score_list, researcher_idx, search_results, curs)           
         search_results = Sort(search_results)  
-        search_results = Filter(search_results, r_type)
-
+        print('fuction_duration :', time.time()-start)    
         search_results['results'].sort(key = lambda x: (-x[1], -x[2]))  
         search_results['data_total_count'] = len(search_results['results'])             
         search_results['results'] = search_results['results'][(page_num-1)*data_count:min(search_results['data_total_count'], page_num*data_count)]          
         search_results['results'] = result_list(search_results, curs)
-        
+        print('total_duration :', time.time()-start)
         conn.close()   
         return search_results
 
 class Researcher_search():
     def recommend_by_researcher(self, idx, data_count):       
-        curs, conn = connect()
+        conn = connector()
+        curs = conn.cursor()
+
         curs.execute("Select research_field, name from tbl_researcher_data where idx = %s", idx)
         field = curs.fetchall()
 
@@ -267,7 +272,9 @@ class Researcher_search():
         return search_results
 
     def recommend_by_history(self, idx, data_count):
-        curs, conn = connect()
+        conn = connector()
+        curs = conn.cursor()
+
         search_results = {}
         search_results['results'] = []
         search_results['data_total_count'] = []
@@ -297,7 +304,9 @@ class Researcher_search():
         return search_results
     
     def recommend_company_toResearcher(self, researcher_idx, data_count):
-        curs, conn = connect()
+        conn = connector()
+        curs = conn.cursor()
+
         search_results = {}
         search_results['results'] = []
         search_results['data_total_count'] = []
@@ -369,7 +378,9 @@ class Interaction_Recommend():
 
 class Recent_content():
     def recent(self, page_num, data_count, data_type):
-        curs, conn = connect()
+        conn = connector()
+        curs = conn.cursor()
+        
         search_results = {}
         search_results['results'] = []
         search_results['data_total_count'] = []
@@ -382,7 +393,11 @@ class Recent_content():
 
                 for r in results:
                     if r['date'] != '1-1-1':
-                        search_results['results'].append([r['idx'], r['image_num'], datetime.datetime.strptime(r['date'], '%Y-%m-%d'), r['type_code']])
+                        if r['image_num'] >= 1:
+                            image_num = 1
+                        else:
+                            image_num = 0
+                        search_results['results'].append([r['idx'], image_num, datetime.datetime.strptime(r['date'], '%Y-%m-%d'), r['type_code']])
        
         search_results = Filter(search_results, data_type)
         search_results['results'].sort(key = lambda x: (x[1], x[2]), reverse = True)

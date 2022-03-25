@@ -1,9 +1,7 @@
-import pymysql
 import csv
 import os
 import re
 import random
-import datetime
 
 from difflib import SequenceMatcher
 from whoosh.index import create_in
@@ -11,6 +9,8 @@ from whoosh.analysis import StemmingAnalyzer
 from whoosh.fields import*
 
 from konlpy.tag import Kkma
+
+from .connect import connector
     
 def similarity(a, b):
 
@@ -25,7 +25,7 @@ def kkma_ana(input_word):
     return ' '.join(kkma.nouns(input_word))+' '.join([token.text for token in stem(english)])
 
 def duplicate():
-    conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+    conn = connector()
     curs = conn.cursor()
 
     num_list = list()
@@ -61,7 +61,7 @@ def duplicate():
 class Duplicated_Indexing():    
 
     def indexing(self):
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
+        conn = connector()
         curs = conn.cursor()
 
         curs.execute('Select target_idx, target_type_code from tbl_data_image')
@@ -89,13 +89,13 @@ class Duplicated_Indexing():
             os.makedirs(indexdir)
 
         schema = Schema(idx = ID(stored = True),
-                        title = KEYWORD(field_boost=7.5),
+                        title = KEYWORD(field_boost=4.0),
                         content = KEYWORD(field_boost=1.5),
                         researcher_name = TEXT(),
                         researcher_idx = ID(stored = True),
                         department = KEYWORD(stored = True, field_boost= 1.1),
                         research_field = KEYWORD(field_boost= 1.2),                      
-                        english_name = KEYWORD(field_boost = 7.5),
+                        english_name = KEYWORD(field_boost = 4.0),
                         date = TEXT(stored = True),
                         image_num = NUMERIC(stored = True),
                         start_date = DATETIME(stored = True),
@@ -129,12 +129,13 @@ class Duplicated_Indexing():
                 date = date.strftime('%Y-%m-%d')
 
             if idx in image_list:
-                curs.execute('Select idx from tbl_data_image where target_idx = %s', idx)
+                """curs.execute('Select idx from tbl_data_image where target_idx = %s', idx)
                 image = curs.fetchall()
                 if len(image) >= 2:
                     image_num = 2
                 else:
-                    image_num = 1
+                    image_num = 1"""
+                image_num = 1
             else:
                 image_num = 0
 
@@ -205,8 +206,8 @@ class Department_indexing():
 
 class Company_indexing():
     def indexing(self):
-        conn = pymysql.connect(host = "moberan.com", user = "rndhubv2", password = "rndhubv21@3$",  db = "inu_rndhub", charset = "utf8")
-        curs = conn.cursor()   
+        conn = connector()
+        curs = conn.cursor()
 
         company_indexdir = '/Research_Recommend/company_index'
 
@@ -235,6 +236,6 @@ class Company_indexing():
         conn.close()
 
 
-#Duplicated_Indexing().indexing()
+Duplicated_Indexing().indexing()
 #Department_indexing().indexing()
 #Company_indexing().indexing()

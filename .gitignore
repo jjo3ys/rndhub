@@ -1,0 +1,9 @@
+*.toc
+*.seg
+*.csv
+
+__pycache__
+/__pycache__
+.vscode
+nohup.out
+score_semi_final.csv
