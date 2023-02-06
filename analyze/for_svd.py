@@ -8,7 +8,7 @@ from whoosh.qparser import MultifieldParser
 from whoosh.analysis import StemmingAnalyzer
 from konlpy.tag import Kkma
 
-from .connect import connector
+from settings import connector
 
 conn = connector()
 curs = conn.cursor()
@@ -75,12 +75,10 @@ sche_info = ['title', 'content','research_field']
 curs.execute('Select industry, sector, idx from tbl_company')
 user_data = curs.fetchall()
 
-data_bookmark = []
 data_bookmark = bookmark()
-data_search = []
 data_search = search_data()
-data_more = []
 data_more = more_data()
+
 result_list_1 = []
 
 score = 4.0

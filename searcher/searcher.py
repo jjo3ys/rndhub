@@ -8,7 +8,7 @@ from whoosh.qparser import QueryParser, MultifieldParser
 from whoosh.analysis import StemmingAnalyzer
 
 from konlpy.tag import Kkma
-from .connect import connector
+from settings import connector
 
 """ix = open_dir('/home/rndhub1/Search_engine_Recommend_project/Research_Recommend/db_to_index_duplicate')
 dix = open_dir('/home/rndhub1/Search_engine_Recommend_project/Research_Recommend/department_index')
