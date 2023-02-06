@@ -10,7 +10,7 @@ from whoosh.fields import*
 
 from konlpy.tag import Kkma
 
-from .connect import connector
+from settings import connector
     
 def similarity(a, b):
 
