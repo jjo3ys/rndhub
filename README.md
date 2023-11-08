@@ -2,7 +2,7 @@
 <h1> 📜 RND hub 📜 </h1>
 <h3> INU 산학 매칭 서비스 </h3>
 
-![Alt text](image-1.png)
+![Alt text](/img/image-1.png)
 
 <h3> 🖱️ RND hub는 인천대학교 교수님들이 출판 하신 논문들을 모아<br>
 인천대학교와 협약한 기업들에게 검색 기능, 추천 시스템을 제공는 서비스입니다.</h3>
