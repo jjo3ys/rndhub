@@ -73,7 +73,7 @@ content based recommend를 구현했습니다.<br>
 ## ✨ 아쉬운 점
 
 > 사용자의 평점 대신 검색 기록을 기반으로 collaborative filtering을 구현하기 위해 <br>
-> 행렬분해·결합(svd) 알고리즘과 K-NN알고리즘, matrix facotrization 알고리즘을 스터디하고 구현해봤지만,<br>
+> 행렬분해·결합(svd) 알고리즘과 K-NN알고리즘, matrix factorization 알고리즘을 스터디하고 구현해봤지만,<br>
 > 데이터가 많이 쌓이지 않아서 실제 적용까지 이어지진 못했습니다.
 
 ## ✨ 후기
