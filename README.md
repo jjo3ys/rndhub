@@ -16,14 +16,14 @@
 
 ## 🛠️ Stacks
 
-<img src="https://img.shields.io/badge/-python-05122A?style=flat&logo=python"/>
-<img src="https://img.shields.io/badge/-flask-05122A?style=flat&logo=flask"/>
+![](https://img.shields.io/badge/-python-05122A?style=flat&logo=python)
+![](https://img.shields.io/badge/-flask-05122A?style=flat&logo=flask)
 <br>
-<img src="https://img.shields.io/badge/-mysql-05122A?style=flat&logo=mysql"/>
-<img src="https://img.shields.io/badge/-whoosh-05122A?style=flat&logo=whoosh"/>
-<img src="https://img.shields.io/badge/-kkma-05122A?style=flat&logo=kkma"/>
+![](https://img.shields.io/badge/-mysql-05122A?style=flat&logo=mysql)
+![](https://img.shields.io/badge/-whoosh-05122A?style=flat&logo=whoosh)
+![](https://img.shields.io/badge/-kkma-05122A?style=flat&logo=kkma)
 <br>
-<img src="https://img.shields.io/badge/-scikitlearn-05122A?style=flat&logo=scikitlearn"/>
+![](https://img.shields.io/badge/-scikitlearn-05122A?style=flat&logo=scikitlearn)
 
 <br>
 
